@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="460" src="images/crow.png">
+  <img width="200" src="images/crow.png">
 </p>
 
 Corvus is the first truly declarative server-side framework for Swift. It provides a declarative, composable syntax which makes it easy to get APIs up and running. It is based heavily on the existing work from [Vapor](https://github.com/vapor/vapor).
