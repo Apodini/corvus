@@ -1,3 +1,5 @@
+![Corvus' Logo](images/crow.png)
+
 Corvus is the first truly declarative server-side framework for Swift. It provides a declarative, composable syntax which makes it easy to get APIs up and running. It is based heavily on the existing work from [Vapor](https://github.com/vapor/vapor).
 
 # How to set up
@@ -114,3 +116,6 @@ components that provide concrete functionality, like `Create` or `ReadAll`. Chec
 
 Just create an issue with your proposal, and if that is accepted, a pull request with your change
 should suffice.
+
+# Sources
+The logo: Made by [Freepik](https://www.flaticon.com/authors/freepik)
