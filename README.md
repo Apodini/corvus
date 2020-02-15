@@ -123,3 +123,5 @@ should suffice.
 
 # Sources
 The logo: Made by [Freepik](https://www.flaticon.com/authors/freepik)
+[Vapor](https://github.com/vapor/vapor)
+[Fluent](https://github.com/vapor/fluent)
