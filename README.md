@@ -6,6 +6,50 @@
 
 Corvus is the first truly declarative server-side framework for Swift. It provides a declarative, composable syntax which makes it easy to get APIs up and running. It is based heavily on the existing work from [Vapor](https://github.com/vapor/vapor).
 
+# Example
+
+Below is an example of a full-featured API that manages Bank Accounts and Transactions belonging to certain users. It also showcases the ease of using authentication and setting authorization rules for specific routes.
+
+```Swift
+import Corvus
+
+final class Api: RestApi {
+
+    let accountParameter = Parameter<Account>()
+
+    var content: Endpoint {
+        Group {
+            BearerAuthGroup("api") {
+                Group("accounts") {
+                    Create<Account>()
+                    ReadAll<Account>().auth(\.$user)
+                    
+                    Group(accountParameter.id) {
+                        ReadOne<Account>(accountParameter.id)
+                            .auth(\.$user)
+                        Update<Account>(accountParameter.id)
+                            .auth(\.$user)
+                        Delete<Account>(accountParameter.id)
+                            .auth(\.$user)
+
+                        Group("transactions") {
+                            ReadOne<Account>(accountParameter.id)
+                                .with(\.$transactions).auth(\.$user)
+                        }
+                    }
+                }
+
+                CRUD<Transaction>("transactions")
+            }
+
+            Login("login")
+
+            CRUD<CorvusUser>("users")
+        }
+    }
+}
+```
+
 # How to set up
 
 After your Swift Project, in the `Package.Swift` file, you will need to add the dependencies 
