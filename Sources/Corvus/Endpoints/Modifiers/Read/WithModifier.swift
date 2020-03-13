@@ -5,10 +5,10 @@ import Fluent
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `ReadEndpoint`.
 public final class WithModifier<Q: ReadEndpoint, P: EagerLoadable>: ReadEndpoint
-where P.EagerLoadValue: Content {
+where P: Content, Q.QuerySubject == P.From {
 
     /// The type of the value loaded with the `.with()` modifier.
-    public typealias Element = P.EagerLoadValue
+    public typealias Element = P
 
     /// The return value of the `.handler()`, so the type being operated on in
     /// the current component.
@@ -53,12 +53,8 @@ where P.EagerLoadValue: Content {
     /// - Returns: An `EventLoopFuture` containing an eagerloaded value as
     /// defined by `Element`.
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
-        try query(req).first().flatMapThrowing { optionalItem in
-            guard let item = optionalItem,
-            let eagerLoadedItem = item[keyPath: self.with].eagerLoaded else {
-                throw Abort(.notFound)
-            }
-            return eagerLoadedItem
+        try query(req).first().unwrap(or: Abort(.notFound)).map { item in
+            item[keyPath: self.with]
         }
     }
 

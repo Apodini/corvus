@@ -6,18 +6,3 @@ import Fluent
 /// communication.
 public protocol CorvusModel: Model, Content
 where IDValue: LosslessStringConvertible {}
-
-
-/// An extension that provides access to the id of an object read from the
-/// database **during runtime**.
-extension CorvusModel {
-    
-    var _$id: ID<Int> {
-        guard let mirror = Mirror(reflecting: self).descendant("_id"),
-            let id = mirror as? ID<Int> else {
-                fatalError("id property must be declared using @ID")
-        }
-
-        return id
-    }
-}

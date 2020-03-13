@@ -8,7 +8,7 @@ public final class AuthModifier<
     Q: QueryEndpoint,
     E: EagerLoadable
 >: QueryEndpoint
-where E.EagerLoadValue: CorvusUser {
+where E: CorvusUser, Q.QuerySubject == E.From {
 
     /// The return type for the `.handler()` modifier.
     public typealias Element = Q.Element
@@ -66,18 +66,14 @@ where E.EagerLoadValue: CorvusUser {
             .with(userKeyPath)
             .all()
             .mapEach {
-                $0[keyPath: self.userKeyPath].eagerLoaded
+                $0[keyPath: self.userKeyPath]
             }
 
         let authorized: EventLoopFuture<[Bool]> = users
-            .mapEachThrowing { optionalUser throws -> Bool in
+            .mapEachThrowing { user throws -> Bool in
 
                 guard let authorized = req.auth.get(CorvusUser.self) else {
                     throw Abort(.unauthorized)
-                }
-
-                guard let user = optionalUser else {
-                    throw Abort(.notFound)
                 }
 
                 return authorized.validate(user)

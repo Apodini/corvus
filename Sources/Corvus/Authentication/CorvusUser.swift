@@ -8,8 +8,8 @@ public final class CorvusUser: CorvusModel {
     public static let schema = "users"
 
     /// The unique identifier of the model in the database.
-    @ID(key: "id")
-    public var id: Int?
+    @ID
+    public var id: UUID?
 
     /// The name of the user.
     @Field(key: "name")
@@ -34,7 +34,7 @@ public final class CorvusUser: CorvusModel {
     ///     - name: The name of the user.
     ///     - email: The email (or username) of the user.
     ///     - password: The password of the user.
-    public init(id: Int? = nil, name: String, email: String, password: String) {
+    public init(id: UUID? = nil, name: String, email: String, password: String) {
         self.id = id
         self.name = name
         self.email = email
@@ -46,15 +46,15 @@ public final class CorvusUser: CorvusModel {
 extension CorvusUser {
 
     /// Provides conformance for Fluent database migration.
-    public struct Migration: Fluent.Migration {
+    public struct CreateCorvusUserMigration: Fluent.Migration {
 
         /// Provides public access to the Migration's initializer.
         public init() {}
 
         /// Prepares database fields and their value types.
         public func prepare(on database: Database) -> EventLoopFuture<Void> {
-            database.schema("users")
-                .field("id", .int, .identifier(auto: true))
+            database.schema(CorvusUser.schema)
+                .id()
                 .field("name", .string, .required)
                 .field("email", .string, .required)
                 .field("password", .string, .required)
@@ -63,7 +63,7 @@ extension CorvusUser {
 
         /// Implements functionality to delete schema when database is reverted.
         public func revert(on database: Database) -> EventLoopFuture<Void> {
-            database.schema("users").delete()
+            database.schema(CorvusUser.schema).delete()
         }
     }
 }

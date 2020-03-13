@@ -5,8 +5,8 @@ final class Account: CorvusModel {
 
     static let schema = "accounts"
 
-    @ID(key: "id")
-    var id: Int? {
+    @ID
+    var id: UUID? {
         didSet {
             $id.exists = true
         }
@@ -18,7 +18,7 @@ final class Account: CorvusModel {
     @Children(for: \.$account)
     var transactions: [Transaction]
 
-    init(id: Int? = nil, name: String) {
+    init(id: UUID? = nil, name: String) {
         self.id = id
         self.name = name
     }
@@ -27,16 +27,28 @@ final class Account: CorvusModel {
 }
 
 extension Account {
-    struct Migration: Fluent.Migration {
+    struct CreateAccountMigration: Fluent.Migration {
             func prepare(on database: Database) -> EventLoopFuture<Void> {
-            return database.schema("accounts")
-                .field("id", .int, .identifier(auto: true))
+                return database.schema(Account.schema)
+                .id()
                 .field("name", .string, .required)
                 .create()
         }
 
         func revert(on database: Database) -> EventLoopFuture<Void> {
-            return database.schema("accounts").delete()
+            return database.schema(Account.schema).delete()
         }
+    }
+}
+
+extension Account: Equatable {
+    static func == (lhs: Account, rhs: Account) -> Bool {
+        var result = lhs.name == rhs.name
+        
+        if let lhsId = lhs.id, let rhsId = rhs.id {
+            result = result && lhsId == rhsId
+        }
+        
+        return result
     }
 }

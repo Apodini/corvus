@@ -5,8 +5,8 @@ final class Transaction: CorvusModel {
 
     static let schema = "transactions"
 
-    @ID(key: "id")
-    var id: Int?
+    @ID
+    var id: UUID?
 
     @Field(key: "amount")
     var amount: Double
@@ -24,7 +24,7 @@ final class Transaction: CorvusModel {
     var account: Account
 
     init(
-        id: Int? = nil,
+        id: UUID? = nil,
         amount: Double,
         currency: String,
         description: String? = nil,
@@ -43,20 +43,20 @@ final class Transaction: CorvusModel {
 }
 
 extension Transaction {
-    struct Migration: Fluent.Migration {
+    struct CreateTransactionMigration: Fluent.Migration {
         func prepare(on database: Database) -> EventLoopFuture<Void> {
-            return database.schema("transactions")
-                .field("id", .int, .identifier(auto: true))
+            return database.schema(Transaction.schema)
+                .id()
                 .field("amount", .double, .required)
                 .field("currency", .string, .required)
                 .field("description", .string)
                 .field("date", .datetime, .required)
-                .field("accountId", .int, .required)
+                .field("accountId", .uuid, .references(Account.schema, .id))
                 .create()
         }
 
         func revert(on database: Database) -> EventLoopFuture<Void> {
-            return database.schema("transactions").delete()
+            return database.schema(Transaction.schema).delete()
         }
     }
 }

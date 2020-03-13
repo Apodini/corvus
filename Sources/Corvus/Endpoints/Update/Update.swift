@@ -29,7 +29,9 @@ public final class Update<T: CorvusModel>: AuthEndpoint {
     /// having found the object with the supplied ID.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
-        let itemId = req.parameters.get(parameter, as: Int.self)
+        guard let itemId = req.parameters.get(parameter, as: QuerySubject.IDValue.self) else {
+            throw Abort(.badRequest)
+        }
         return T.query(on: req.db).filter(\T._$id == itemId)
     }
 
