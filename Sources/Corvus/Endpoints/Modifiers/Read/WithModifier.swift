@@ -4,11 +4,10 @@ import Fluent
 /// A class that wraps a component which utilizes a `.with()` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `ReadEndpoint`.
-public final class WithModifier<Q: ReadEndpoint, P: EagerLoadable>: ReadEndpoint
-where P: Content, Q.QuerySubject == P.From {
+public final class WithModifier<Q: ReadEndpoint, E: CorvusModel>: ReadEndpoint {
 
     /// The type of the value loaded with the `.with()` modifier.
-    public typealias Element = P
+    public typealias Element = [E]
 
     /// The return value of the `.handler()`, so the type being operated on in
     /// the current component.
@@ -16,7 +15,7 @@ where P: Content, Q.QuerySubject == P.From {
 
     /// The `KeyPath` to the related attribute of the `QuerySubject` that is to
     /// be loaded.
-    public typealias With = KeyPath<Q.QuerySubject, P>
+    public typealias With = KeyPath<Q.QuerySubject, Q.QuerySubject.Children<E>>
 
     /// The `ReadEndpoint` the `.with()` modifier is attached to.
     let queryEndpoint: Q
@@ -53,8 +52,16 @@ where P: Content, Q.QuerySubject == P.From {
     /// - Returns: An `EventLoopFuture` containing an eagerloaded value as
     /// defined by `Element`.
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
-        try query(req).first().unwrap(or: Abort(.notFound)).map { item in
-            item[keyPath: self.with]
+        try query(req).first().flatMapThrowing { optionalItem in
+            guard let item = optionalItem else {
+                throw Abort(.notFound)
+            }
+            
+            guard let eagerLoaded = item[keyPath: self.with].value else {
+                throw Abort(.notFound)
+            }
+            
+            return eagerLoaded
         }
     }
 
@@ -76,9 +83,9 @@ extension ReadEndpoint {
     /// - Parameter with: A `KeyPath` to the related property.
     /// - Returns: An instance of a `WithModifier` with the supplied `KeyPath`
     /// to the relationship.
-    public func with<P: EagerLoadable>(
-        _ with: WithModifier<Self, P>.With
-    ) -> WithModifier<Self, P> {
+    public func with<M: CorvusModel>(
+        _ with: WithModifier<Self, M>.With
+    ) -> WithModifier<Self, M> {
         WithModifier(self, with: with)
     }
 }
