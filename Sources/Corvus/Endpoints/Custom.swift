@@ -58,6 +58,8 @@ public final class Custom<T: CorvusModel>: QueryEndpoint {
             routes.put(path, use: customHandler)
         case .delete:
             routes.delete(path, use: customHandler)
+        case .patch:
+            fatalError("Not implemented yet.")
         }
     }
 }

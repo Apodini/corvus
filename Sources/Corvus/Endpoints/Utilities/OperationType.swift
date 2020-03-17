@@ -5,4 +5,5 @@ public enum OperationType {
     case get
     case put
     case delete
+    case patch
 }

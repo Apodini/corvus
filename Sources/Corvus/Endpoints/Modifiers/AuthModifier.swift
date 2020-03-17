@@ -109,6 +109,8 @@ public final class AuthModifier<Q: AuthEndpoint>: AuthEndpoint {
             routes.put(use: handler)
         case .delete:
             routes.delete(use: handler)
+        case .patch:
+            fatalError("Not implemented yet")
         }
     }
 }
