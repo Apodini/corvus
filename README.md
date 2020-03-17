@@ -57,39 +57,43 @@ for `Corvus` and a `Fluent` database driver of your choice. Below is an example 
 `SQLite` driver:
 
 ```Swift
+// swift-tools-version:5.2
 import PackageDescription
 
 let package = Package(
-  name: "app",
-  platforms: [
-      .macOS(.v10_15)
-  ],
-  products: [
-      .executable(name: "Run", targets: ["Run"]),
-      .library(name: "App", targets: ["App"]),
-  ],
-  dependencies: [
-      // A server-side Swift web framework.
-      .package(
-          url: "https://github.com/bmikaili/corvus.git",
-          from: "0.0.4"
-      ),
+    name: "app",
+    platforms: [
+       .macOS(.v10_15)
+    ],
+    products: [
+        .executable(name: "Run", targets: ["Run"]),
+        .library(name: "App", targets: ["App"]),
+    ],
+    dependencies: [
+        // 💧 A server-side Swift web framework.
+        .package(
+            url: "https://github.com/bmikaili/corvus.git",
+            from: "0.0.5"
+        ),
 
-      .package(
-          url: "https://github.com/vapor/fluent-sqlite-driver.git",
-          from: "4.0.0-beta.3"
-      ),
-  ],
-  targets: [
-      .target(
-          name: "App",
-          dependencies: [
-              "Corvus",
-              "FluentSQLiteDriver",
-          ]
-      ),
-      .target(name: "Run", dependencies: ["App"]),
-  ]
+        .package(
+            url: "https://github.com/vapor/fluent-sqlite-driver.git",
+            from: "4.0.0-rc"
+        ),
+    ],
+    targets: [
+        .target(
+            name: "App",
+            dependencies: [
+                .product(name: "Corvus", package: "corvus"),
+                .product(
+                    name: "FluentSQLiteDriver",
+                    package: "fluent-sqlite-driver"
+                ),
+            ]
+        ),
+        .target(name: "Run", dependencies: ["App"]),
+    ]
 )
 ```
 
