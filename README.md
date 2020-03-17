@@ -72,8 +72,8 @@ let package = Package(
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(
-            url: "https://github.com/bmikaili/corvus.git",
-            from: "0.0.5"
+            url: "https://github.com/Apodini/corvus",
+            from: "0.0.5-1"
         ),
 
         .package(
