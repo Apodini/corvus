@@ -97,23 +97,7 @@ let package = Package(
 )
 ```
 
-Additionally, under the application's `Source` folder (by default that is `Sources/App`), three 
-setup functions need to be present:
-
-`app.swift`, which looks like this:
-
-```Swift
-import Corvus
-import Vapor
-
-public func app(_ environment: Environment) throws -> Application {
-  var environment = environment
-  try LoggingSystem.bootstrap(from: &environment)
-  let app = Application(environment)
-  try configure(app)
-  return app
-}
-```
+Additionally, under the application's `Source` folder (by default that is `Sources/App`), two setup functions need to be present:
 
 `configure.swift`, in which you can configure middlewares, databases and migrations used
 in the application:
@@ -131,7 +115,7 @@ func configure(_ app: Application) throws {
 }
 ```
 
-And finally `routes.swift`, which registers the routes from the `Corvus` API:
+And `routes.swift`, which registers the routes from the `Corvus` API:
 ```Swift
 import Corvus
 import Vapor
@@ -155,6 +139,20 @@ final class Api: RestApi {
         }
     }
 }
+```
+
+Finally the application's `main.swift` function (which is usually under the path `Sources/Run`) should look like this:
+
+```Swift
+import App
+import Vapor
+
+var env = try Environment.detect()
+try LoggingSystem.bootstrap(from: &env)
+let app = Application(env)
+defer { app.shutdown() }
+try configure(app)
+try app.run()
 ```
 
 # How to use
