@@ -28,29 +28,30 @@ public final class CorvusToken: CorvusModel {
     }
 }
 
-/// An extension to provide a database migration.
-extension CorvusToken {
+/// A struct to provide a database migration.
+public struct CreateCorvusToken: Migration {
 
-    /// Provides conformance for Fluent database migration.
-    public struct CreateCorvusTokenMigration: Fluent.Migration {
+    /// An empty initializer to provide public initialization.
+    public init() {}
 
-        /// An empty initializer to provide public initialization.
-        public init() {}
+    /// Prepares database fields and their value types.
+    public func prepare(on database: Database) -> EventLoopFuture<Void> {
+        database.schema(CorvusToken.schema)
+            .id()
+            .field("value", .string, .required)
+            .field(
+                "user_id",
+                .uuid,
+                .required,
+                .references(CorvusUser.schema, .id)
+            )
+            .unique(on: "value")
+            .create()
+    }
 
-        /// Prepares database fields and their value types.
-        public func prepare(on database: Database) -> EventLoopFuture<Void> {
-            database.schema(CorvusToken.schema)
-                .id()
-                .field("value", .string, .required)
-                .field("user_id", .uuid, .required, .references(User.schema, .id))
-                .unique(on: "value")
-                .create()
-        }
-
-        /// Implements functionality to delete schema when database is reverted.
-        public func revert(on database: Database) -> EventLoopFuture<Void> {
-            database.schema(CorvusToken.schema).delete()
-        }
+    /// Implements functionality to delete schema when database is reverted.
+    public func revert(on database: Database) -> EventLoopFuture<Void> {
+        database.schema(CorvusToken.schema).delete()
     }
 }
 

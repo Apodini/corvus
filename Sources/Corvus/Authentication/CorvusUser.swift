@@ -42,29 +42,23 @@ public final class CorvusUser: CorvusModel {
     }
 }
 
-/// An extension to provide database migration.
-extension CorvusUser {
+public struct CreateCorvusUser: Migration {
 
-    /// Provides conformance for Fluent database migration.
-    public struct CreateCorvusUserMigration: Fluent.Migration {
+    public init() {}
 
-        /// Provides public access to the Migration's initializer.
-        public init() {}
+    /// Prepares database fields and their value types.
+    public func prepare(on database: Database) -> EventLoopFuture<Void> {
+        database.schema(CorvusUser.schema)
+            .id()
+            .field("name", .string, .required)
+            .field("email", .string, .required)
+            .field("password", .string, .required)
+            .create()
+    }
 
-        /// Prepares database fields and their value types.
-        public func prepare(on database: Database) -> EventLoopFuture<Void> {
-            database.schema(CorvusUser.schema)
-                .id()
-                .field("name", .string, .required)
-                .field("email", .string, .required)
-                .field("password", .string, .required)
-                .create()
-        }
-
-        /// Implements functionality to delete schema when database is reverted.
-        public func revert(on database: Database) -> EventLoopFuture<Void> {
-            database.schema(CorvusUser.schema).delete()
-        }
+    /// Implements functionality to delete schema when database is reverted.
+    public func revert(on database: Database) -> EventLoopFuture<Void> {
+        database.schema(CorvusUser.schema).delete()
     }
 }
 

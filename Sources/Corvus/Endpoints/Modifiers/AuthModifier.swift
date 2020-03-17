@@ -3,8 +3,8 @@ import Fluent
 
 /// A class that wraps a component which utilizes an `.auth()` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
-/// conforming to `QueryEndpoint`.
-public final class AuthModifier<Q: QueryEndpoint>: QueryEndpoint {
+/// conforming to `AuthEndpoint`.
+public final class AuthModifier<Q: AuthEndpoint>: AuthEndpoint {
 
     /// The return type for the `.handler()` modifier.
     public typealias Element = Q.Element
@@ -15,7 +15,10 @@ public final class AuthModifier<Q: QueryEndpoint>: QueryEndpoint {
 
     /// The `KeyPath` to the user property of the `QuerySubject` which is to be
     /// authenticated.
-    public typealias UserKeyPath = KeyPath<Q.QuerySubject, Q.QuerySubject.Parent<CorvusUser>>
+    public typealias UserKeyPath = KeyPath<
+        Q.QuerySubject,
+        Q.QuerySubject.Parent<CorvusUser>
+    >
 
     /// The `ReadEndpoint` the `.auth()` modifier is attached to.
     public let queryEndpoint: Q
