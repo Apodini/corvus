@@ -1,7 +1,7 @@
 import Corvus
 import Fluent
 
-final class Transaction: CorvusModel {
+final class SecureTransaction: CorvusModel {
 
     static let schema = "transactions"
 
@@ -18,14 +18,14 @@ final class Transaction: CorvusModel {
     var date: Date
 
     @Parent(key: "account_id")
-    var account: Account
+    var account: SecureAccount
 
     init(
         id: UUID? = nil,
         amount: Double,
         currency: String,
         date: Date,
-        accountID: Account.IDValue
+        accountID: SecureAccount.IDValue
     ) {
       self.id = id
       self.amount = amount
@@ -37,25 +37,25 @@ final class Transaction: CorvusModel {
     init() {}
 }
 
-struct CreateTransaction: Migration {
+struct CreateSecureTransaction: Migration {
 
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema(Transaction.schema)
+        return database.schema(SecureTransaction.schema)
             .id()
             .field("amount", .double, .required)
             .field("currency", .string, .required)
             .field("date", .datetime, .required)
-            .field("account_id", .uuid, .references(Account.schema, .id))
+            .field("account_id", .uuid, .references(SecureAccount.schema, .id))
             .create()
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema(Transaction.schema).delete()
+        return database.schema(SecureTransaction.schema).delete()
     }
 }
 
-extension Transaction: Equatable {
-    static func == (lhs: Transaction, rhs: Transaction) -> Bool {
+extension SecureTransaction: Equatable {
+    static func == (lhs: SecureTransaction, rhs: SecureTransaction) -> Bool {
         var result = lhs.amount == rhs.amount
             && lhs.currency == rhs.currency
             && lhs.$account.id == rhs.$account.id

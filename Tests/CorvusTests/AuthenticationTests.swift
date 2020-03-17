@@ -25,8 +25,8 @@ final class AuthenticationTests: XCTestCase {
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CorvusUser.authenticator().middleware())
-        app.migrations.add(Account.CreateAccountMigration())
-        app.migrations.add(CorvusUser.CreateCorvusUserMigration())
+        app.migrations.add(CreateAccount())
+        app.migrations.add(CreateCorvusUser())
 
         try app.autoMigrate().wait()
         
@@ -35,7 +35,12 @@ final class AuthenticationTests: XCTestCase {
             .data(using: .utf8)!
             .base64EncodedString()
         
-        let user = CorvusUser(name: "berzan", email: "berzan@corvus.com", password: "pass")
+        let user = CorvusUser(
+            name: "berzan",
+            email: "berzan@corvus.com",
+            password: "pass"
+        )
+
         let account = Account(name: "Berzan")
         var response: Account!
         
@@ -85,14 +90,18 @@ final class AuthenticationTests: XCTestCase {
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CorvusUser.authenticator().middleware())
-        app.migrations.add(Account.CreateAccountMigration())
-        app.migrations.add(CorvusUser.CreateCorvusUserMigration())
+        app.migrations.add(CreateAccount())
+        app.migrations.add(CreateCorvusUser())
 
         try app.autoMigrate().wait()
 
         try app.register(collection: basicAuthenticatorTest)
         
-        let user = CorvusUser(name: "berzan", email: "berzan@corvus.com", password: "pass")
+        let user = CorvusUser(
+            name: "berzan",
+            email: "berzan@corvus.com",
+            password: "pass"
+        )
         let account = Account(name: "berzan")
         
         let basic = "berzan@corvus.com:wrong"
@@ -138,15 +147,19 @@ final class AuthenticationTests: XCTestCase {
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CorvusToken.authenticator().middleware())
-        app.migrations.add(Account.CreateAccountMigration())
-        app.migrations.add(CorvusUser.CreateCorvusUserMigration())
-        app.migrations.add(CorvusToken.CreateCorvusTokenMigration())
+        app.migrations.add(CreateAccount())
+        app.migrations.add(CreateCorvusUser())
+        app.migrations.add(CreateCorvusToken())
 
         try app.autoMigrate().wait()
 
         try app.register(collection: bearerAuthenticatorTest)
         
-        let user = CorvusUser(name: "berzan", email: "berzan@corvus.com", password: "pass")
+        let user = CorvusUser(
+            name: "berzan",
+            email: "berzan@corvus.com",
+            password: "pass"
+        )
         let account = Account(name: "berzan")
         
         let basic = "berzan@corvus.com:pass"
@@ -169,18 +182,18 @@ final class AuthenticationTests: XCTestCase {
             ) { res in
                 token = try res.content.decode(CorvusToken.self)
                 XCTAssertTrue(true)
-              }.test(
-                  .POST,
-                  "/api/accounts",
-                  headers: ["content-type": "application/json", "Authorization": "Bearer \(token.value)"],
-                  body: account.encode()
-              ) { res in
-                print(res.body.string)
-                  XCTAssertEqual(res.status, .ok)
-                  XCTAssertEqualJSON(
-                      res.body.string,
-                      account
-                  )
+              }
+            .test(
+              .POST,
+              "/api/accounts",
+              headers: ["content-type": "application/json", "Authorization": "Bearer \(token.value)"],
+              body: account.encode()
+            ) { res in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqualJSON(
+                    res.body.string,
+                    account
+                )
               }
     }
 
@@ -206,9 +219,9 @@ final class AuthenticationTests: XCTestCase {
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CorvusToken.authenticator().middleware())
-        app.migrations.add(Account.CreateAccountMigration())
-        app.migrations.add(CorvusUser.CreateCorvusUserMigration())
-        app.migrations.add(CorvusToken.CreateCorvusTokenMigration())
+        app.migrations.add(CreateAccount())
+        app.migrations.add(CreateCorvusUser())
+        app.migrations.add(CreateCorvusToken())
 
         try app.autoMigrate().wait()
 
@@ -222,5 +235,136 @@ final class AuthenticationTests: XCTestCase {
             ) { res in
                 XCTAssertEqual(res.status, .unauthorized)
             }
+    }
+
+    func testAuthModifier() throws {
+        final class AuthModifierTest: RestApi {
+
+            let testParameter = Parameter<SecureAccount>()
+
+            var content: Endpoint {
+                Group("api") {
+                    CRUD<CorvusUser>("users")
+
+                    Login("login")
+
+                    BearerAuthGroup("accounts") {
+                        Create<SecureAccount>()
+                        Group(testParameter.id) {
+                            ReadOne<SecureAccount>(testParameter.id)
+                                .auth(\.$user)
+                        }
+                    }
+                }
+            }
+        }
+
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        let authModifierTest = AuthModifierTest()
+
+        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+        app.middleware.use(CorvusToken.authenticator().middleware())
+        app.migrations.add(CreateSecureAccount())
+        app.migrations.add(CreateCorvusUser())
+        app.migrations.add(CreateCorvusToken())
+
+        try app.autoMigrate().wait()
+
+        try app.register(collection: authModifierTest)
+
+        let user1 = CorvusUser(
+             name: "berzan",
+             email: "berzan@corvus.com",
+             password: "pass"
+         )
+
+        let user2 = CorvusUser(
+             name: "paul",
+             email: "paul@corvus.com",
+             password: "pass"
+         )
+
+        var account: SecureAccount!
+
+        let basic1 = "berzan@corvus.com:pass"
+               .data(using: .utf8)!
+               .base64EncodedString()
+
+        let basic2 = "paul@corvus.com:pass"
+                .data(using: .utf8)!
+                .base64EncodedString()
+
+        var token1: CorvusToken!
+        var token2: CorvusToken!
+        var accountRes: SecureAccount!
+
+        try app.testable()
+            .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user1.encode(),
+                afterResponse: { res in
+                    let userRes = try res.content.decode(CorvusUser.self)
+                    account = SecureAccount(
+                        name: "berzan",
+                        userID: userRes.id!
+                    )
+                }
+            )
+            .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user2.encode()
+             )
+            .test(
+                .POST,
+                "/api/login",
+                headers: ["Authorization": "Basic \(basic1)"]
+            ) { res in
+                token1 = try res.content.decode(CorvusToken.self)
+                XCTAssertTrue(true)
+              }
+            .test(
+                .POST,
+                "/api/login",
+                headers: ["Authorization": "Basic \(basic2)"]
+            ) { res in
+                token2 = try res.content.decode(CorvusToken.self)
+                XCTAssertTrue(true)
+              }
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: [
+                    "content-type": "application/json",
+                    "Authorization": "Bearer \(token1.value)"
+                ],
+                body: account.encode()
+              ) { res in
+                  accountRes = try res.content.decode(SecureAccount.self)
+                  XCTAssertTrue(true)
+              }
+            .test(
+                  .GET,
+                  "/api/accounts/\(accountRes.id!)",
+                  headers: [
+                      "Authorization": "Bearer \(token2.value)"
+                  ]
+                ) { res in
+                    XCTAssertEqual(res.status, .unauthorized)
+                }
+            .test(
+                  .GET,
+                  "/api/accounts/\(accountRes.id!)",
+                  headers: [
+                      "Authorization": "Bearer \(token1.value)"
+                  ]
+                ) { res in
+                    XCTAssertEqual(res.status, .ok)
+                    XCTAssertEqualJSON(res.body.string, account)
+                }
     }
 }
