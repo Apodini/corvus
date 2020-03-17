@@ -20,16 +20,21 @@ final class ApplicationTests: XCTestCase {
         let createTest = CreateTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.migrations.add(Account.Migration())
+        app.migrations.add(CreateAccount())
 
         try app.autoMigrate().wait()
-
+        
         try app.register(collection: createTest)
-        try app.testable().test(.POST, "/api/accounts", json: [
-            "name": "Berzan",
-        ]) { res in
-             XCTAssertEqual(res.status, .ok)
-             XCTAssertEqual(res.body.string, "{\"id\":1,\"name\":\"Berzan\"}")
+        
+        let account = Account(name: "Berzan")
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account.encode()
+        ) { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqualJSON(res.body.string, account)
          }
     }
 
@@ -54,16 +59,25 @@ final class ApplicationTests: XCTestCase {
         let readOneTest = ReadOneTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.migrations.add(Account.Migration())
+        app.migrations.add(CreateAccount())
 
         try app.autoMigrate().wait()
-
+        
         try app.register(collection: readOneTest)
-        try app.testable().test(.POST, "/api/accounts", json: [
-            "name": "Berzan",
-        ]).test(.GET, "/api/accounts/1") { res in
+        
+        let account = Account(name: "Berzan")
+        var accountRes: Account!
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account.encode(),
+            afterResponse: { res in
+                accountRes = try res.content.decode(Account.self)
+            }
+        ).test(.GET, "/api/accounts/\(accountRes.id!)") { res in
             XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.body.string, "{\"id\":1,\"name\":\"Berzan\"}")
+            XCTAssertEqualJSON(res.body.string, account)
         }
     }
 
@@ -83,20 +97,30 @@ final class ApplicationTests: XCTestCase {
         let readAllTest = ReadAllTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.migrations.add(Account.Migration())
+        app.migrations.add(CreateAccount())
 
         try app.autoMigrate().wait()
 
         try app.register(collection: readAllTest)
-        try app.testable().test(.POST, "/api/accounts", json: [
-            "name": "Berzan",
-        ]).test(.POST, "/api/accounts", json: [
-            "name": "Paul"
-        ]).test(.GET, "/api/accounts/") { res in
+        
+        let account1 = Account(name: "Berzan")
+        let account2 = Account(name: "Paul")
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account1.encode()
+        ).test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account2.encode()
+        ).test(.GET, "/api/accounts/") { res in
             XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(
+            XCTAssertEqualJSON(
                 res.body.string,
-                "[{\"id\":1,\"name\":\"Berzan\"},{\"id\":2,\"name\":\"Paul\"}]")
+                [account1, account2]
+            )
         }
     }
 
@@ -122,18 +146,35 @@ final class ApplicationTests: XCTestCase {
         let updateTest = UpdateTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.migrations.add(Account.Migration())
+        app.migrations.add(CreateAccount())
 
         try app.autoMigrate().wait()
 
         try app.register(collection: updateTest)
-        try app.testable().test(.POST, "/api/accounts", json: [
-            "name": "Berzan",
-        ]).test(.PUT, "/api/accounts/1", json: [
-            "name": "Paul",
-        ]).test(.GET, "/api/accounts/1") { res in
+        
+        let account1 = Account(name: "Berzan")
+        let account2 = Account(name: "Paul")
+        var response: Account!
+        
+        try app.testable().test(
+            .POST, "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account1.encode(),
+            afterResponse: { res in
+                response = try res.content.decode(Account.self)
+                XCTAssertEqualJSON(res.body.string, account1)
+                }
+        ).test(
+            .PUT,
+            "/api/accounts/\(response.id!)",
+            headers: ["content-type": "application/json"],
+            body: account2.encode()
+        ).test(
+            .GET,
+            "/api/accounts/\(response.id!)"
+        ) { res in
             XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.body.string, "{\"id\":1,\"name\":\"Paul\"}")
+            XCTAssertEqualJSON(res.body.string, account2)
         }
     }
 
@@ -158,78 +199,93 @@ final class ApplicationTests: XCTestCase {
         let deleteTest = DeleteTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.migrations.add(Account.Migration())
+        app.migrations.add(CreateAccount())
 
         try app.autoMigrate().wait()
 
         try app.register(collection: deleteTest)
-        try app.testable().test(.POST, "/api/accounts", json: [
-            "name": "Berzan",
-        ]).test(.DELETE, "/api/accounts/1") { res in
+        
+        let account = Account(name: "Berzan")
+        var response: Account!
+        
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account.encode(),
+            afterResponse: { res in
+                response = try res.content.decode(Account.self)
+            }
+        ).test(.DELETE, "/api/accounts/\(response.id!)") { res in
             XCTAssertEqual(res.status, .ok)
         }
     }
 
-//    func testWith() throws {
-//        final class WithTest: RestApi {
-//
-//            let testParameter = Parameter<Account>()
-//
-//            var content: Endpoint {
-//                Group("api") {
-//                    Group("accounts") {
-//                        Create<Account>()
-//
-//                        Group(testParameter.id) {
-//                            Group("transactions") {
-//                                ReadOne<Account>(testParameter.id).with(\.$transactions)
-//                            }
-//                        }
-//                    }
-//
-//                    Group("transactions") {
-//                        Create<Transaction>()
-//                    }
-//                }
-//            }
-//        }
-//
-//        let app = Application(.testing)
-//        defer { app.shutdown() }
-//        let withTest = WithTest()
-//
-//        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-//        app.migrations.add(Account.Migration())
-//        app.migrations.add(Transaction.Migration())
-//
-//        try app.autoMigrate().wait()
-//
-//        let transaction = Transaction(
-//            id: 1,
-//            amount: 40.0,
-//            currency: "EUR",
-//            date: Date(),
-//            accountId: 1
-//        )
-//
-//        try app.register(collection: withTest)
-//        try app.testable()
-//            .test(
-//                .POST,
-//                "/api/accounts",
-//                json: [
-//                    "name": "Berzan",
-//                ]
-//            )
-//            .test(
-//                .POST,
-//                "/api/transactions",
-//                json: transaction
-//            )
-//            .test(.GET, "/api/accounts/1/transactions") { res in
-//                print(res.body.string)
-//            }
-//    }
+    func testChildrenModifier() throws {
+        final class ChildrenTest: RestApi {
+
+            let testParameter = Parameter<Account>()
+
+            var content: Endpoint {
+                Group("api") {
+                    Group("accounts") {
+                        Create<Account>()
+
+                        Group(testParameter.id) {
+                            Group("transactions") {
+                                ReadOne<Account>(testParameter.id)
+                                    .children(\.$transactions)
+                            }
+                        }
+                    }
+
+                    Group("transactions") {
+                        Create<Transaction>()
+                    }
+                }
+            }
+        }
+
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        let withTest = ChildrenTest()
+
+        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+        app.migrations.add(CreateAccount())
+        app.migrations.add(CreateTransaction())
+
+        try app.autoMigrate().wait()
+
+        try app.register(collection: withTest)
+
+        let account = Account(name: "Berzan")
+        var accountRes: Account!
+        var transaction: Transaction!
+
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account.encode(),
+            afterResponse: { res in
+                accountRes = try res.content.decode(Account.self)
+                transaction = Transaction(
+                    amount: 40.0,
+                    currency: "EUR",
+                    date: Date(),
+                    accountID: accountRes.id!
+                )
+            }
+        ).test(
+            .POST,
+            "/api/transactions",
+            headers: ["content-type": "application/json"],
+            body: transaction.encode()
+        ).test(.GET, "/api/accounts/\(accountRes.id!)/transactions") { res in
+            let transactionRes = try res.content.decode([Transaction].self)
+            XCTAssertEqual(transactionRes, [transaction])
+        }
+    }
     
      func testCustom() throws {
         final class CustomTest: RestApi {
@@ -252,16 +308,21 @@ final class ApplicationTests: XCTestCase {
         let customTest = CustomTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.migrations.add(Account.Migration())
+        app.migrations.add(CreateAccount())
 
         try app.autoMigrate().wait()
 
         try app.register(collection: customTest)
-        try app.testable().test(.POST, "/api/accounts", json: [
-            "name": "Berzan",
-        ]) { res in
+        
+        let account = Account(name: "Berzan")
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account.encode()
+        ) { res in
              XCTAssertEqual(res.status, .ok)
-             XCTAssertEqual(res.body.string, "{\"id\":1,\"name\":\"Berzan\"}")
+             XCTAssertEqualJSON(res.body.string, account)
          }
     }
 
@@ -281,19 +342,31 @@ final class ApplicationTests: XCTestCase {
         let filterTest = FilterTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.migrations.add(Account.Migration())
-
+        app.migrations.add(CreateAccount())
         try app.autoMigrate().wait()
-
+        
         try app.register(collection: filterTest)
-        try app.testable().test(.POST, "/api/accounts", json: [
-               "name": "Berzan",
-           ]).test(.POST, "/api/accounts", json: [
-               "name": "Paul",
-           ]).test(.GET, "/api/accounts") { res in
+        
+        let account1 = Account(name: "Berzan")
+        let account2 = Account(name: "Paul")
+        
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account1.encode()
+        ).test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account2.encode()
+        ).test(
+            .GET,
+            "/api/accounts"
+        ) { res in
                XCTAssertEqual(res.status, .ok)
-               XCTAssertEqual(res.body.string, "[{\"id\":2,\"name\":\"Paul\"}]")
-           }
+               XCTAssertEqualJSON(res.body.string, [account2])
+        }
     }
 }
 

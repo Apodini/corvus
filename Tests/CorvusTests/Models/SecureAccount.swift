@@ -1,7 +1,7 @@
 import Corvus
 import Fluent
 
-final class Account: CorvusModel {
+final class SecureAccount: CorvusModel {
 
     static let schema = "accounts"
 
@@ -15,39 +15,48 @@ final class Account: CorvusModel {
     @Field(key: "name")
     var name: String
 
-    @Children(for: \.$account)
-    var transactions: [Transaction]
+    @Parent(key: "user_id")
+    var user: CorvusUser
 
-    init(id: UUID? = nil, name: String) {
+    @Children(for: \.$account)
+    var transactions: [SecureTransaction]
+
+    init(id: UUID? = nil, name: String, userID: CorvusUser.IDValue) {
         self.id = id
         self.name = name
+        self.$user.id = userID
     }
 
     init() {}
 }
 
-struct CreateAccount: Migration {
+struct CreateSecureAccount: Migration {
 
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema(Account.schema)
+        return database.schema(SecureAccount.schema)
         .id()
         .field("name", .string, .required)
+        .field(
+            "user_id",
+            .uuid,
+            .references(CorvusUser.schema, "id")
+        )
         .create()
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema(Account.schema).delete()
+        return database.schema(SecureAccount.schema).delete()
     }
 }
 
-extension Account: Equatable {
-    static func == (lhs: Account, rhs: Account) -> Bool {
+extension SecureAccount: Equatable {
+    static func == (lhs: SecureAccount, rhs: SecureAccount) -> Bool {
         var result = lhs.name == rhs.name
-        
+
         if let lhsId = lhs.id, let rhsId = rhs.id {
             result = result && lhsId == rhsId
         }
-        
+
         return result
     }
 }

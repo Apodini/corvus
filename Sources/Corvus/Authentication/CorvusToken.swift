@@ -8,8 +8,8 @@ public final class CorvusToken: CorvusModel {
     public static let schema = "tokens"
 
     /// The unique identifier of the model in the database.
-    @ID(key: "id")
-    public var id: Int?
+    @ID
+    public var id: UUID?
 
     /// The string value of the token.
     @Field(key: "value")
@@ -21,36 +21,37 @@ public final class CorvusToken: CorvusModel {
 
     public init() { }
 
-    public init(id: Int? = nil, value: String, userID: CorvusUser.IDValue) {
+    public init(id: UUID? = nil, value: String, userID: CorvusUser.IDValue) {
         self.id = id
         self.value = value
         self.$user.id = userID
     }
 }
 
-/// An extension to provide a database migration.
-extension CorvusToken {
+/// A struct to provide a database migration.
+public struct CreateCorvusToken: Migration {
 
-    /// Provides conformance for Fluent database migration.
-    public struct Migration: Fluent.Migration {
+    /// An empty initializer to provide public initialization.
+    public init() {}
 
-        /// An empty initializer to provide public initialization.
-        public init() {}
+    /// Prepares database fields and their value types.
+    public func prepare(on database: Database) -> EventLoopFuture<Void> {
+        database.schema(CorvusToken.schema)
+            .id()
+            .field("value", .string, .required)
+            .field(
+                "user_id",
+                .uuid,
+                .required,
+                .references(CorvusUser.schema, .id)
+            )
+            .unique(on: "value")
+            .create()
+    }
 
-        /// Prepares database fields and their value types.
-        public func prepare(on database: Database) -> EventLoopFuture<Void> {
-            database.schema("tokens")
-                .field("id", .int, .identifier(auto: true))
-                .field("value", .string, .required)
-                .field("user_id", .int, .required, .references("users", "id"))
-                .unique(on: "value")
-                .create()
-        }
-
-        /// Implements functionality to delete schema when database is reverted.
-        public func revert(on database: Database) -> EventLoopFuture<Void> {
-            database.schema("tokens").delete()
-        }
+    /// Implements functionality to delete schema when database is reverted.
+    public func revert(on database: Database) -> EventLoopFuture<Void> {
+        database.schema(CorvusToken.schema).delete()
     }
 }
 
