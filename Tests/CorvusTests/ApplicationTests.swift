@@ -529,7 +529,7 @@ final class ApplicationTests: XCTestCase {
             .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
                 XCTAssertEqual(res.status, .notFound)
             }
-            .test(.PUT, "/api/accounts/trash/\(AccountRes.id!)") { res in
+            .test(.PATCH, "/api/accounts/trash/\(AccountRes.id!)") { res in
                 XCTAssertEqual(res.status, .ok)
             }
             .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in

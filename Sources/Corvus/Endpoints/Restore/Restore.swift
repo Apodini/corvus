@@ -16,7 +16,6 @@ public final class Restore<T: CorvusModel>: Endpoint {
     
    /// The ID of the item to be deleted.
     let id: PathComponent
-    public let operationType: OperationType = .put
 
     //TODO: Missing Documentation
     public let deletedAtKey: DeletedAtKeyPath
@@ -52,11 +51,11 @@ public final class Restore<T: CorvusModel>: Endpoint {
             .map { .ok }
     }
     
+    /// A method that registers the `.handler()` to the supplied `RoutesBuilder`.
+    ///
+    /// - Parameter routes: A `RoutesBuilder` containing all the information
+    /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
-        switch operationType {
-        case .put: routes.put(use: handler)
-//        case .patch: routes.patch(id, use: handler)
-        default: assertionFailure("Not allowed")
-        }
+        routes.patch(id, use: handler)
     }
 }
