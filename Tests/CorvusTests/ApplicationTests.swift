@@ -368,8 +368,8 @@ final class ApplicationTests: XCTestCase {
                XCTAssertEqualJSON(res.body.string, [account2])
         }
     }
-    
-    func testReadOneTrashed() throws {
+
+    func testRestore() throws {
         final class RestoreTest: RestApi {
 
             let testParameter = Parameter<Account>()
@@ -379,11 +379,12 @@ final class ApplicationTests: XCTestCase {
                     Create<Account>()
                     
                     Group(testParameter.id) {
-                        Delete<Account>(testParameter.id)
+                        ReadOne<Account>(testParameter.id)
+                        SoftDelete<Account>(testParameter.id)
                     }
                     
                     Group("trash", testParameter.id) {
-                        ReadOne<Account>(testParameter.id, .trashed(\.$deletedAt))
+                        Restore<Account>(testParameter.id)
                     }
                 }
             }
@@ -399,31 +400,36 @@ final class ApplicationTests: XCTestCase {
         try app.autoMigrate().wait()
         
         try app.register(collection: readOneTest)
-        
+
         let account = Account(id: nil, name: "Berzan")
-        var createdAccount: Account!
-        
-        struct AccountResponse: Codable {
-            let id: Account.IDValue
-            let name: String
-            let deletedAt: String
-        }
+        var AccountRes: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode(), afterResponse: { res in
-            createdAccount = try res.content.decode(Account.self)
-            })
-            .test(.DELETE, "/api/accounts/\(createdAccount.id!)")
-            .test(.GET, "/api/accounts/trash/\(createdAccount.id!)", afterResponse: { res in
-                let accountResponse = try res.content.decode(AccountResponse.self)
+            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode()) { res in
+                AccountRes = try res.content.decode(Account.self)
+            }
+            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
+                let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqual(createdAccount.name, accountResponse.name)
-            })
-            .test(.GET, "/api/accounts/\(createdAccount.id!)", afterResponse: { res in
+                XCTAssertEqual(response, account)
+            }
+            .test(.DELETE, "/api/accounts/\(AccountRes.id!)") { res in
+                print(res.body.string)
+                XCTAssertEqual(res.status, .ok)
+            }
+            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
                 XCTAssertEqual(res.status, .notFound)
-            })
+            }
+            .test(.PATCH, "/api/accounts/trash/\(AccountRes.id!)/restore") { res in
+                XCTAssertEqual(res.status, .ok)
+            }
+            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
+                let response = try res.content.decode(Account.self)
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(response, account)
+            }
     }
-        
+    
     func testReadAllTrashed() throws {
         final class ReadAllTrashedTest: RestApi {
 
@@ -432,14 +438,25 @@ final class ApplicationTests: XCTestCase {
             var content: Endpoint {
                 Group("api", "accounts") {
                     Create<Account>()
-                    ReadAll<Account>()
                     
                     Group(testParameter.id) {
-                        Delete<Account>(testParameter.id)
+                        SoftDelete<Account>(testParameter.id)
+                    }
+                    
+                    Group("default") {
+                        ReadAll<Account>()
+                    }
+                    
+                    Group("existing") {
+                        ReadAll<Account>(.existing)
+                    }
+                    
+                    Group("all") {
+                        ReadAll<Account>(.all)
                     }
                     
                     Group("trash") {
-                        ReadAll<Account>(.trashed(\.$deletedAt))
+                        ReadAll<Account>(.trashed)
                     }
                 }
             }
@@ -456,32 +473,40 @@ final class ApplicationTests: XCTestCase {
         
         try app.register(collection: readAllTrashedTest)
         
-        let account = Account(id: nil, name: "Berzan")
-        var createdAccount: Account!
-        
-        struct AccountResponse: Codable {
-            let id: Account.IDValue
-            let name: String
-            let deletedAt: String
-        }
+        let account1 = Account(id: nil, name: "Berzan")
+        let account2 = Account(id: nil, name: "Paul")
+        var accountRes: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode(), afterResponse: { res in
-            createdAccount = try res.content.decode(Account.self)
-            })
-            .test(.DELETE, "/api/accounts/\(createdAccount.id!)")
-            .test(.GET, "/api/accounts/trash/", afterResponse: { res in
-                let response = try res.content.decode([AccountResponse].self)
+            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account1.encode()) { res in
+                accountRes = try res.content.decode(Account.self)
+            }
+            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account2.encode())
+            .test(.DELETE, "/api/accounts/\(accountRes.id!)")
+            .test(.GET, "/api/accounts/default") { res in
+                let response = try res.content.decode([Account].self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqual(account.name, response.first!.name)
-            })
-            .test(.GET, "/api/accounts/", afterResponse: { res in
-                XCTAssertEqual(res.body.string, "[]")
-            })
+                XCTAssertEqual(response, [account2])
+            }
+            .test(.GET, "/api/accounts/existing") { res in
+                let response = try res.content.decode([Account].self)
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(response, [account2])
+            }
+            .test(.GET, "/api/accounts/all") { res in
+                let response = try res.content.decode([Account].self)
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(response, [account1, account2])
+            }
+            .test(.GET, "/api/accounts/trash") { res in
+                let response = try res.content.decode([Account].self)
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(response, [account1])
+            }
     }
-        
-    func testRestore() throws {
-        final class RestoreTest: RestApi {
+    
+    func testReadOneTrashed() throws {
+        final class ReadAllTrashedTest: RestApi {
 
             let testParameter = Parameter<Account>()
 
@@ -490,12 +515,23 @@ final class ApplicationTests: XCTestCase {
                     Create<Account>()
                     
                     Group(testParameter.id) {
+                        SoftDelete<Account>(testParameter.id)
+                    }
+                    
+                    Group("default", testParameter.id) {
                         ReadOne<Account>(testParameter.id)
-                        Delete<Account>(testParameter.id)
+                    }
+                    
+                    Group("existing", testParameter.id) {
+                        ReadOne<Account>(testParameter.id, .existing)
+                    }
+
+                    Group("all", testParameter.id) {
+                        ReadOne<Account>(testParameter.id, .all)
                     }
                     
                     Group("trash", testParameter.id) {
-                        Restore<Account>(testParameter.id, deletedAtKey: \.$deletedAt)
+                        ReadOne<Account>(testParameter.id, .trashed)
                     }
                 }
             }
@@ -503,45 +539,54 @@ final class ApplicationTests: XCTestCase {
 
         let app = Application(.testing)
         defer { app.shutdown() }
-        let readOneTest = RestoreTest()
+        let readAllTrashedTest = ReadAllTrashedTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.migrations.add(CreateAccount())
 
         try app.autoMigrate().wait()
         
-        try app.register(collection: readOneTest)
-        print(app.routes.all)
-        let account = Account(id: nil, name: "Berzan")
-        var AccountRes: Account!
+        try app.register(collection: readAllTrashedTest)
+        
+        let account1 = Account(id: nil, name: "Berzan")
+        let account2 = Account(id: nil, name: "Paul")
+        var account1Res: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode()) { res in
-                AccountRes = try res.content.decode(Account.self)
+            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account1.encode()) { res in
+                account1Res = try res.content.decode(Account.self)
             }
-            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
+            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account2.encode())
+            .test(.GET, "/api/accounts/default/\(account1Res.id!)") { res in
+                print(res.body.string)
+                let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqualJSON(res.body.string, account)
+                XCTAssertEqual(response, account1)
             }
-            .test(.DELETE, "/api/accounts/\(AccountRes.id!)") { res in
+            .test(.GET, "/api/accounts/existing/\(account1Res.id!)") { res in
+                let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(response, account1)
             }
-            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
+            .test(.DELETE, "/api/accounts/\(account1Res.id!)")
+            .test(.GET, "/api/accounts/existing/\(account1Res.id!)") { res in
                 XCTAssertEqual(res.status, .notFound)
             }
-            .test(.PATCH, "/api/accounts/trash/\(AccountRes.id!)") { res in
+            .test(.GET, "/api/accounts/all/\(account1Res.id!)") { res in
+                let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(response, account1)
             }
-            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
-                print(res.body.string)
+            .test(.GET, "/api/accounts/trash/\(account1Res.id!)") { res in
+                let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqualJSON(res.body.string, account)
+                XCTAssertEqual(response, account1)
             }
     }
     
     func testDeleteTrashed() throws {
         final class DeleteTrashedTest: RestApi {
-
+            
             let testParameter = Parameter<Account>()
 
             var content: Endpoint {
@@ -550,13 +595,15 @@ final class ApplicationTests: XCTestCase {
                     ReadAll<Account>()
                     
                     Group(testParameter.id) {
-                        Delete<Account>(testParameter.id)
+                        SoftDelete<Account>(testParameter.id)
                     }
                     
                     Group("trash") {
-                        ReadAll<Account>(.trashed(\.$deletedAt))
+                        
+                        
                         Group(testParameter.id) {
-                            Delete<Account>(testParameter.id, .trashed(\.$deletedAt))
+                            ReadOne<Account>(testParameter.id, .trashed)
+                            Delete<Account>(testParameter.id)
                         }
                     }
                 }
@@ -575,22 +622,24 @@ final class ApplicationTests: XCTestCase {
         try app.register(collection: deleteTrashedTest)
         
         let account = Account(id: nil, name: "Berzan")
-        var createdAccount: Account!
+        var accountRes: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode(), afterResponse: { res in
-                createdAccount = try res.content.decode(Account.self)
-            })
-            .test(.DELETE, "/api/accounts/\(createdAccount.id!)")
-            .test(.GET, "/api/accounts/trash/", afterResponse: { res in
-                XCTAssertNotEqual(res.body.string, "[]")
-            })
-            .test(.DELETE, "/api/accounts/trash/\(createdAccount.id!)", afterResponse: { res in
+            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode()) { res in
+                accountRes = try res.content.decode(Account.self)
+            }
+            .test(.DELETE, "/api/accounts/\(accountRes.id!)")
+            .test(.GET, "/api/accounts/trash/\(accountRes.id!)") { res in
+                let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
-            })
-            .test(.GET, "/api/accounts/trash", afterResponse: { res in
-                XCTAssertEqual(res.body.string, "[]")
-            })
+                XCTAssertEqual(response, account)
+            }
+            .test(.DELETE, "/api/accounts/trash/\(accountRes.id!)") { res in
+                XCTAssertEqual(res.status, .ok)
+            }
+            .test(.GET, "/api/accounts/trash/\(accountRes.id!)") { res in
+                XCTAssertEqual(res.status, .notFound)
+        }
     }
 }
 

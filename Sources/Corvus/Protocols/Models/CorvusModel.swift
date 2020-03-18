@@ -6,3 +6,14 @@ import Fluent
 /// communication.
 public protocol CorvusModel: Model, Content
 where IDValue: LosslessStringConvertible {}
+
+//TODO: Missing Documentation
+public extension CorvusModel {
+    static var deletedTimestamp: Timestamp? {
+        Self().properties
+            .compactMap({ $0 as? TimestampProperty<Self> })
+            .filter({ $0.trigger == .delete })
+            .first
+    }
+}
+

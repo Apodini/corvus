@@ -11,18 +11,20 @@ public final class Restore<T: CorvusModel>: Endpoint {
     /// The return type of the `.query()`.
     public typealias Element = HTTPStatus
 
-    //TODO: Missing Documentation
-    public typealias DeletedAtKeyPath = KeyPath<T, T.Timestamp>
-    
    /// The ID of the item to be deleted.
     let id: PathComponent
 
     //TODO: Missing Documentation
-    public let deletedAtKey: DeletedAtKeyPath
+    let deletedTimestamp: QuerySubject.Timestamp
     
-    public init(_ id: PathComponent, deletedAtKey: DeletedAtKeyPath) {
+    //TODO: Missing Documentation
+    public init(_ id: PathComponent) {
+        guard let deletedTimestamp = T.deletedTimestamp else {
+            preconditionFailure("There must a @Timestamp field in your model with a `TimestampTrigger` set to .delete")
+        }
+        
         self.id = id
-        self.deletedAtKey = deletedAtKey
+        self.deletedTimestamp = deletedTimestamp
     }
 
     /// A method to find an item by an ID supplied in the `Request`.
@@ -35,7 +37,7 @@ public final class Restore<T: CorvusModel>: Endpoint {
         guard let itemId = req.parameters.get(parameter, as: QuerySubject.IDValue.self) else {
             throw Abort(.badRequest)
         }
-        return T.query(on: req.db).withDeleted().filter(deletedAtKey != .null).filter(\T._$id == itemId)
+        return T.query(on: req.db).withDeleted().filter(.path(deletedTimestamp.path, schema: T.schema), .notEqual, .null).filter(\T._$id == itemId)
     }
 
     /// A method to delete an object found in the `.query()` from the database.
@@ -56,6 +58,6 @@ public final class Restore<T: CorvusModel>: Endpoint {
     /// - Parameter routes: A `RoutesBuilder` containing all the information
     /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
-        routes.patch(id, use: handler)
+        routes.patch("restore", use: handler)
     }
 }

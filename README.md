@@ -44,7 +44,7 @@ final class Api: RestApi {
 
             Login("login")
 
-            CRUD<CorvusUser>("users")
+            CRUD<CorvusUser>("users", softDelete: false)
         }
     }
 }

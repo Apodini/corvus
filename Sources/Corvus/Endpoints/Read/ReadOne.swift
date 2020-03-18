@@ -19,7 +19,7 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
     /// - Parameter id: A `PathComponent` which represents the ID of the item
     /// - Parameter target: A `ReadTarget` which controls where to query the item from.
     /// to be deleted.
-    public init(_ id: PathComponent, _ target: ReadTarget<QuerySubject> = .existent) {
+    public init(_ id: PathComponent, _ target: ReadTarget<QuerySubject> = .existing) {
         self.id = id
         self.target = target
     }
@@ -34,6 +34,7 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
         guard let itemId = req.parameters.get(parameter, as: QuerySubject.IDValue.self) else {
             throw Abort(.badRequest)
         }
+        
         return T.query(on: req.db).filter(\T._$id == itemId)
     }
 
@@ -42,13 +43,13 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: The found object.
     public func handler(_ req: Request) throws -> EventLoopFuture<QuerySubject> {
-        switch target {
-        case .existent:
+        switch target.option {
+        case .existing:
             return try query(req).first().unwrap(or: Abort(.notFound))
         case .all:
             return try query(req).withDeleted().first().unwrap(or: Abort(.notFound))
-        case .trashed(let deletedKey):
-            return try query(req).withDeleted().filter(deletedKey != .null).first().unwrap(or: Abort(.notFound))
+        case .trashed(let deletedTimestamp):
+            return try query(req).withDeleted().filter(.path(deletedTimestamp.path, schema: T.schema), .notEqual, .null).first().unwrap(or: Abort(.notFound))
         }
     }
 

@@ -4,9 +4,6 @@ import Vapor
 /// generic type `T` conforming to `CorvusModel` grouped under a given path.
 public final class CRUD<T: CorvusModel>: Endpoint {
 
-    //TODO: Missing Documentation
-    public typealias DeletedAtKeyPath = KeyPath<T, T.Timestamp>
-    
     /// The route path to the parameters.
     let pathComponents: [PathComponent]
 
@@ -14,22 +11,23 @@ public final class CRUD<T: CorvusModel>: Endpoint {
     let parameter = Parameter<T>()
 
     //TODO: Missing Documentation
-    let deletedAtKey: DeletedAtKeyPath?
+    let useSoftDelete: Bool
     
     /// Initializes the component with one or more route path components.
     ///
     /// - Parameter pathComponents: One or more `PathComponents` identifying the
     /// path to the operations defined by the `CRUD` component.
-    public init(_ pathComponents: PathComponent..., trash: DeletedAtKeyPath? = nil) {
+    /// - Parameter softDelete: Enable/Disable soft deletion of Models.
+    public init(_ pathComponents: PathComponent..., softDelete: Bool = true) {
         self.pathComponents = pathComponents
-        self.deletedAtKey = trash
+        self.useSoftDelete = softDelete
     }
 
     /// The `content` of the `CRUD`, containing Create, Read, Update and Delete
     /// functionality grouped under one.
     public var content: Endpoint {
-        if let deletedAtKey = deletedAtKey {
-            return content(with: deletedAtKey)
+        if useSoftDelete {
+            return contentWithSoftDelete
         }
         
         return Group(pathComponents) {
@@ -44,7 +42,7 @@ public final class CRUD<T: CorvusModel>: Endpoint {
         }
     }
     
-    func content(with deletedAtKey: DeletedAtKeyPath) -> Endpoint {
+    var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
             Create<T>()
             ReadAll<T>()
@@ -52,17 +50,17 @@ public final class CRUD<T: CorvusModel>: Endpoint {
             Group(parameter.id) {
                 ReadOne<T>(parameter.id)
                 Update<T>(parameter.id)
-                Delete<T>(parameter.id)
+                SoftDelete<T>(parameter.id)
             }
             
             Group("trash") {
-                ReadAll<T>(.trashed(deletedAtKey))
+                ReadAll<T>(.trashed)
                 Group(parameter.id) {
-                    ReadOne<T>(parameter.id, .trashed(deletedAtKey))
-                    Delete<T>(parameter.id, .trashed(deletedAtKey))
+                    ReadOne<T>(parameter.id, .trashed)
+                    Delete<T>(parameter.id)
                     
                     Group("restore") {
-                        Restore<T>(parameter.id, deletedAtKey: deletedAtKey)
+                        Restore<T>(parameter.id)
                     }
                 }
             }

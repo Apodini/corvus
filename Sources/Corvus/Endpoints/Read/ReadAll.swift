@@ -14,7 +14,7 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     /// Initializes the component
     ///
     /// - Parameter target: A `ReadTarget` which controls where to query the item from.
-    public init(_ target: ReadTarget<QuerySubject> = .existent) {
+    public init(_ target: ReadTarget<QuerySubject> = .existing) {
         self.target = target
     }
 
@@ -24,13 +24,13 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An array of `QuerySubjects`.
     public func handler(_ req: Request) throws -> EventLoopFuture<[QuerySubject]> {
-        switch target {
-        case .existent:
+        switch target.option {
+        case .existing:
             return try query(req).all()
         case .all:
             return try query(req).withDeleted().all()
-        case .trashed(let deletedAtKey):
-            return try query(req).withDeleted().filter(deletedAtKey != .null).all()
+        case .trashed(let deletedTimestamp):
+            return try query(req).withDeleted().filter(.path(deletedTimestamp.path, schema: T.schema), .notEqual, .null).all()
         }
     }
 
