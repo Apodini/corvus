@@ -58,6 +58,6 @@ public final class Restore<T: CorvusModel>: Endpoint {
     /// - Parameter routes: A `RoutesBuilder` containing all the information
     /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
-        routes.patch("restore", use: handler)
+        routes.patch(use: handler)
     }
 }

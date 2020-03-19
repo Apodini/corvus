@@ -383,7 +383,7 @@ final class ApplicationTests: XCTestCase {
                         SoftDelete<Account>(testParameter.id)
                     }
                     
-                    Group("trash", testParameter.id) {
+                    Group("trash", testParameter.id, "restore") {
                         Restore<Account>(testParameter.id)
                     }
                 }
