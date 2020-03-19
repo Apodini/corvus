@@ -10,7 +10,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users")
+                    CRUD<CorvusUser>("users", softDelete: false)
 
                     BasicAuthGroup("accounts") {
                         Create<Account>()
@@ -75,7 +75,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users")
+                    CRUD<CorvusUser>("users", softDelete: false)
 
                     BasicAuthGroup("accounts") {
                         Create<Account>()
@@ -130,7 +130,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users")
+                    CRUD<CorvusUser>("users", softDelete: false)
 
                     Login("login")
 
@@ -202,7 +202,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users")
+                    CRUD<CorvusUser>("users", softDelete: false)
 
                     Login("login")
 
@@ -244,7 +244,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users")
+                    CRUD<CorvusUser>("users", softDelete: false)
 
                     Login("login")
 

@@ -10,18 +10,27 @@ public final class CRUD<T: CorvusModel>: Endpoint {
     /// A property to generate route parameter placeholders.
     let parameter = Parameter<T>()
 
+    //TODO: Missing Documentation
+    let useSoftDelete: Bool
+    
     /// Initializes the component with one or more route path components.
     ///
     /// - Parameter pathComponents: One or more `PathComponents` identifying the
     /// path to the operations defined by the `CRUD` component.
-    public init(_ pathComponents: PathComponent...) {
+    /// - Parameter softDelete: Enable/Disable soft deletion of Models.
+    public init(_ pathComponents: PathComponent..., softDelete: Bool = true) {
         self.pathComponents = pathComponents
+        self.useSoftDelete = softDelete
     }
 
     /// The `content` of the `CRUD`, containing Create, Read, Update and Delete
     /// functionality grouped under one.
     public var content: Endpoint {
-        Group(pathComponents) {
+        if useSoftDelete {
+            return contentWithSoftDelete
+        }
+        
+        return Group(pathComponents) {
             Create<T>()
             ReadAll<T>()
 
@@ -29,6 +38,31 @@ public final class CRUD<T: CorvusModel>: Endpoint {
                 ReadOne<T>(parameter.id)
                 Update<T>(parameter.id)
                 Delete<T>(parameter.id)
+            }
+        }
+    }
+    
+    var contentWithSoftDelete: Endpoint {
+        Group(pathComponents) {
+            Create<T>()
+            ReadAll<T>()
+            
+            Group(parameter.id) {
+                ReadOne<T>(parameter.id)
+                Update<T>(parameter.id)
+                SoftDelete<T>(parameter.id)
+            }
+            
+            Group("trash") {
+                ReadAll<T>(.trashed)
+                Group(parameter.id) {
+                    ReadOne<T>(parameter.id, .trashed)
+                    Delete<T>(parameter.id)
+                    
+                    Group("restore") {
+                        Restore<T>(parameter.id)
+                    }
+                }
             }
         }
     }
