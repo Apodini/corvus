@@ -1,7 +1,7 @@
 import Vapor
 import Fluent
 
-/// A class that provides functionality to delete objects of a generic type
+/// A class that provides functionality to soft delete objects of a generic type
 /// `T` conforming to `CorvusModel` and identified by a route parameter.
 public final class SoftDelete<T: CorvusModel>: AuthEndpoint {
 
@@ -15,7 +15,9 @@ public final class SoftDelete<T: CorvusModel>: AuthEndpoint {
     let id: PathComponent
     public let operationType: OperationType = .delete
     
-    //TODO: Missing Documentation
+    /// Initializes the component with a given path parameter.
+    ///
+    /// - Parameter id: A `PathComponent` which represents the ID of the item.
     public init(_ id: PathComponent) {
         self.id = id
     }
@@ -27,7 +29,10 @@ public final class SoftDelete<T: CorvusModel>: AuthEndpoint {
     /// having found the object with the supplied ID.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
-        guard let itemId = req.parameters.get(parameter, as: QuerySubject.IDValue.self) else {
+        guard let itemId = req.parameters.get(
+            parameter,
+            as: QuerySubject.IDValue.self
+        ) else {
             throw Abort(.badRequest)
         }
         return T.query(on: req.db).filter(\T._$id == itemId)

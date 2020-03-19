@@ -8,7 +8,8 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     /// The return type of the `.handler()`.
     public typealias QuerySubject = T
 
-    //TODO: Missing Documentation
+    /// A property that describes if only existing, only trashed or both objects
+    /// should be read from the database.
     public let target: ReadTarget<QuerySubject>
     
     /// Initializes the component
@@ -19,7 +20,7 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     }
 
     /// A method to return all objects of the type `QuerySubject` from the
-    /// database.
+    /// database, depending on the `target`.
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An array of `QuerySubjects`.
@@ -30,7 +31,10 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
         case .all:
             return try query(req).withDeleted().all()
         case .trashed(let deletedTimestamp):
-            return try query(req).withDeleted().filter(.path(deletedTimestamp.path, schema: T.schema), .notEqual, .null).all()
+            return try query(req).withDeleted().filter(
+                .path(deletedTimestamp.path, schema: T.schema),
+                .notEqual, .null
+            ).all()
         }
     }
 

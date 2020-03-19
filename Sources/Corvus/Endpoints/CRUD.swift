@@ -41,8 +41,10 @@ public final class CRUD<T: CorvusModel>: Endpoint {
             }
         }
     }
-    
-    var contentWithSoftDelete: Endpoint {
+
+    /// The `content` of the `CRUD`, containing Create, Read, Update, Delete and
+    /// SoftDelete functionality grouped under one.
+    public var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
             Create<T>()
             ReadAll<T>()

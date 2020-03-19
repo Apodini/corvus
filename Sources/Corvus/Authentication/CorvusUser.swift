@@ -42,6 +42,7 @@ public final class CorvusUser: CorvusModel {
     }
 }
 
+/// Provides a migration structure for databases with schemas.
 public struct CreateCorvusUser: Migration {
 
     public init() {}

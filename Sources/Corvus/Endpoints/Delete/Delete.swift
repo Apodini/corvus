@@ -1,8 +1,9 @@
 import Vapor
 import Fluent
 
-/// A class that provides functionality to delete objects completely of a generic type
-/// `T` conforming to `CorvusModel` and identified by a route parameter.
+/// A class that provides functionality to delete objects completely of a
+/// generic type `T` conforming to `CorvusModel` and identified by a route
+/// parameter.
 public final class Delete<T: CorvusModel>: AuthEndpoint {
 
     /// The return type of the `.handler()`.
@@ -15,7 +16,9 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
     let id: PathComponent
     public let operationType: OperationType = .delete
     
-    //TODO: Missing Documentation
+    /// Initializes the component with a given path parameter.
+    ///
+    /// - Parameter id: A `PathComponent` which represents the ID of the item.
     public init(_ id: PathComponent) {
         self.id = id
     }

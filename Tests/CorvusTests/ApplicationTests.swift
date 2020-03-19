@@ -405,7 +405,12 @@ final class ApplicationTests: XCTestCase {
         var AccountRes: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode()) { res in
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account.encode()
+            ) { res in
                 AccountRes = try res.content.decode(Account.self)
             }
             .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
@@ -420,7 +425,10 @@ final class ApplicationTests: XCTestCase {
             .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
                 XCTAssertEqual(res.status, .notFound)
             }
-            .test(.PATCH, "/api/accounts/trash/\(AccountRes.id!)/restore") { res in
+            .test(
+                .PATCH,
+                "/api/accounts/trash/\(AccountRes.id!)/restore"
+            ) { res in
                 XCTAssertEqual(res.status, .ok)
             }
             .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
@@ -478,10 +486,20 @@ final class ApplicationTests: XCTestCase {
         var accountRes: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account1.encode()) { res in
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account1.encode()
+            ) { res in
                 accountRes = try res.content.decode(Account.self)
             }
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account2.encode())
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account2.encode()
+            )
             .test(.DELETE, "/api/accounts/\(accountRes.id!)")
             .test(.GET, "/api/accounts/default") { res in
                 let response = try res.content.decode([Account].self)
@@ -553,10 +571,20 @@ final class ApplicationTests: XCTestCase {
         var account1Res: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account1.encode()) { res in
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account1.encode()
+            ) { res in
                 account1Res = try res.content.decode(Account.self)
             }
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account2.encode())
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account2.encode()
+            )
             .test(.GET, "/api/accounts/default/\(account1Res.id!)") { res in
                 print(res.body.string)
                 let response = try res.content.decode(Account.self)
@@ -625,7 +653,12 @@ final class ApplicationTests: XCTestCase {
         var accountRes: Account!
         
         try app.testable()
-            .test(.POST, "/api/accounts", headers: ["content-type": "application/json"], body: account.encode()) { res in
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account.encode()
+            ) { res in
                 accountRes = try res.content.decode(Account.self)
             }
             .test(.DELETE, "/api/accounts/\(accountRes.id!)")
