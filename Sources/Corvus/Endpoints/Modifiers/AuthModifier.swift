@@ -93,26 +93,6 @@ public final class AuthModifier<Q: AuthEndpoint>: AuthEndpoint {
             }
         }
     }
-
-    /// A method that registers the `.handler()` to the supplied
-    /// `RoutesBuilder`, based on the `queryEndpoint`'s operation type.
-    ///
-    /// - Parameter routes: A `RoutesBuilder` containing all the information
-    /// about the HTTP route leading to the current component.
-    public func register(to routes: RoutesBuilder) {
-        switch operationType {
-        case .post:
-            routes.post(use: handler)
-        case .get:
-            routes.get(use: handler)
-        case .put:
-            routes.put(use: handler)
-        case .delete:
-            routes.delete(use: handler)
-        case .patch:
-            fatalError("Not implemented yet")
-        }
-    }
 }
 
 /// An extension that adds the `.auth()` modifier to components conforming to
