@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 /// A class that contains custom functionality passed in by the implementor for
-/// a generic type `T` conforming to `CorvusModel` grouped under a given path.
+/// a generic type `T conforming to `ResponseEncodable` grouped under a given path.
 public final class Custom<R: ResponseEncodable>: RestEndpoint {
     
     /// The return value of the `.handler()`.
@@ -35,7 +35,10 @@ public final class Custom<R: ResponseEncodable>: RestEndpoint {
         self.customHandler = customHandler
     }
 
-    /// Not used, necessary for protocol conformance to `QueryEndpoint`.
+    /// A method to return an element of type `T` return by the custom handler.
+    ///
+    /// - Parameter req: An incoming `Request`.
+    /// - Returns: An element of type `T`.
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
         try customHandler(req)
     }
