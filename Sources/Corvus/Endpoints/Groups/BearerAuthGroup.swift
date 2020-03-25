@@ -1,14 +1,15 @@
 import Vapor
+import Fluent
 
 /// A special type of `Group` that protects its `content` with bearer token
 /// authentication.
-public struct BearerAuthGroup: Endpoint {
+public struct BearerAuthGroup<T: ModelUserToken>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the
     /// `BearerAuthGroup` extends.
     let pathComponents: [PathComponent]
 
-    /// The content of the `BasicAuthGroup`, which can be any kind of Corvus
+    /// The content of the `BearerAuthGroup`, which can be any kind of Corvus
     /// component.
     public var content: Endpoint
 
@@ -30,7 +31,7 @@ public struct BearerAuthGroup: Endpoint {
 
     /// A method that registers the `content` of the `BearerAuthGroup` to the
     /// supplied `RoutesBuilder`. It also registers basic authentication
-    /// middleware using `CorvusUser`.
+    /// middleware using `T`conforming to `ModelUserToken`.
     ///
     /// - Parameter routes: A `RoutesBuilder` containing all the information
     /// about the HTTP route leading to the current component.
@@ -40,8 +41,8 @@ public struct BearerAuthGroup: Endpoint {
         )
 
         let guardedRoutesBuilder = groupedRoutesBuilder.grouped([
-            CorvusUser.guardMiddleware(),
-            CorvusToken.authenticator().middleware(),
+            T.User.guardMiddleware(),
+            T.authenticator().middleware(),
         ])
         
         content.register(to: guardedRoutesBuilder)

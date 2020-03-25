@@ -65,14 +65,6 @@ ReadEndpoint {
             return eagerLoaded
         }
     }
-
-    /// A method that registers the `.handler()` to the supplied `RoutesBuilder`.
-    ///
-    /// - Parameter routes: A `RoutesBuilder` containing all the information
-    /// about the HTTP route leading to the current component.
-    public func register(to routes: RoutesBuilder) {
-        routes.get(use: handler)
-    }
 }
 
 /// An extension that adds a `.children()` modifier to `ReadEndpoints`.

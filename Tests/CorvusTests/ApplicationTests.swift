@@ -292,7 +292,7 @@ final class ApplicationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api", "accounts") {
-                    Custom<Account>(path: "", type: .post) { req in
+                    Custom<Account>(path: "userId", type: .post) { req in
                         let requestContent = try req.content.decode(
                             Account.self
                         )
@@ -317,7 +317,7 @@ final class ApplicationTests: XCTestCase {
         let account = Account(name: "Berzan")
         try app.testable().test(
             .POST,
-            "/api/accounts",
+            "/api/accounts/userId",
             headers: ["content-type": "application/json"],
             body: account.encode()
         ) { res in

@@ -20,12 +20,4 @@ public final class Create<T: CorvusModel>: QueryEndpoint {
         let requestContent = try req.content.decode(QuerySubject.self)
         return requestContent.save(on: req.db).map { requestContent }
     }
-
-    /// A method that registers the `.handler()` to the supplied `RoutesBuilder`.
-    ///
-    /// - Parameter routes: A `RoutesBuilder` containing all the information
-    /// about the HTTP route leading to the current component.
-    public func register(to routes: RoutesBuilder) {
-        routes.post(use: handler)
-    }
 }

@@ -3,7 +3,7 @@ import Fluent
 
 /// A class that provides functionality to restore soft-deleted objects of a
 /// generic type `T` conforming to `CorvusModel` and identified by a route parameter.
-public final class Restore<T: CorvusModel>: Endpoint {
+public final class Restore<T: CorvusModel>: AuthEndpoint {
 
     /// The return type of the `.handler()`.
     public typealias QuerySubject = T
@@ -13,7 +13,8 @@ public final class Restore<T: CorvusModel>: Endpoint {
 
    /// The ID of the item to be deleted.
     let id: PathComponent
-
+    public let operationType: OperationType = .patch
+    
     // The timestamp at which the item was soft deleted.
     let deletedTimestamp: QuerySubject.Timestamp
     

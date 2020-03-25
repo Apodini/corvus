@@ -1,5 +1,4 @@
 import Vapor
-import Fluent
 
 /// A protocol most Corvus components in a hierarchy conform to, so that they
 /// may be treated as the same type interchangeably.

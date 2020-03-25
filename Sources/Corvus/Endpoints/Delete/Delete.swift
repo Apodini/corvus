@@ -48,12 +48,4 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
             .flatMap { $0.delete(force: true, on: req.db) }
             .map { .ok }
     }
-
-    /// A method that registers the `.handler()` to the supplied `RoutesBuilder`.
-    ///
-    /// - Parameter routes: A `RoutesBuilder` containing all the information
-    /// about the HTTP route leading to the current component.
-    public func register(to routes: RoutesBuilder) {
-        routes.delete(use: handler)
-    }
 }

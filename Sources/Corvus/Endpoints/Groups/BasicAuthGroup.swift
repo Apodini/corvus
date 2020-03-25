@@ -1,8 +1,9 @@
 import Vapor
+import Fluent
 
 /// A special type of `Group` that protects its `content` with basic
 /// authentication.
-public struct BasicAuthGroup: Endpoint {
+public struct BasicAuthGroup<T: ModelUser>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the
     /// `BasicAuthGroup` extends.
@@ -28,9 +29,9 @@ public struct BasicAuthGroup: Endpoint {
     }
 
 
-    /// A method that registers the `content` of the `BearerAuthGroup` to the
+    /// A method that registers the `content` of the `BasicAuthGroup` to the
     /// supplied `RoutesBuilder`. It also registers basic authentication
-    /// middleware using `CorvusUser`.
+    /// middleware using `T` conforming to `ModelUser`.
     ///
     /// - Parameter routes: A `RoutesBuilder` containing all the information
     /// about the HTTP route leading to the current component.
@@ -40,8 +41,8 @@ public struct BasicAuthGroup: Endpoint {
         )
 
         let guardedRoutesBuilder = groupedRoutesBuilder.grouped([
-            CorvusUser.guardMiddleware(),
-            CorvusUser.authenticator().middleware(),
+            T.guardMiddleware(),
+            T.authenticator().middleware(),
         ])
         
         content.register(to: guardedRoutesBuilder)
