@@ -24,6 +24,10 @@ public final class CorvusUser: CorvusModel {
     @Field(key: "password")
     public var password: String
 
+    /// Timestamp for soft deletion.
+    @Timestamp(key: "deleted_at", on: .delete)
+    var deletedAt: Date?
+
     /// Provides public access to the User's initializer.
     public init() { }
 
@@ -55,6 +59,7 @@ public struct CreateCorvusUser: Migration {
             .field("name", .string, .required)
             .field("email", .string, .required)
             .field("password", .string, .required)
+            .field("deleted_at", .date)
             .create()
     }
 

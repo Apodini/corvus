@@ -19,6 +19,10 @@ public final class CorvusToken: CorvusModel {
     @Parent(key: "user_id")
     public var user: CorvusUser
 
+    /// Timestamp for soft deletion.
+    @Timestamp(key: "deleted_at", on: .delete)
+    var deletedAt: Date?
+
     /// Empty initializer to create without args.
     public init() { }
 
@@ -52,6 +56,7 @@ public struct CreateCorvusToken: Migration {
                 .required,
                 .references(CorvusUser.schema, .id)
             )
+            .field("deleted_at", .date)
             .unique(on: "value")
             .create()
     }
