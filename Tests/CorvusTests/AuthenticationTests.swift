@@ -12,7 +12,7 @@ final class AuthenticationTests: XCTestCase {
                 Group("api") {
                     CRUD<CorvusUser>("users", softDelete: false)
 
-                    BasicAuthGroup("accounts") {
+                    BasicAuthGroup<CorvusUser>("accounts") {
                         Create<Account>()
                     }
                 }
@@ -77,7 +77,7 @@ final class AuthenticationTests: XCTestCase {
                 Group("api") {
                     CRUD<CorvusUser>("users", softDelete: false)
 
-                    BasicAuthGroup("accounts") {
+                    BasicAuthGroup<CorvusUser>("accounts") {
                         Create<Account>()
                     }
                 }
@@ -134,7 +134,7 @@ final class AuthenticationTests: XCTestCase {
 
                     Login("login")
 
-                    BearerAuthGroup("accounts") {
+                    BearerAuthGroup<CorvusToken>("accounts") {
                         Create<Account>()
                     }
                 }
@@ -206,7 +206,7 @@ final class AuthenticationTests: XCTestCase {
 
                     Login("login")
 
-                    BearerAuthGroup("accounts") {
+                    BearerAuthGroup<CorvusToken>("accounts") {
                         Create<Account>()
                     }
                 }
@@ -248,7 +248,7 @@ final class AuthenticationTests: XCTestCase {
 
                     Login("login")
 
-                    BearerAuthGroup("accounts") {
+                    BearerAuthGroup<CorvusToken>("accounts") {
                         Create<SecureAccount>()
                         Group(testParameter.id) {
                             ReadOne<SecureAccount>(testParameter.id)
