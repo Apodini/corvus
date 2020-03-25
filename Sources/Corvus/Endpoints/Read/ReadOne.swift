@@ -8,7 +8,7 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
     /// The return type of the `.handler()`.
     public typealias QuerySubject = T
     
-    /// The ID of the item to be deleted.
+    /// The ID of the item to be read.
     let id: PathComponent
 
     //TODO: Missing Documentation

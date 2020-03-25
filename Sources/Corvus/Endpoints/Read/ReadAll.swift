@@ -14,7 +14,8 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     
     /// Initializes the component
     ///
-    /// - Parameter target: A `ReadTarget` which controls where to query the item from.
+    /// - Parameter target: A `ReadTarget` which controls where to query the
+    /// item from.
     public init(_ target: ReadTarget<QuerySubject> = .existing) {
         self.target = target
     }

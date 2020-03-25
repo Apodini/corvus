@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 /// A special type of `Group` that protects its `content` with bearer token
-/// authentication.
+/// authentication for a generic `ModelUserToken`.
 public struct BearerAuthGroup<T: ModelUserToken>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the

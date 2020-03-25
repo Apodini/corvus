@@ -8,7 +8,7 @@ public final class Update<T: CorvusModel>: AuthEndpoint {
     /// The return type of the `.handler()`.
     public typealias QuerySubject = T
 
-    /// The ID of the item to be deleted.
+    /// The ID of the item to be updated.
     let id: PathComponent
 
     /// The HTTP method for `Update` is PUT.
@@ -29,7 +29,9 @@ public final class Update<T: CorvusModel>: AuthEndpoint {
     /// having found the object with the supplied ID.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
-        guard let itemId = req.parameters.get(parameter, as: QuerySubject.IDValue.self) else {
+        guard let itemId = req.parameters.get(
+            parameter, as: QuerySubject.IDValue.self
+        ) else {
             throw Abort(.badRequest)
         }
         return T.query(on: req.db).filter(\T._$id == itemId)

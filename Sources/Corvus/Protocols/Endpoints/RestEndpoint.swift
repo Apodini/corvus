@@ -17,9 +17,15 @@ public protocol RestEndpoint: Endpoint {
     func handler(_ req: Request) throws -> EventLoopFuture<Element>
 }
 
+/// Extends `RestEndpoint` with default implementation for route registration.
 public extension RestEndpoint {
+
+    /// The empty  `pathComponents` of the `RestEndpoint`.
     var pathComponents: [PathComponent] { [] }
-    
+
+    /// Registers the component to the `Vapor` router depending on its
+    /// `operationType`.
+    /// - Parameter routes: The `RoutesBuilder` to extend.
     func register(to routes: RoutesBuilder) {
         switch operationType {
         case .post:

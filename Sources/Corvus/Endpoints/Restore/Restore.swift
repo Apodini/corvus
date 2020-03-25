@@ -2,7 +2,8 @@ import Vapor
 import Fluent
 
 /// A class that provides functionality to restore soft-deleted objects of a
-/// generic type `T` conforming to `CorvusModel` and identified by a route parameter.
+/// generic type `T` conforming to `CorvusModel` and identified by a route
+/// parameter.
 public final class Restore<T: CorvusModel>: AuthEndpoint {
 
     /// The return type of the `.handler()`.
@@ -11,8 +12,10 @@ public final class Restore<T: CorvusModel>: AuthEndpoint {
     /// The return type of the `.query()`.
     public typealias Element = HTTPStatus
 
-   /// The ID of the item to be deleted.
+   /// The ID of the item to be restored.
     let id: PathComponent
+    
+    /// The HTTP operation type of the component.
     public let operationType: OperationType = .patch
     
     // The timestamp at which the item was soft deleted.
@@ -40,7 +43,9 @@ public final class Restore<T: CorvusModel>: AuthEndpoint {
     /// having found the object with the supplied ID.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
-        guard let itemId = req.parameters.get(parameter, as: QuerySubject.IDValue.self) else {
+        guard let itemId = req.parameters.get(
+            parameter, as: QuerySubject.IDValue.self
+        ) else {
             throw Abort(.badRequest)
         }
 

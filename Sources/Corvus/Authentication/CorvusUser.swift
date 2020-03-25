@@ -45,6 +45,7 @@ public final class CorvusUser: CorvusModel {
 /// Provides a migration structure for databases with schemas.
 public struct CreateCorvusUser: Migration {
 
+    /// An empty initializer without args.
     public init() {}
 
     /// Prepares database fields and their value types.

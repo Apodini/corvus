@@ -10,7 +10,7 @@ public final class CRUD<T: CorvusModel>: Endpoint {
     /// A property to generate route parameter placeholders.
     let parameter = Parameter<T>()
 
-    //TODO: Missing Documentation
+    /// Indicates wether soft delete should be included or not.
     let useSoftDelete: Bool
     
     /// Initializes the component with one or more route path components.

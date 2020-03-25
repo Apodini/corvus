@@ -19,8 +19,15 @@ public final class CorvusToken: CorvusModel {
     @Parent(key: "user_id")
     public var user: CorvusUser
 
+    /// Empty initializer to create without args.
     public init() { }
 
+
+    /// Initializes `CorvusToken` with arguments.
+    /// - Parameters:
+    ///   - id: The id of the `CorvusToken`.
+    ///   - value: The `string` value of the `CorvusToken`.
+    ///   - userID: The id of the `CorvusUser` the `CorvusToken` belongs to.
     public init(id: UUID? = nil, value: String, userID: CorvusUser.IDValue) {
         self.id = id
         self.value = value

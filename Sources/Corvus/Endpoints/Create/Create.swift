@@ -7,8 +7,10 @@ public final class Create<T: CorvusModel>: QueryEndpoint {
     /// The return type of the `.handler()`.
     public typealias QuerySubject = T
 
+    /// The HTTP operation type of the component.
     public let operationType: OperationType = .post
 
+    /// An initializer for creation without arguments.
     public init() {}
 
     /// A method that saves objects from a `Request` to the database.

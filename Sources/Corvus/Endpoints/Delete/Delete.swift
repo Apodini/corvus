@@ -12,8 +12,10 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
     /// The return type of the `.query()`.
     public typealias Element = HTTPStatus
 
-    /// The ID of the item to be deleted.
+    /// The id of the object to be deleted.
     let id: PathComponent
+
+    /// The HTTP operation type of the component.
     public let operationType: OperationType = .delete
     
     /// Initializes the component with a given path parameter.
@@ -30,7 +32,9 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
     /// having found the object with the supplied ID.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
-        guard let itemId = req.parameters.get(parameter, as: QuerySubject.IDValue.self) else {
+        guard let itemId = req.parameters.get(
+            parameter, as: QuerySubject.IDValue.self
+        ) else {
             throw Abort(.badRequest)
         }
         return T.query(on: req.db).withDeleted().filter(\T._$id == itemId)

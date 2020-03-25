@@ -7,8 +7,10 @@ import Fluent
 public protocol CorvusModel: Model, Content
 where IDValue: LosslessStringConvertible {}
 
-//TODO: Missing Documentation
+/// Extends `CorvusModel` to allow access to its deletion timestamp.
 public extension CorvusModel {
+
+    /// The timestamp at which a `CorvusModel` was soft deleted.
     static var deletedTimestamp: Timestamp? {
         Self().properties
             .compactMap({ $0 as? TimestampProperty<Self> })

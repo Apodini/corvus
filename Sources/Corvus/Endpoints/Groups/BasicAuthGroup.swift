@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 /// A special type of `Group` that protects its `content` with basic
-/// authentication.
+/// authentication for a generic `ModelUser`.
 public struct BasicAuthGroup<T: ModelUser>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the

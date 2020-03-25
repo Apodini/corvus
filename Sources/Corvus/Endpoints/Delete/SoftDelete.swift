@@ -11,8 +11,10 @@ public final class SoftDelete<T: CorvusModel>: AuthEndpoint {
     /// The return type of the `.query()`.
     public typealias Element = HTTPStatus
 
-    /// The ID of the item to be deleted.
+    /// The id of the object to be soft deleted.
     let id: PathComponent
+
+    /// The HTTP operation type of the component.
     public let operationType: OperationType = .delete
     
     /// Initializes the component with a given path parameter.
