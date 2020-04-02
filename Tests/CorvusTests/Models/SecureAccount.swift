@@ -1,5 +1,6 @@
 import Corvus
 import Fluent
+import Foundation
 
 final class SecureAccount: CorvusModel {
 

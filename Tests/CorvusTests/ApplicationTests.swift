@@ -2,6 +2,7 @@ import Corvus
 import Fluent
 import FluentSQLiteDriver
 import XCTVapor
+import Foundation
 
 final class ApplicationTests: XCTestCase {
 
