@@ -1,8 +1,8 @@
 module: Corvus
 author: Berzan Yildiz
-min-acl: internal
+min_acl: internal
 hide-documentation-coverage: false
 theme: fullwidth
 output: ./docs
 documentation: ./*.md
-swift-version: 5.2
+swift_version: 5.2.0
