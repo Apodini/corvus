@@ -9,17 +9,8 @@ on:
 jobs:
   corvus_macos:
     runs-on: macos-latest
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_11.4_beta.app/Contents/Developer
     steps:
     - uses: actions/checkout@v2
-      with:
-        swift-version: "5.2.0"
-    - name: Xcode 11.4
-      run: sudo xcode-select -s /Applications/Xcode_11.4.app/Contents/Developer
-    - name: Xcode version check
-      run: xcodebuild -version
-    - name: Check version
-      run: swift --version
-    - name: Build
-      run: swift build
-    - name: Test
-      run: swift test --enable-test-discovery --sanitize=thread
+    - run: swift test --enable-test-discovery --sanitize=thread
