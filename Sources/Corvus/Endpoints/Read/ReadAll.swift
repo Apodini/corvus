@@ -25,17 +25,26 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An array of `QuerySubjects`.
-    public func handler(_ req: Request) throws -> EventLoopFuture<[QuerySubject]> {
+    public func handler(_ req: Request) throws ->
+        EventLoopFuture<[QuerySubject]>
+    {
         switch target.option {
         case .existing:
-            return try query(req).all()
+            return try query(req)
+                .all()
         case .all:
-            return try query(req).withDeleted().all()
+            return try query(req)
+                .withDeleted()
+                .all()
         case .trashed(let deletedTimestamp):
-            return try query(req).withDeleted().filter(
-                .path(deletedTimestamp.path, schema: T.schema),
-                .notEqual, .null
-            ).all()
+            return try query(req)
+                .withDeleted()
+                .filter(
+                    .path(deletedTimestamp.path, schema: T.schema),
+                    .notEqual,
+                    .null
+                )
+                .all()
         }
     }
 }

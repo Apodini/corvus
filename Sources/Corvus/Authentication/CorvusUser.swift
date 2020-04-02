@@ -38,7 +38,12 @@ public final class CorvusUser: CorvusModel {
     ///     - name: The name of the user.
     ///     - email: The email (or username) of the user.
     ///     - password: The password of the user.
-    public init(id: UUID? = nil, name: String, email: String, password: String) {
+    public init(
+        id: UUID? = nil,
+        name: String,
+        email: String,
+        password: String
+    ) {
         self.id = id
         self.name = name
         self.email = email

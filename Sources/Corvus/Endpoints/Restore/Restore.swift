@@ -12,13 +12,13 @@ public final class Restore<T: CorvusModel>: AuthEndpoint {
     /// The return type of the `.query()`.
     public typealias Element = HTTPStatus
 
-   /// The ID of the item to be restored.
+    /// The ID of the item to be restored.
     let id: PathComponent
     
     /// The HTTP operation type of the component.
     public let operationType: OperationType = .patch
     
-    // The timestamp at which the item was soft deleted.
+    /// The timestamp at which the item was soft deleted.
     let deletedTimestamp: QuerySubject.Timestamp
     
     /// Initializes the component with a given path parameter.

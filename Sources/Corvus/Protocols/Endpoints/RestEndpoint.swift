@@ -1,5 +1,6 @@
 import Vapor
 
+/// Defines a generic type for `RESTful` endpoints.
 public protocol RestEndpoint: Endpoint {
 
     /// The type returned after from the `.handler()`.

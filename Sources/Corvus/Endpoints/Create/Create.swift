@@ -17,8 +17,9 @@ public final class Create<T: CorvusModel>: QueryEndpoint {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing the saved object.
-    public func handler(_ req: Request)
-        throws -> EventLoopFuture<QuerySubject> {
+    public func handler(_ req: Request) throws ->
+        EventLoopFuture<QuerySubject>
+    {
         let requestContent = try req.content.decode(QuerySubject.self)
         return requestContent.save(on: req.db).map { requestContent }
     }

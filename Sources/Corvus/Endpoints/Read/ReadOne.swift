@@ -11,7 +11,7 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
     /// The ID of the item to be read.
     let id: PathComponent
 
-    //TODO: Missing Documentation
+    /// Represents the type of `CorvusModel` to be read.
     public let target: ReadTarget<QuerySubject>
     
     /// Initializes the component with a given path parameter.
@@ -48,7 +48,9 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: The found object.
-    public func handler(_ req: Request) throws -> EventLoopFuture<QuerySubject> {
+    public func handler(_ req: Request) throws ->
+        EventLoopFuture<QuerySubject>
+    {
         switch target.option {
         case .existing:
             return try query(req).first().unwrap(or: Abort(.notFound))

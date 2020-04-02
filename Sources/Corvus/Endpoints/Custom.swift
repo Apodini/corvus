@@ -2,7 +2,8 @@ import Vapor
 import Fluent
 
 /// A class that contains custom functionality passed in by the implementor for
-/// a generic type `T conforming to `ResponseEncodable` grouped under a given path.
+/// a generic type `T conforming to `ResponseEncodable` grouped under a given
+/// path.
 public final class Custom<R: ResponseEncodable>: RestEndpoint {
     
     /// The return value of the `.handler()`.

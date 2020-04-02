@@ -7,7 +7,7 @@ let package = Package(
        .macOS(.v10_15)
     ],
     products: [
-        .library(name: "Corvus", targets: ["Corvus"]),
+        .library(name: "Corvus", targets: ["Corvus"])
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
@@ -26,7 +26,7 @@ let package = Package(
         .package(
             url: "https://github.com/vapor/fluent-sqlite-driver.git",
             from: "4.0.0-rc"
-        ),
+        )
     ],
     targets: [
         // Corvus
@@ -42,7 +42,10 @@ let package = Package(
         .testTarget(name: "CorvusTests", dependencies: [
             .target(name: "Corvus"),
             .product(name: "XCTVapor", package: "vapor"),
-            .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver")
+            .product(
+                name: "FluentSQLiteDriver",
+                package: "fluent-sqlite-driver"
+            )
         ])
     ]
 )

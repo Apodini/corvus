@@ -23,7 +23,8 @@ public struct BearerAuthGroup<T: ModelUserToken>: Endpoint {
     ///     `Endpoint`.
     public init(
         _ pathComponents: PathComponent...,
-        @EndpointBuilder content: () -> Endpoint) {
+        @EndpointBuilder content: () -> Endpoint
+    ) {
         self.pathComponents = pathComponents
         self.content = content()
     }
@@ -37,12 +38,13 @@ public struct BearerAuthGroup<T: ModelUserToken>: Endpoint {
     /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
         let groupedRoutesBuilder: RoutesBuilder = pathComponents.reduce(
-            routes, { $0.grouped($1) }
+            routes,
+            { $0.grouped($1) }
         )
 
         let guardedRoutesBuilder = groupedRoutesBuilder.grouped([
             T.User.guardMiddleware(),
-            T.authenticator().middleware(),
+            T.authenticator().middleware()
         ])
         
         content.register(to: guardedRoutesBuilder)

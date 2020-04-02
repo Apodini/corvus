@@ -4,7 +4,9 @@ import Fluent
 /// A class that wraps a component which utilizes a `.children()` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `ReadEndpoint`.
-public final class ChildrenModifier<Q: ReadEndpoint, E: CorvusModel>:
+public final class ChildrenModifier<
+    Q: ReadEndpoint,
+    E: CorvusModel>:
 ReadEndpoint {
 
     /// The type of the value loaded with the `.children()` modifier.

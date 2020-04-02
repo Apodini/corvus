@@ -33,7 +33,8 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
         guard let itemId = req.parameters.get(
-            parameter, as: QuerySubject.IDValue.self
+            parameter,
+            as: QuerySubject.IDValue.self
         ) else {
             throw Abort(.badRequest)
         }

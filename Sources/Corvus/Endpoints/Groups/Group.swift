@@ -24,7 +24,8 @@ public struct Group: Endpoint {
     ///     `Endpoint`.
     public init(
         _ pathComponents: PathComponent...,
-        @EndpointBuilder content: () -> Endpoint) {
+        @EndpointBuilder content: () -> Endpoint
+    ) {
         self.pathComponents = pathComponents
         self.content = content()
     }
@@ -39,7 +40,8 @@ public struct Group: Endpoint {
     ///     `Endpoint`.
     public init(
         _ pathComponents: [PathComponent],
-        @EndpointBuilder content: () -> Endpoint) {
+        @EndpointBuilder content: () -> Endpoint
+    ) {
         self.pathComponents = pathComponents
         self.content = content()
     }
@@ -51,7 +53,8 @@ public struct Group: Endpoint {
     /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
         let groupedRoutesBuilder: RoutesBuilder = pathComponents.reduce(
-            routes, { $0.grouped($1) }
+            routes,
+            { $0.grouped($1) }
         )
         content.register(to: groupedRoutesBuilder)
     }

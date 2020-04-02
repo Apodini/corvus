@@ -97,7 +97,6 @@ public final class AuthModifier<Q: AuthEndpoint>: AuthEndpoint {
 
 /// An extension that adds the `.auth()` modifier to components conforming to
 /// `AuthEndpoint`.
-
 extension AuthEndpoint {
 
     /// A modifier used to make sure components only authorize requests where

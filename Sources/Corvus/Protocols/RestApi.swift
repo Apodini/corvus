@@ -6,7 +6,8 @@ import Vapor
 public protocol RestApi: RouteCollection, Endpoint {}
 
 /// An extension providing a default implementation for the `RouteCollection`'s
-/// `.boot()` method, recursively invoking registration for all of its `content`.
+/// `.boot()` method, recursively invoking registration for all of its
+/// `content`.
 extension RestApi {
 
     /// A default implementation for `boot` that recurses down the API's

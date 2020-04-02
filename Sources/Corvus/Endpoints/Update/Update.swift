@@ -43,7 +43,9 @@ public final class Update<T: CorvusModel>: AuthEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing the updated value of the
     /// object of type `QuerySubject`.
-    public func handler(_ req: Request) throws -> EventLoopFuture<QuerySubject> {
+    public func handler(_ req: Request) throws ->
+        EventLoopFuture<QuerySubject>
+    {
         let updatedItem = try req.content.decode(T.self)
         return try query(req)
             .first()
