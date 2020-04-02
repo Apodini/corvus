@@ -7,10 +7,9 @@ on:
     branches: [ master ]
 
 jobs:
-  run_tests:
-    
+  corvus_macos:
+    container: vapor/swift:5.2  
     runs-on: macos-latest
-
     steps:
     - uses: actions/checkout@v2
       with:
@@ -24,4 +23,4 @@ jobs:
     - name: Build
       run: swift build
     - name: Test
-      run: swift test
+      run: swift test --enable-test-discovery --sanitize=thread
