@@ -181,8 +181,7 @@ components that provide concrete functionality, like `Create` or `ReadAll`. Chec
 
 # How to contribute
 
-Just create an issue with your proposal, and if that is accepted, a pull request with your change
-should suffice.
+Review our [contribution guidelines](https://github.com/Apodini/.github/blob/master/CONTRIBUTING.md) for contribution formalities.
 
 # Sources
 The logo: Made by [Freepik](https://www.flaticon.com/authors/freepik)
