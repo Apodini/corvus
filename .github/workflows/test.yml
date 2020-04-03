@@ -24,9 +24,9 @@ jobs:
     - name: Test
       run: swift test --enable-test-discovery --enable-code-coverage
     - name: Upload coverage to Codecov
-      - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          file: .build/debug/codecov/*.json
-          name: codecov-umbrella
+      uses: actions/checkout@master
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+        file: .build/debug/codecov/*.json
+        name: codecov-umbrella
