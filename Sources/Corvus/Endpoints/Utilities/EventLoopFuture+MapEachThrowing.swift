@@ -12,7 +12,7 @@ extension EventLoopFuture where Value: Sequence {
     func mapEachThrowing<Result>(
         _ transform: @escaping (_ element: Value.Element) throws -> Result
     ) -> EventLoopFuture<[Result]> {
-        return self.flatMapThrowing { sequence -> [Result] in
+        return self.flatMapThrowing { sequence in
             try sequence.map(transform)
         }
     }
