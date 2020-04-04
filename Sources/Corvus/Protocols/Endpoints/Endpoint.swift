@@ -27,9 +27,10 @@ extension Endpoint {
 /// do not need to be registered.
 extension Endpoint {
 
-    /// An empty default implementation of `.register()` for components that do
-    /// not need it.
-    public func register(to routes: RoutesBuilder) {}
+    /// A default implementation of `.register()` for components that do not need special behaviour.
+    public func register(to routes: RoutesBuilder) {
+        content.register(to: routes)
+    }
 }
 
 /// An extension to make an `Array` of `Endpoint` conform to `Endpoint` and thus
