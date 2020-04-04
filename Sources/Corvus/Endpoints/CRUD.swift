@@ -68,13 +68,4 @@ public final class CRUD<T: CorvusModel>: Endpoint {
             }
         }
     }
-
-    /// A method that invokes the `register` function for the component's
-    /// `content`.
-    ///
-    /// - Parameter routes: A `RoutesBuilder` containing all the information
-    /// about the HTTP route leading to the current component.
-    public func register(to routes: RoutesBuilder) {
-        content.register(to: routes)
-    }
 }
