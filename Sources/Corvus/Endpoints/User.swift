@@ -34,7 +34,7 @@ public final class User<T: CorvusModelUser>: Endpoint {
         return Group(pathComponents) {
             Custom<String>(type: .post) { req in
                 let requestContent = try req.content.decode(T.self)
-                let user = try T.init(password: requestContent.passwordHash, name: requestContent.name)
+                let user = try T.init(password: requestContent.passwordHash, name: requestContent.name) // This works because initializers of CorvusModelUser and CorvusUser are equal, what happens if not?
                 return requestContent
                     .save(on: req.db)
                     .flatMapThrowing { user.name }
