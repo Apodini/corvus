@@ -107,18 +107,3 @@ extension CorvusUser {
         )
     }
 }
-
-/// An extension to validate if a given `CorvusUser` is equal to the current
-/// `CorvusUser`, used for `AuthEndpoint.auth()`.
-extension CorvusUser {
-
-    /// Validates if a given user is equal to the current user.
-    ///
-    /// - Parameter requestUser: The user from the request that is to be
-    /// validated.
-    /// - Returns: True if the request's user matches the current user, false if
-    /// not.
-    public func validate(_ requestUser: CorvusUser) -> Bool {
-        requestUser.id == self.id
-    }
-}
