@@ -56,7 +56,7 @@ public struct CorvusModelUserTokenAuthenticator<T: CorvusModelUserToken>: Bearer
     ) -> EventLoopFuture<User?> {
         let db = request.db(self.database)
         return T.query(on: db)
-            .filter(\T._$value == bearer.token)
+            .filter(\._$value == bearer.token)
             .first()
             .flatMap
         { token -> EventLoopFuture<User?> in

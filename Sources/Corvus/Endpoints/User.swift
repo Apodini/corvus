@@ -3,7 +3,7 @@ import Fluent
 
 /// A class that contains Create, Read, Update and Delete functionality for a
 /// generic type `T` conforming to `CorvusModel` grouped under a given path.
-public final class User<T: ModelUser & CorvusModel>: Endpoint {
+public final class User<T: CorvusModelUser>: Endpoint {
 
     /// The route path to the parameters.
     let pathComponents: [PathComponent]
@@ -32,19 +32,12 @@ public final class User<T: ModelUser & CorvusModel>: Endpoint {
         }
         
         return Group(pathComponents) {
-            Custom<T>(type: .post) { req in
+            Custom<String>(type: .post) { req in
                 let requestContent = try req.content.decode(T.self)
+                let user = try T.init(password: requestContent.passwordHash, name: requestContent.name)
                 return requestContent
                     .save(on: req.db)
-                    .flatMapThrowing {
-                        guard let username = requestContent[
-                            keyPath: T.usernameKey
-                            ] as? T else
-                        {
-                            throw Abort(.internalServerError)
-                        }
-                        return username
-                    }
+                    .flatMapThrowing { user.name }
             }
             
             BasicAuthGroup<T> {
@@ -62,19 +55,12 @@ public final class User<T: ModelUser & CorvusModel>: Endpoint {
     /// SoftDelete functionality grouped under one.
     public var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
-            Custom<T>(type: .post) { req in
+            Custom<String>(type: .post) { req in
                 let requestContent = try req.content.decode(T.self)
+                let user = try T.init(password: requestContent.passwordHash, name: requestContent.name)
                 return requestContent
                     .save(on: req.db)
-                    .flatMapThrowing {
-                        guard let username = requestContent[
-                            keyPath: T.usernameKey
-                            ] as? T else
-                        {
-                            throw Abort(.internalServerError)
-                        }
-                        return username
-                    }
+                    .flatMapThrowing { user.name }
             }
             
             BasicAuthGroup<T> {

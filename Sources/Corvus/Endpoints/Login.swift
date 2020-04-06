@@ -5,7 +5,7 @@ import Fluent
 /// password credentials sent in a HTTP POST `Request` and save a token for
 /// that user.
 public final class Login<T: CorvusModelUserToken & ResponseEncodable>: Endpoint
-where T.User: ModelUser {
+where T.User: CorvusModelUser {
 
     /// The route for the login functionality
     let path: PathComponent

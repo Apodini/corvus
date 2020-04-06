@@ -15,14 +15,9 @@ public final class CorvusUser: CorvusModel {
     @Field(key: "name")
     public var name: String
 
-    /// The email of the user, which is used as the username during
-    /// authentication.
-    @Field(key: "email")
-    public var email: String
-
     /// The password of the user, used during authentication.
-    @Field(key: "password")
-    public var password: String
+    @Field(key: "password_hash")
+    public var passwordHash: String
 
     /// Timestamp for soft deletion.
     @Timestamp(key: "deleted_at", on: .delete)
@@ -41,13 +36,11 @@ public final class CorvusUser: CorvusModel {
     public init(
         id: UUID? = nil,
         name: String,
-        email: String,
-        password: String
+        passwordHash: String
     ) {
         self.id = id
         self.name = name
-        self.email = email
-        self.password = password
+        self.passwordHash = passwordHash
     }
 }
 
@@ -62,8 +55,7 @@ public struct CreateCorvusUser: Migration {
         database.schema(CorvusUser.schema)
             .id()
             .field("name", .string, .required)
-            .field("email", .string, .required)
-            .field("password", .string, .required)
+            .field("password_hash", .string, .required)
             .field("deleted_at", .date)
             .create()
     }
@@ -78,19 +70,13 @@ public struct CreateCorvusUser: Migration {
 /// functionality to authenticate a user with username and password.
 extension CorvusUser: CorvusModelUser {
 
-    /// Provides a path to the user's username (or in Corvus, the email).
-    public static let usernameKey = \CorvusUser.$email
-
-    /// Provides a path to the user's password.
-    public static let passwordHashKey = \CorvusUser.$password
-
     /// Verifies a given string by checking if it matches a user's password.
     ///
     /// - Parameter password: The password to verify.
     /// - Returns: True if the provided password matches the user's, false if
     /// not.
     public func verify(password: String) throws -> Bool {
-        password == self.password
+        try Bcrypt.verify(password, created: self.passwordHash)
     }
 }
 

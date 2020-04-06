@@ -3,7 +3,7 @@ import Fluent
 
 /// A special type of `Group` that protects its `content` with basic
 /// authentication for a generic `ModelUser`.
-public struct BasicAuthGroup<T: ModelUser>: Endpoint {
+public struct BasicAuthGroup<T: CorvusModelUser>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the
     /// `BasicAuthGroup` extends.
