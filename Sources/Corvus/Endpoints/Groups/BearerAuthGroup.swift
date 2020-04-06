@@ -3,7 +3,7 @@ import Fluent
 
 /// A special type of `Group` that protects its `content` with bearer token
 /// authentication for a generic `ModelUserToken`.
-public struct BearerAuthGroup<T: ModelUserToken>: Endpoint {
+public struct BearerAuthGroup<T: CorvusModelUserToken>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the
     /// `BearerAuthGroup` extends.

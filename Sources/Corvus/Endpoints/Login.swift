@@ -1,9 +1,11 @@
 import Vapor
+import Fluent
 
 /// A class that provides functionality to log in a user with username and
 /// password credentials sent in a HTTP POST `Request` and save a token for
 /// that user.
-public final class Login: Endpoint {
+public final class Login<T: CorvusModelUserToken & ResponseEncodable>: Endpoint
+where T.User: ModelUser {
 
     /// The route for the login functionality
     let path: PathComponent
@@ -20,9 +22,10 @@ public final class Login: Endpoint {
     ///
     /// - Parameter req: An incoming HTTP `Request`.
     /// - Returns: An `EventLoopFuture` containing the created `CorvusToken`.
-    public func handler(_ req: Request) throws -> EventLoopFuture<CorvusToken> {
-        let user = try req.auth.require(CorvusUser.self)
-        let token = try user.generateToken()
+    public func handler(_ req: Request) throws -> EventLoopFuture<T> {
+        let user = try req.auth.require(T.User.self)
+        let token = T.init(value: [UInt8].random(count: 16).base64, userId: try user.requireID())
+      
         return token.save(on: req.db).map { token }
     }
 
@@ -33,7 +36,7 @@ public final class Login: Endpoint {
     /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
         let guardedRoutesBuilder = routes.grouped(
-            CorvusUser.authenticator().middleware()
+            T.User.authenticator().middleware()
         )
         
         guardedRoutesBuilder.post(path, use: handler)
