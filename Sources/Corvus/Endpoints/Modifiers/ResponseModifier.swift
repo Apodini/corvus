@@ -4,7 +4,10 @@ import Fluent
 /// A class that wraps a component which utilizes a `.respond(with:)` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `RestEndpoint`.
-public final class ResponseModifier<Q: RestEndpoint, R: CorvusResponse>: RestEndpoint where Q.Element == R.Item {
+public final class ResponseModifier<
+    Q: RestEndpoint,
+    R: CorvusResponse>:
+RestEndpoint where Q.Element == R.Item {
     
     /// The `Response` of this modifier.
     public typealias Response = R
