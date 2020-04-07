@@ -2,10 +2,10 @@ import Vapor
 import Fluent
 
 /// A default implementation of a user for basic authentication.
-public final class CorvusUser: CorvusModel {
+public final class CorvusUser: CorvusModelUser {
 
     /// The corresponding database schema.
-    public static let schema = "users"
+    public static let schema = "corvus_users"
 
     /// The unique identifier of the model in the database.
     @ID
@@ -68,7 +68,7 @@ public struct CreateCorvusUser: Migration {
 
 /// An extension to conform to the `ModelUser` protocol, which provides
 /// functionality to authenticate a user with username and password.
-extension CorvusUser: CorvusModelUser {
+extension CorvusUser {
 
     /// Verifies a given string by checking if it matches a user's password.
     ///
@@ -77,19 +77,5 @@ extension CorvusUser: CorvusModelUser {
     /// not.
     public func verify(password: String) throws -> Bool {
         try Bcrypt.verify(password, created: self.passwordHash)
-    }
-}
-
-/// An extension to generate a `CorvusToken` for a given user.
-extension CorvusUser {
-
-    /// A method that generates a unique token for a given user.
-    ///
-    /// - Returns: The generated token.
-    public func generateToken() throws -> CorvusToken {
-        try .init(
-            value: [UInt8].random(count: 16).base64,
-            userID: self.requireID()
-        )
     }
 }

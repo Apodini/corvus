@@ -363,4 +363,137 @@ final class AuthenticationTests: XCTestCase {
                     XCTAssertEqualJSON(res.body.string, account)
                 }
     }
+
+    func testAuthModifierCustom() throws {
+        final class AuthModifierTest: RestApi {
+
+            let testParameter = Parameter<CustomAccount>()
+
+            var content: Endpoint {
+                Group("api") {
+                    CRUD<CustomUser>("users", softDelete: false)
+
+                    Login<CustomToken>("login")
+
+                    BearerAuthGroup<CustomToken>("accounts") {
+                        Create<CustomAccount>()
+                        Group(testParameter.id) {
+                            ReadOne<CustomAccount>(testParameter.id)
+                                .auth(\.$user)
+                        }
+                    }
+                }
+            }
+        }
+
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        let authModifierTest = AuthModifierTest()
+
+        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+        app.middleware.use(CustomToken.authenticator().middleware())
+        app.migrations.add(CreateCustomAccount())
+        app.migrations.add(CreateCustomUser())
+        app.migrations.add(CreateCustomToken())
+
+        try app.autoMigrate().wait()
+
+        try app.register(collection: authModifierTest)
+
+        let user1 = CustomUser(
+             name: "berzan",
+             surname: "yildiz",
+             email: "berzan@corvus.com",
+             passwordHash: try Bcrypt.hash("pass")
+         )
+
+        let user2 = CustomUser(
+             name: "paul",
+             surname: "schmiedmayer",
+             email: "paul@corvus.com",
+             passwordHash: try Bcrypt.hash("pass")
+         )
+
+        var account: CustomAccount!
+
+        let basic1 = "berzan:pass"
+               .data(using: .utf8)!
+               .base64EncodedString()
+
+        let basic2 = "paul:pass"
+                .data(using: .utf8)!
+                .base64EncodedString()
+
+        var token1: CustomToken!
+        var token2: CustomToken!
+        var accountRes: CustomAccount!
+        
+        try app.testable()
+            .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user1.encode(),
+                afterResponse: { res in
+                    let userRes = try res.content.decode(CustomUser.self)
+                    account = CustomAccount(
+                        name: "berzan",
+                        userID: userRes.id!
+                    )
+                }
+            )
+            .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user2.encode()
+             )
+            .test(
+                .POST,
+                "/api/login",
+                headers: ["Authorization": "Basic \(basic1)"]
+            ) { res in
+                token1 = try res.content.decode(CustomToken.self)
+                XCTAssertTrue(true)
+              }
+            .test(
+                .POST,
+                "/api/login",
+                headers: ["Authorization": "Basic \(basic2)"]
+            ) { res in
+                token2 = try res.content.decode(CustomToken.self)
+                XCTAssertTrue(true)
+              }
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: [
+                    "content-type": "application/json",
+                    "Authorization": "Bearer \(token1.value)"
+                ],
+                body: account.encode()
+              ) { res in
+                  accountRes = try res.content.decode(CustomAccount.self)
+                  XCTAssertTrue(true)
+              }
+            .test(
+                  .GET,
+                  "/api/accounts/\(accountRes.id!)",
+                  headers: [
+                      "Authorization": "Bearer \(token2.value)"
+                  ]
+                ) { res in
+                    XCTAssertEqual(res.status, .unauthorized)
+                }
+            .test(
+                  .GET,
+                  "/api/accounts/\(accountRes.id!)",
+                  headers: [
+                      "Authorization": "Bearer \(token1.value)"
+                  ]
+                ) { res in
+                    XCTAssertEqual(res.status, .ok)
+                    XCTAssertEqualJSON(res.body.string, account)
+                }
+    }
 }
