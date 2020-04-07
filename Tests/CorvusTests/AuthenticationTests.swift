@@ -491,4 +491,88 @@ final class AuthenticationTests: XCTestCase {
                     XCTAssertEqualJSON(res.body.string, account)
                 }
     }
+    
+    func testUserAuthModifier() throws {
+        final class UserAuthModifierTest: RestApi {
+
+            var content: Endpoint {
+                Group("api") {
+                    Create<CorvusUser>()
+                    User<CorvusUser>("users", softDelete: false)
+                    Login<CorvusToken>("login")
+                }
+            }
+        }
+
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        let userAuthModifierTest = UserAuthModifierTest()
+
+        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+        app.middleware.use(CorvusToken.authenticator().middleware())
+        app.middleware.use(CorvusUser.authenticator().middleware())
+        app.migrations.add(CreateSecureAccount())
+        app.migrations.add(CreateCorvusUser())
+        app.migrations.add(CreateCorvusToken())
+
+        try app.autoMigrate().wait()
+
+        try app.register(collection: userAuthModifierTest)
+
+        let user1 = CorvusUser(
+             name: "berzan",
+             passwordHash: try Bcrypt.hash("pass")
+         )
+
+        let user2 = CorvusUser(
+             name: "paul",
+             passwordHash: try Bcrypt.hash("pass")
+         )
+
+        let basic1 = "berzan:pass"
+               .data(using: .utf8)!
+               .base64EncodedString()
+
+        let basic2 = "paul:pass"
+                .data(using: .utf8)!
+                .base64EncodedString()
+        
+        var userRes: CorvusUser!
+        
+        try app.testable()
+            .test(
+                .POST,
+                "/api",
+                headers: ["content-type": "application/json"],
+                body: user1.encode(),
+                afterResponse: { res in
+                    userRes = try res.content.decode(CorvusUser.self)
+                }
+            )
+            .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user2.encode()
+             )
+            .test(
+                  .GET,
+                  "/api/users/\(userRes.id!)",
+                  headers: [
+                      "Authorization": "Basic \(basic2)"
+                  ]
+                ) { res in
+                    XCTAssertEqual(res.status, .unauthorized)
+                }
+            .test(
+                  .GET,
+                  "/api/users/\(userRes.id!)",
+                  headers: [
+                      "Authorization": "Basic \(basic1)"
+                  ]
+                ) { res in
+                    XCTAssertEqual(res.status, .ok)
+                    XCTAssertEqualJSON(res.body.string, user1)
+                }
+    }
 }
