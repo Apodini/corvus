@@ -362,7 +362,7 @@ line_length: # Lines should not span too many characters.
   ignores_comments: true # default: false
   ignores_urls: true # default: false
   ignores_function_declarations: false # default: false
-  ignores_interpolated_strings: true # default: false
+  ignores_interpolated_strings: false # default: false
 
 nesting: # Types should be nested at most 2 level deep, and statements should be nested at most 5 levels deep.
   type_level:

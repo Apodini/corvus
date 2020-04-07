@@ -55,7 +55,10 @@ final class AuthenticationTests: XCTestCase {
             .test(
                 .POST,
                 "/api/accounts",
-                headers: ["Authorization": "Basic \(basic)", "content-type": "application/json"],
+                headers: [
+                    "Authorization": "Basic \(basic)",
+                    "content-type": "application/json"
+                ],
                 body: account.encode()
             ) { res in
                 print(res.body.string)
@@ -176,17 +179,20 @@ final class AuthenticationTests: XCTestCase {
                 XCTAssertTrue(true)
             }
             .test(
-              .POST,
-              "/api/accounts",
-              headers: ["content-type": "application/json", "Authorization": "Bearer \(token.value)"],
-              body: account.encode()
+                .POST,
+                "/api/accounts",
+                headers: [
+                    "content-type": "application/json",
+                    "Authorization": "Bearer \(token.value)"
+                ],
+                body: account.encode()
             ) { res in
                 XCTAssertEqual(res.status, .ok)
                 XCTAssertEqualJSON(
                     res.body.string,
                     account
                 )
-              }
+            }
     }
 
     func testBearerAuthenticatorFailure() throws {
