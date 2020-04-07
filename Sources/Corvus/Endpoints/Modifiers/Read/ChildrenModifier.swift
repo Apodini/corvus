@@ -44,6 +44,7 @@ ReadEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having attached a with modifier to the `queryEndpoint`'s query.
+    /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         try queryEndpoint.query(req).with(path)
     }
@@ -54,6 +55,7 @@ ReadEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing an eagerloaded value as
     /// defined by `Element`.
+    /// - Throws: An `Abort` error if the item is not found.
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
         try query(req).first().flatMapThrowing { optionalItem in
             guard let item = optionalItem else {

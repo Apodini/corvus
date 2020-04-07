@@ -17,6 +17,7 @@ public final class Create<T: CorvusModel>: QueryEndpoint {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing the saved object.
+    /// - Throws: An `Abort` error if something goes wrong.
     public func handler(_ req: Request) throws ->
         EventLoopFuture<QuerySubject>
     {

@@ -294,7 +294,10 @@ final class ApplicationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api", "accounts") {
-                    Custom<Account>(path: "userId", type: .post) { req in
+                    Custom<Account>(
+                        pathComponents: "userId",
+                        type: .post
+                    ) { req in
                         let requestContent = try req.content.decode(
                             Account.self
                         )

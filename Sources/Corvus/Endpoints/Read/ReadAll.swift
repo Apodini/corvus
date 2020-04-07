@@ -25,6 +25,7 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An array of `QuerySubjects`.
+    /// - Throws: An `Abort` error if something goes wrong.
     public func handler(_ req: Request) throws ->
         EventLoopFuture<[QuerySubject]>
     {

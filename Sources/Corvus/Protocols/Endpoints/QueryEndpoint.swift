@@ -10,6 +10,8 @@ public protocol QueryEndpoint: RestEndpoint {
     associatedtype QuerySubject: CorvusModel
 
     /// A method to run database queries on a component's `QuerySubject`.
+    ///
+    /// - Parameter req: The incoming `Request`.
     func query(_ req: Request) throws -> QueryBuilder<QuerySubject>
 }
 
@@ -19,6 +21,10 @@ extension QueryEndpoint {
 
     /// A default implementation of `.query()` for components that do not
     /// require customized database queries.
+    /// 
+    /// - Parameter req: The incoming `Request`.
+    /// - Throws: An error if something goes wrong.
+    /// - Returns: A `QueryBuilder` object for further querying.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         QuerySubject.query(on: req.db)
     }

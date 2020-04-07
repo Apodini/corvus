@@ -15,7 +15,7 @@ public final class CorvusUser: CorvusModel {
     @Field(key: "name")
     public var name: String
 
-    /// The password of the user, used during authentication.
+    /// The hashed password of the user, used during authentication.
     @Field(key: "password_hash")
     public var passwordHash: String
 
@@ -31,8 +31,7 @@ public final class CorvusUser: CorvusModel {
     /// - Parameters:
     ///     - id: The identifier of the user, auto generated if not provided.
     ///     - name: The name of the user.
-    ///     - email: The email (or username) of the user.
-    ///     - password: The password of the user.
+    ///     - passwordHash: The hashed password of the user.
     public init(
         id: UUID? = nil,
         name: String,
@@ -66,14 +65,14 @@ public struct CreateCorvusUser: Migration {
     }
 }
 
-/// An extension to conform to the `ModelUser` protocol, which provides
+/// An extension to conform to the `CorvusModelUser` protocol, which provides
 /// functionality to authenticate a user with username and password.
 extension CorvusUser: CorvusModelUser {
     
-    /// Provides a path to the user's username (or in Corvus, the email).
+    /// Provides a path to the user's username.
     public static let usernameKey = \CorvusUser.$name
 
-    /// Provides a path to the user's password.
+    /// Provides a path to the user's hashed password.
     public static let passwordHashKey = \CorvusUser.$passwordHash
 
     /// Verifies a given string by checking if it matches a user's password.

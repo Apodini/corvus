@@ -3,7 +3,8 @@ import Fluent
 
 /// A class that provides functionality to log in a user with username and
 /// password credentials sent in a HTTP POST `Request` and save a token for
-/// that user.
+/// that user. Needs an object of type `T` which represents the token to be
+/// created upon login.
 public final class Login<T: CorvusModelUserToken & ResponseEncodable>: Endpoint
 where T.User: CorvusModelUser {
 
@@ -21,7 +22,8 @@ where T.User: CorvusModelUser {
     /// and saving it in the database.
     ///
     /// - Parameter req: An incoming HTTP `Request`.
-    /// - Returns: An `EventLoopFuture` containing the created `CorvusToken`.
+    /// - Returns: An `EventLoopFuture` containing the created token.
+    /// - Throws: An `Abort` error if something goes wrong.
     public func handler(_ req: Request) throws -> EventLoopFuture<T> {
         let user = try req.auth.require(T.User.self)
         let token = T.init(
@@ -33,7 +35,8 @@ where T.User: CorvusModelUser {
     }
 
     /// A method that registers the `handler()` to the supplied `RoutesBuilder`.
-    /// It also registers basic authentication middleware using `CorvusUser`.
+    /// It also registers basic authentication middleware using the user
+    /// belonging to the token `T`.
     ///
     /// - Parameter routes: A `RoutesBuilder` containing all the information
     /// about the HTTP route leading to the current component.

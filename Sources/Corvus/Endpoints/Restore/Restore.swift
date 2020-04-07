@@ -41,6 +41,7 @@ public final class Restore<T: CorvusModel>: AuthEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having found the object with the supplied ID.
+    /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
         guard let itemId = req.parameters.get(
@@ -63,6 +64,7 @@ public final class Restore<T: CorvusModel>: AuthEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: A HTTPStatus of either `.ok`, when the object was
     /// successfully deleted, or `.notFound`, when the object was not found.
+    /// - Throws: An `Abort` error if something goes wrong.
     public func handler(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {
         try query(req)
             .first()

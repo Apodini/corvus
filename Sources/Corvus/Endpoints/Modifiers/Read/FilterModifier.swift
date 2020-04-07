@@ -38,6 +38,7 @@ public final class FilterModifier<Q: ReadEndpoint>: ReadEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having attached a filter to the `queryEndpoint`'s query.
+    /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         try queryEndpoint.query(req).filter(filter)
     }
@@ -47,6 +48,7 @@ public final class FilterModifier<Q: ReadEndpoint>: ReadEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing an array of the
     /// `FilterModifier`'s `QuerySubject`.
+    /// - Throws: An `Abort` error if the item is not found.
     public func handler(_ req: Request)
         throws -> EventLoopFuture<[QuerySubject]> {
         try query(req).all()

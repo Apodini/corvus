@@ -27,11 +27,11 @@ public final class Custom<R: ResponseEncodable>: RestEndpoint {
     ///     - customHandler: A closure that implements the functionality for the
     ///     `Custom` component.
     public init(
-        path: PathComponent...,
+        pathComponents: PathComponent...,
         type operationType: OperationType,
         _ customHandler: @escaping (Request) throws -> EventLoopFuture<Element>
     ) {
-        self.pathComponents = path
+        self.pathComponents = pathComponents
         self.operationType = operationType
         self.customHandler = customHandler
     }

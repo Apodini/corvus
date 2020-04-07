@@ -11,6 +11,9 @@ public protocol Endpoint {
     /// A method needed to implement registration of an endpoint to the
     /// `Router` provided by Vapor, this handles the logic of making certain
     /// operations accessible on certain route paths.
+    ///
+    /// - Parameter routes: The `RoutesBuilder` containing HTTP route
+    /// information up to this point.
     func register(to routes: RoutesBuilder)
 }
 
@@ -27,7 +30,11 @@ extension Endpoint {
 /// do not need to be registered.
 extension Endpoint {
 
-    /// A default implementation of `.register()` for components that do not need special behaviour.
+    /// A default implementation of `.register()` for components that do not
+    /// need special behaviour.
+    ///
+    /// - Parameter routes: The `RoutesBuilder` containing HTTP route
+    /// information up to this point.
     public func register(to routes: RoutesBuilder) {
         content.register(to: routes)
     }
@@ -39,6 +46,9 @@ extension Array: Endpoint where Element == Endpoint {
 
     /// An `Array` of `Endpoint` is registered by registering all of the
     /// `Array`'s elements.
+    /// 
+    /// - Parameter routes: The `RoutesBuilder` containing HTTP route
+    /// information up to this point.
     public func register(to routes: RoutesBuilder) {
         forEach({ $0.register(to: routes) })
     }

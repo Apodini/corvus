@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 /// A default implementation of a bearer token.
-public final class CorvusToken: CorvusModelUserToken {
+public final class CorvusToken: CorvusModel {
 
     /// The corresponding database schema.
     public static let schema = "corvus_tokens"
@@ -67,9 +67,9 @@ public struct CreateCorvusToken: Migration {
     }
 }
 
-/// An extension to conform to the `ModelUserToken` protocol, which provides
-/// functionality to authenticate a token.
-extension CorvusToken {
+/// An extension to conform to the `CorvusModelUserToken` protocol, which
+/// provides functionality to authenticate a token.
+extension CorvusToken: CorvusModelUserToken {
 
     /// Prevents tokens from being deleted after authentication.
     public var isValid: Bool {

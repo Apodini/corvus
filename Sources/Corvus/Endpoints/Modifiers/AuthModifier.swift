@@ -3,14 +3,15 @@ import Fluent
 
 /// A class that wraps a component which utilizes an `.auth()` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
-/// conforming to `AuthEndpoint`.
+/// conforming to `AuthEndpoint`. Requires an object `T` that represents the
+/// user to authorize.
 public final class AuthModifier<Q: AuthEndpoint, T: CorvusModelUser>:
 AuthEndpoint {
 
     /// The return type for the `.handler()` modifier.
     public typealias Element = Q.Element
 
-    /// The return value of the `.handler()`, so the type being operated on in
+    /// The return value of the `.query()`, so the type being operated on in
     /// the current component.
     public typealias QuerySubject = Q.QuerySubject
 
@@ -50,17 +51,19 @@ AuthEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query defined
     /// by the `queryEndpoint`.
+    /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         try queryEndpoint.query(req)
     }
 
-    /// A method which checks if the `CorvusUser` supplied in the `Request` is
+    /// A method which checks if the user `T` supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing an eagerloaded value as
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
+    /// - Throws: An `Abort` error if an item is not found.
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
         let users = try query(req)
             .with(userKeyPath)
@@ -101,7 +104,7 @@ AuthEndpoint {
 extension AuthEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
-    /// the supplied `CorvusUser` is actually related to the `QuerySubject`.
+    /// the supplied user `T` is actually related to the `QuerySubject`.
     ///
     /// - Parameter user: A `KeyPath` to the related user property.
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`

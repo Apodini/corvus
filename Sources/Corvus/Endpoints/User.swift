@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 /// A class that contains Create, Read, Update and Delete functionality for a
-/// generic type `T` conforming to `CorvusModel` grouped under a given path.
+/// generic type `T` representing a user object.
 public final class User<T: CorvusModelUser & CorvusModel>: Endpoint {
 
     /// The route path to the parameters.
@@ -24,7 +24,7 @@ public final class User<T: CorvusModelUser & CorvusModel>: Endpoint {
         self.useSoftDelete = softDelete
     }
 
-    /// The `content` of the `CRUD`, containing Create, Read, Update and Delete
+    /// The `content` of the `User`, containing Create, Read, Update and Delete
     /// functionality grouped under one.
     public var content: Endpoint {
         if useSoftDelete {
@@ -48,7 +48,7 @@ public final class User<T: CorvusModelUser & CorvusModel>: Endpoint {
         }
     }
 
-    /// The `content` of the `CRUD`, containing Create, Read, Update, Delete and
+    /// The `content` of the `User`, containing Create, Read, Update, Delete and
     /// SoftDelete functionality grouped under one.
     public var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
