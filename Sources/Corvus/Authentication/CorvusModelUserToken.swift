@@ -1,6 +1,7 @@
 import Fluent
 import Vapor
 
+// swiftlint:disable identifier_name
 public protocol CorvusModelUserToken: CorvusModel {
     
     associatedtype User: CorvusModel & Authenticatable
@@ -11,7 +12,7 @@ public protocol CorvusModelUserToken: CorvusModel {
 
 extension CorvusModelUserToken {
 
-    internal init(id: Self.IDValue? = nil, value: String, userId: User.IDValue) {
+    init(id: Self.IDValue? = nil, value: String, userId: User.IDValue) {
         self.init()
         self.value = value
         _$user.id = userId
@@ -45,7 +46,8 @@ extension CorvusModelUserToken {
     }
 }
 
-public struct CorvusModelUserTokenAuthenticator<T: CorvusModelUserToken>: BearerAuthenticator
+public struct CorvusModelUserTokenAuthenticator<T: CorvusModelUserToken>:
+BearerAuthenticator
 {
     public typealias User = T.User
     public let database: DatabaseID?

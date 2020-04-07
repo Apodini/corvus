@@ -24,7 +24,10 @@ where T.User: CorvusModelUser {
     /// - Returns: An `EventLoopFuture` containing the created `CorvusToken`.
     public func handler(_ req: Request) throws -> EventLoopFuture<T> {
         let user = try req.auth.require(T.User.self)
-        let token = T.init(value: [UInt8].random(count: 16).base64, userId: try user.requireID())
+        let token = T.init(
+            value: [UInt8].random(count: 16).base64,
+            userId: try user.requireID()
+        )
       
         return token.save(on: req.db).map { token }
     }

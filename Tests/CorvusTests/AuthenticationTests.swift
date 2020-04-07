@@ -5,6 +5,7 @@ import Vapor
 import XCTVapor
 import Foundation
 
+// swiftlint:disable file_length type_body_length function_body_length
 final class AuthenticationTests: XCTestCase {
 
     func testBasicAuthenticatorSuccess() throws {
