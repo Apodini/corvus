@@ -12,7 +12,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users", softDelete: false)
+                    User<CorvusUser>("users", softDelete: false)
 
                     BasicAuthGroup<CorvusUser>("accounts") {
                         Create<Account>()
@@ -43,18 +43,13 @@ final class AuthenticationTests: XCTestCase {
         )
 
         let account = Account(name: "Berzan")
-        var response: Account!
         
         try app.testable()
             .test(
                 .POST,
                 "/api/users",
                 headers: ["content-type": "application/json"],
-                body: user.encode(),
-                afterResponse: {
-                    response = try $0.content.decode(Account.self)
-                    account.id = response.id
-                }
+                body: user.encode()
             )
             .test(
                 .POST,
@@ -63,10 +58,7 @@ final class AuthenticationTests: XCTestCase {
                 body: account.encode()
             ) { res in
                 print(res.body.string)
-                XCTAssertEqualJSON(
-                    res.body.string,
-                    account
-                )
+                XCTAssertEqual(res.status, .ok)
             }
     }
 
@@ -75,7 +67,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users", softDelete: false)
+                    User<CorvusUser>("users", softDelete: false)
 
                     BasicAuthGroup<CorvusUser>("accounts") {
                         Create<Account>()
@@ -129,7 +121,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users", softDelete: false)
+                    User<CorvusUser>("users", softDelete: false)
 
                     Login<CorvusToken>("login")
 
@@ -146,6 +138,7 @@ final class AuthenticationTests: XCTestCase {
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CorvusToken.authenticator().middleware())
+        app.middleware.use(CorvusUser.authenticator().middleware())
         app.migrations.add(CreateAccount())
         app.migrations.add(CreateCorvusUser())
         app.migrations.add(CreateCorvusToken())
@@ -180,7 +173,7 @@ final class AuthenticationTests: XCTestCase {
             ) { res in
                 token = try res.content.decode(CorvusToken.self)
                 XCTAssertTrue(true)
-              }
+            }
             .test(
               .POST,
               "/api/accounts",
@@ -200,7 +193,7 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users", softDelete: false)
+                    User<CorvusUser>("users", softDelete: false)
 
                     Login<CorvusToken>("login")
 
@@ -263,6 +256,7 @@ final class AuthenticationTests: XCTestCase {
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CorvusToken.authenticator().middleware())
+        app.middleware.use(CorvusUser.authenticator().middleware())
         app.migrations.add(CreateSecureAccount())
         app.migrations.add(CreateCorvusUser())
         app.migrations.add(CreateCorvusToken())
@@ -392,6 +386,7 @@ final class AuthenticationTests: XCTestCase {
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CustomToken.authenticator().middleware())
+        app.middleware.use(CustomUser.authenticator().middleware())
         app.migrations.add(CreateCustomAccount())
         app.migrations.add(CreateCustomUser())
         app.migrations.add(CreateCustomToken())

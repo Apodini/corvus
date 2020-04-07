@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 /// A default implementation of a user for basic authentication.
-public final class CorvusUser: CorvusModelUser {
+public final class CorvusUser: CorvusModel {
 
     /// The corresponding database schema.
     public static let schema = "corvus_users"
@@ -68,7 +68,13 @@ public struct CreateCorvusUser: Migration {
 
 /// An extension to conform to the `ModelUser` protocol, which provides
 /// functionality to authenticate a user with username and password.
-extension CorvusUser {
+extension CorvusUser: CorvusModelUser {
+    
+    /// Provides a path to the user's username (or in Corvus, the email).
+    public static let usernameKey = \CorvusUser.$name
+
+    /// Provides a path to the user's password.
+    public static let passwordHashKey = \CorvusUser.$passwordHash
 
     /// Verifies a given string by checking if it matches a user's password.
     ///

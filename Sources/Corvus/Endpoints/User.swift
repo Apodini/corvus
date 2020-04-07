@@ -3,7 +3,7 @@ import Fluent
 
 /// A class that contains Create, Read, Update and Delete functionality for a
 /// generic type `T` conforming to `CorvusModel` grouped under a given path.
-public final class User<T: CorvusModelUser>: Endpoint {
+public final class User<T: CorvusModelUser & CorvusModel>: Endpoint {
 
     /// The route path to the parameters.
     let pathComponents: [PathComponent]
@@ -32,12 +32,9 @@ public final class User<T: CorvusModelUser>: Endpoint {
         }
         
         return Group(pathComponents) {
-            Custom<String>(type: .post) { req in
+            Custom<HTTPStatus>(type: .post) { req in
                 let requestContent = try req.content.decode(T.self)
-                let user = try T.init(password: requestContent.passwordHash, name: requestContent.name) // This works because initializers of CorvusModelUser and CorvusUser are equal, what happens if not?
-                return user
-                    .save(on: req.db)
-                    .flatMapThrowing { user.name }
+                return requestContent.save(on: req.db).map { .ok }
             }
             
             BasicAuthGroup<T> {
@@ -55,12 +52,9 @@ public final class User<T: CorvusModelUser>: Endpoint {
     /// SoftDelete functionality grouped under one.
     public var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
-            Custom<String>(type: .post) { req in
+            Custom<HTTPStatus>(type: .post) { req in
                 let requestContent = try req.content.decode(T.self)
-                let user = try T.init(password: requestContent.passwordHash, name: requestContent.name)
-                return user
-                    .save(on: req.db)
-                    .flatMapThrowing { user.name }
+                return requestContent.save(on: req.db).map { .ok }
             }
             
             BasicAuthGroup<T> {

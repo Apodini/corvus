@@ -64,6 +64,10 @@ public struct CreateCustomUser: Migration {
 
 extension CustomUser: CorvusModelUser {
 
+    public static let usernameKey = \CustomUser.$name
+
+    public static let passwordHashKey = \CustomUser.$passwordHash
+
     public func verify(password: String) throws -> Bool {
         try Bcrypt.verify(password, created: self.passwordHash)
     }
