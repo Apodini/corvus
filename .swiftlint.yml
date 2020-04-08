@@ -359,8 +359,8 @@ large_tuple: # Tuples shouldn't have too many members. Create a custom type inst
 line_length: # Lines should not span too many characters.
   warning: 80 # default: 120
   error: 80 # default: 200
-  ignores_comments: true # default: false
-  ignores_urls: true # default: false
+  ignores_comments: false # default: false
+  ignores_urls: false # default: false
   ignores_function_declarations: false # default: false
   ignores_interpolated_strings: false # default: false
 
