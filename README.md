@@ -177,7 +177,7 @@ try app.run()
 In general, there are two types of building blocks for a `Corvus` API: Group components, which
 allow users to group more groups or concrete endpoints under a common route path, or 
 components that provide concrete functionality, like `Create` or `ReadAll`. Check out the 
-[docs](https://apodini.github.io/corvus-docs/) and the [example project](https://github.com/Apodini/corvus-example-project) to learn more!
+[docs](https://apodini.github.io/corvus/) and the [example project](https://github.com/Apodini/corvus-example-project) to learn more!
 
 # How to contribute
 

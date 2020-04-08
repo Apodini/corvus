@@ -679,6 +679,70 @@ final class ApplicationTests: XCTestCase {
                 XCTAssertEqual(res.status, .notFound)
         }
     }
+    
+    func testResponseModifier() throws {
+        
+        // This is a basic response.
+        struct CreateResponse: CorvusResponse, Equatable {
+            let created = true
+            let name: String
+            
+            init(item: Account) {
+                self.name = item.name
+            }
+        }
+        
+        // This response is a more complex example using generics.
+        // This allows for responses which work with any number of models.
+        struct ReadResponse<Model: AnyModel & Equatable>: CorvusResponse, Equatable {
+            let success = true
+            let payload: [Model]
+            
+            init(item: [Model]) {
+                payload = item
+            }
+        }
+        
+        final class ResponseModifierTest: RestApi {
+
+            let testParameter = Parameter<Account>()
+
+            var content: Endpoint {
+                Group("api", "accounts") {
+                    Create<Account>().respond(with: CreateResponse.self)
+                    ReadAll<Account>().respond(with: ReadResponse.self)
+                }
+            }
+        }
+
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        let readOneTest = ResponseModifierTest()
+
+        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+        app.migrations.add(CreateAccount())
+
+        try app.autoMigrate().wait()
+        
+        try app.register(collection: readOneTest)
+        
+        let account = Account(name: "Berzan")
+        let createRes = CreateResponse(item: account)
+        let readRes = ReadResponse(item: [account])
+        
+        try app.testable().test(
+            .POST,
+            "/api/accounts",
+            headers: ["content-type": "application/json"],
+            body: account.encode(),
+            afterResponse: { res in
+                XCTAssertEqualJSON(res.body.string, createRes)
+            }
+        ).test(.GET, "/api/accounts/") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqualJSON(res.body.string, readRes)
+        }
+    }
 }
 
 extension DatabaseID {
