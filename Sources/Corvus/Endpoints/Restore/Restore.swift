@@ -73,7 +73,8 @@ public final class Restore<T: CorvusModel>: AuthEndpoint {
             .map { .ok }
     }
     
-    /// A method that registers the `.handler()` to the supplied `RoutesBuilder`.
+    /// A method that registers the `.handler()` to the supplied
+    /// `RoutesBuilder`.
     ///
     /// - Parameter routes: A `RoutesBuilder` containing all the information
     /// about the HTTP route leading to the current component.
