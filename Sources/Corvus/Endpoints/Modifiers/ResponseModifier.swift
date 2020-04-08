@@ -1,9 +1,9 @@
 import Vapor
 import Fluent
 
-/// A class that wraps a component which utilizes a `.respond(with:)` modifier. That
-/// allows Corvus to chain modifiers, as it gets treated as any other struct
-/// conforming to `RestEndpoint`.
+/// A class that wraps a component which utilizes a `.respond(with:)` modifier.
+/// That allows Corvus to chain modifiers, as it gets treated as any other
+/// struct conforming to `RestEndpoint`.
 public final class ResponseModifier<
     Q: RestEndpoint,
     R: CorvusResponse>:
@@ -34,8 +34,10 @@ RestEndpoint where Q.Element == R.Item {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing the
     /// `ResponseModifier`'s `Response`.
-    public func handler(_ req: Request)
-        throws -> EventLoopFuture<Response> {
+    /// - Throws: An `Abort` error if something goes wrong.
+    public func handler(_ req: Request) throws ->
+        EventLoopFuture<Response>
+    {
             try restEndpoint.handler(req).map(Response.init)
     }
 
@@ -48,7 +50,8 @@ extension RestEndpoint {
     /// `CorvusResponse`.
     ///
     /// - Parameter as: A type conforming to `CorvusResponse`.
-    /// - Returns: An instance of a `ResponseModifier` with the supplied `CorvusResponse`.
+    /// - Returns: An instance of a `ResponseModifier` with the supplied
+    /// `CorvusResponse`.
     public func respond<R: CorvusResponse>(
         with: R.Type
     ) -> ResponseModifier<Self, R> {

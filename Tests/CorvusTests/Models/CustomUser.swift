@@ -10,8 +10,8 @@ public final class CustomUser: CorvusModel {
     @ID
     public var id: UUID?
 
-    @Field(key: "name")
-    public var name: String
+    @Field(key: "username")
+    public var username: String
     
     @Field(key: "surname")
     public var surname: String
@@ -29,13 +29,13 @@ public final class CustomUser: CorvusModel {
 
     public init(
         id: UUID? = nil,
-        name: String,
+        username: String,
         surname: String,
         email: String,
         passwordHash: String
     ) {
         self.id = id
-        self.name = name
+        self.username = username
         self.surname = surname
         self.email = email
         self.passwordHash = passwordHash
@@ -49,7 +49,7 @@ public struct CreateCustomUser: Migration {
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema(CustomUser.schema)
             .id()
-            .field("name", .string, .required)
+            .field("username", .string, .required)
             .field("surname", .string, .required)
             .field("email", .string, .required)
             .field("password_hash", .string, .required)
@@ -64,7 +64,7 @@ public struct CreateCustomUser: Migration {
 
 extension CustomUser: CorvusModelUser {
 
-    public static let usernameKey = \CustomUser.$name
+    public static let usernameKey = \CustomUser.$username
 
     public static let passwordHashKey = \CustomUser.$passwordHash
 

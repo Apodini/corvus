@@ -694,7 +694,9 @@ final class ApplicationTests: XCTestCase {
         
         // This response is a more complex example using generics.
         // This allows for responses which work with any number of models.
-        struct ReadResponse<Model: AnyModel & Equatable>: CorvusResponse, Equatable {
+        struct ReadResponse<Model: AnyModel & Equatable>:
+        CorvusResponse,
+        Equatable {
             let success = true
             let payload: [Model]
             

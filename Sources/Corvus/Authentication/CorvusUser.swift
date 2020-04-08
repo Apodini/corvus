@@ -12,8 +12,8 @@ public final class CorvusUser: CorvusModel {
     public var id: UUID?
 
     /// The name of the user.
-    @Field(key: "name")
-    public var name: String
+    @Field(key: "username")
+    public var username: String
 
     /// The hashed password of the user, used during authentication.
     @Field(key: "password_hash")
@@ -30,15 +30,15 @@ public final class CorvusUser: CorvusModel {
     ///
     /// - Parameters:
     ///     - id: The identifier of the user, auto generated if not provided.
-    ///     - name: The name of the user.
+    ///     - username: The username of the user.
     ///     - passwordHash: The hashed password of the user.
     public init(
         id: UUID? = nil,
-        name: String,
+        username: String,
         passwordHash: String
     ) {
         self.id = id
-        self.name = name
+        self.username = username
         self.passwordHash = passwordHash
     }
 }
@@ -53,7 +53,7 @@ public struct CreateCorvusUser: Migration {
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema(CorvusUser.schema)
             .id()
-            .field("name", .string, .required)
+            .field("username", .string, .required)
             .field("password_hash", .string, .required)
             .field("deleted_at", .date)
             .create()
@@ -70,7 +70,7 @@ public struct CreateCorvusUser: Migration {
 extension CorvusUser: CorvusModelUser {
     
     /// Provides a path to the user's username.
-    public static let usernameKey = \CorvusUser.$name
+    public static let usernameKey = \CorvusUser.$username
 
     /// Provides a path to the user's hashed password.
     public static let passwordHashKey = \CorvusUser.$passwordHash

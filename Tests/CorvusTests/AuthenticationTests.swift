@@ -39,7 +39,7 @@ final class AuthenticationTests: XCTestCase {
             .base64EncodedString()
         
         let user = CorvusUser(
-            name: "berzan",
+            username: "berzan",
             passwordHash: try Bcrypt.hash("pass")
         )
 
@@ -94,7 +94,7 @@ final class AuthenticationTests: XCTestCase {
         try app.register(collection: basicAuthenticatorTest)
         
         let user = CorvusUser(
-            name: "berzan",
+            username: "berzan",
             passwordHash: try Bcrypt.hash("pass")
         )
         let account = Account(name: "berzan")
@@ -152,7 +152,7 @@ final class AuthenticationTests: XCTestCase {
         try app.register(collection: bearerAuthenticatorTest)
         
         let user = CorvusUser(
-            name: "berzan",
+            username: "berzan",
             passwordHash: try Bcrypt.hash("pass")
         )
         let account = Account(name: "berzan")
@@ -273,12 +273,12 @@ final class AuthenticationTests: XCTestCase {
         try app.register(collection: authModifierTest)
 
         let user1 = CorvusUser(
-             name: "berzan",
+             username: "berzan",
              passwordHash: try Bcrypt.hash("pass")
          )
 
         let user2 = CorvusUser(
-             name: "paul",
+             username: "paul",
              passwordHash: try Bcrypt.hash("pass")
          )
 
@@ -403,14 +403,14 @@ final class AuthenticationTests: XCTestCase {
         try app.register(collection: authModifierTest)
 
         let user1 = CustomUser(
-             name: "berzan",
+             username: "berzan",
              surname: "yildiz",
              email: "berzan@corvus.com",
              passwordHash: try Bcrypt.hash("pass")
          )
 
         let user2 = CustomUser(
-             name: "paul",
+             username: "paul",
              surname: "schmiedmayer",
              email: "paul@corvus.com",
              passwordHash: try Bcrypt.hash("pass")
@@ -527,12 +527,12 @@ final class AuthenticationTests: XCTestCase {
         try app.register(collection: userAuthModifierTest)
 
         let user1 = CorvusUser(
-             name: "berzan",
+             username: "berzan",
              passwordHash: try Bcrypt.hash("pass")
          )
 
         let user2 = CorvusUser(
-             name: "paul",
+             username: "paul",
              passwordHash: try Bcrypt.hash("pass")
          )
 
