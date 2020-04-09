@@ -15,6 +15,8 @@ public protocol RestEndpoint: Endpoint {
 
     /// A method that runs logic on the results of the `.query()` and returns
     /// those results asynchronously in an  `EventLoopFuture`.
+    ///
+    /// - Parameter req: The incoming `Request`.
     func handler(_ req: Request) throws -> EventLoopFuture<Element>
 }
 
@@ -26,6 +28,7 @@ public extension RestEndpoint {
 
     /// Registers the component to the `Vapor` router depending on its
     /// `operationType`.
+    /// 
     /// - Parameter routes: The `RoutesBuilder` to extend.
     func register(to routes: RoutesBuilder) {
         switch operationType {

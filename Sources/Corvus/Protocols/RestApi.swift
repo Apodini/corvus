@@ -12,6 +12,9 @@ extension RestApi {
 
     /// A default implementation for `boot` that recurses down the API's
     /// hierarchy.
+    ///
+    /// - Parameter routes: The `RoutesBuilder` containing HTTP route
+    /// information up to this point.
     public func boot(routes: RoutesBuilder) throws {
         content.register(to: routes)
     }

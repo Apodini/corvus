@@ -1,18 +1,11 @@
-# SwiftLint file LS1 TUM
-# Created by Paul Schmiedmayer on 08/16/18.
-# Copyright © 2018 Paul Schmiedmayer. All rights reserved.
-# The opt_in_rules also include all rules that are enabled by default to provide a good overview of all rules.
-
-disabled_rules:
-  - discouraged_optional_collection # TODO: Enable as soon as https://github.com/realm/SwiftLint/issues/2298 is closed.
-    # Prefer empty collection over optional collection.
-  - leading_whitespace
-    # Files should not contain leading whitespace.
-  - opening_brace
-  - first_where
-    # Prefer using ``.first(where:)`` over ``.filter { }.first` in collections.
-
-opt_in_rules:
+# Apodini SwiftLint file Apodini
+  
+# The whitelist_rules configuration also includes rules that are enabled by default to provide a good overview of all rules.
+whitelist_rules:
+  - anyobject_protocol:
+    # Prefer using AnyObject over class for class-only protocols.
+  - array_init
+    # Prefer using Array(seq) over seq.map { $0 } to convert a sequence into an Array.
   - block_based_kvo
     # Prefer the new block based KVO API with keypaths when using Swift 3.2 or later.
   - class_delegate_protocol
@@ -21,13 +14,14 @@ opt_in_rules:
     # Closing brace with closing parenthesis should not have any whitespaces in the middle.
   - closure_body_length
     # Closure bodies should not span too many lines.
-    # See closure_body_length below for the exact configuration.
   - closure_end_indentation
     # Closure end should have the same indentation as the line that started it.
   - closure_parameter_position
     # Closure parameters should be on the same line as opening brace.
   - closure_spacing
     # Closure expressions should have a single space inside each brace.
+  - collection_alignment
+    # All elements in a collection literal should be vertically aligned
   - colon
     # Colons should be next to the identifier when specifying a type and next to the key in dictionary literals.
   - comma
@@ -36,8 +30,14 @@ opt_in_rules:
     # The initializers declared in compiler protocols such as ExpressibleByArrayLiteral shouldn't be called directly.
   - conditional_returns_on_newline
     # Conditional statements should always return on the next line
+  - contains_over_filter_count
+    # Prefer contains over comparing filter(where:).count to 0.
+  - contains_over_filter_is_empty
+    # Prefer contains over using filter(where:).isEmpty
   - contains_over_first_not_nil
     # Prefer `contains` over `first(where:) != nil`
+  - contains_over_range_nil_comparison
+    # Prefer contains over range(of:) != nil and range(of:) == nil
   - control_statement
     # if, for, guard, switch, while, and catch statements shouldn't unnecessarily wrap their conditionals or arguments in parentheses.
   - convenience_type
@@ -50,8 +50,14 @@ opt_in_rules:
     # Discouraged direct initialization of types that can be harmful. e.g. UIDevice(), Bundle()
   - discouraged_optional_boolean
     # Prefer non-optional booleans over optional booleans.
+  # - discouraged_optional_collection # Enable as soon as https://github.com/realm/SwiftLint/issues/2298 is fixed
+    # Prefer empty collection over optional collection.
+  - duplicate_imports
+    # Duplicate Imports
   - dynamic_inline
     # Avoid using 'dynamic' and '@inline(__always)' together.
+  - empty_collection_literal
+    # Prefer checking isEmpty over comparing collection to an empty array or dictionary literal.
   - empty_count
     # Prefer checking `isEmpty` over comparing `count` to zero.
   - empty_enum_arguments
@@ -62,11 +68,21 @@ opt_in_rules:
     # When using trailing closures, empty parentheses should be avoided after the method call.
   - empty_string
     # Prefer checking `isEmpty` over comparing string to an empty string literal.
+  - empty_xctest_method
+    # Empty XCTest method should be avoided.
+  - enum_case_associated_values_count
+    # Number of associated values in an enum case should be low
+  - explicit_init
+    # Explicitly calling .init() should be avoided.
   - fatal_error_message
     # A fatalError call should have a message.
   - file_length
     # Files should not span too many lines.
     # See file_length below for the exact configuration.
+  - file_types_order
+    # Specifies how the types within a file should be ordered.
+  - flatmap_over_map_reduce
+    # Prefer flatMap over map followed by reduce([], +).
   - for_where
     # where clauses are preferred over a single if inside a for.
   - force_cast
@@ -83,6 +99,8 @@ opt_in_rules:
     # See function_parameter_count below for the exact configuration.
   - generic_type_name
     # Generic type name should only contain alphanumeric characters, start with an uppercase character and span between 1 and 20 characters in length.
+  - identical_operands
+    # Comparing two identical operands is likely a mistake.
   - identifier_name
     # Identifier names should only contain alphanumeric characters and start with a lowercase character or should only contain capital letters.
     # In an exception to the above, variable names may start with a capital letter when they are declared static and immutable.
@@ -93,6 +111,8 @@ opt_in_rules:
     # Prefer implicit returns in closures.
   - implicitly_unwrapped_optional
     # Implicitly unwrapped optionals should be avoided when possible.
+  - indentation_width
+    # Indent code using either one tab or the configured amount of spaces, unindent to match previous indentations. Don’t indent the first line.
   - inert_defer
     # If defer is at the end of its parent scope, it will be executed right where it is anyway.
   - is_disjoint
@@ -102,29 +122,45 @@ opt_in_rules:
   - large_tuple
     # Tuples shouldn't have too many members. Create a custom type instead.
     # See large_tuple below for the exact configuration.
+  - last_where
+    # Prefer using .last(where:) over .filter { }.last in collections.
+  - leading_whitespace
+    # Files should not contain leading whitespace.
   - legacy_cggeometry_functions
     # CGGeometry: Struct extension properties and methods are preferred over legacy functions
   - legacy_constant
     # Struct-scoped constants are preferred over legacy global constants (CGSize, CGRect, NSPoint, ...).
   - legacy_constructor
     # Swift constructors are preferred over legacy convenience functions (CGPointMake, CGSizeMake, UIOffsetMake, ...).
+  - legacy_hashing
+    # Prefer using the hash(into:) function instead of overriding hashValue
+  - legacy_multiple
+    # Prefer using the isMultiple(of:) function instead of using the remainder operator (%).
+  - legacy_nsgeometry_functions
+    # Struct extension properties and methods are preferred over legacy functions
+  - legacy_random
+    # Prefer using type.random(in:) over legacy functions.
   - line_length
     # Lines should not span too many characters.
     # See line_length below for the exact configuration.
   - literal_expression_end_indentation
     # Array and dictionary literal end should have the same indentation as the line that started it.
+  - lower_acl_than_parent
+    # Ensure definitions have a lower access control level than their enclosing parent
   - mark
     # MARK comment should be in valid format. e.g. '// MARK: ...' or '// MARK: - ...'
+  - missing_docs
+    # Declarations should be documented.
   - modifier_order
     # Modifier order should be consistent.
   - multiline_arguments
     # Arguments should be either on the same line, or one per line.
   - multiline_function_chains
     # Chained function calls should be either on the same line, or one per line.
+  - multiline_literal_brackets
+    # Multiline literals should have their surrounding brackets in a new line.
   - multiline_parameters
     # Functions and methods parameters should be either on the same line, or one per line.
-  - multiple_closures_with_trailing_closure
-    # Trailing closure syntax should not be used when passing more than one closure argument.
   - nesting
     # Types and statements should only be nested to a certain level deep.
     # See nesting below for the exact configuration.
@@ -132,18 +168,30 @@ opt_in_rules:
     # Prefer Nimble operator overloads over free matcher functions.
   - no_fallthrough_only
     # Fallthroughs can only be used if the case contains at least one other statement.
+  - no_space_in_method_call
+    # Don’t add a space between the method name and the parentheses.
   - notification_center_detachment
     # An object should only remove itself as an observer in deinit.
+  - nslocalizedstring_key
+    # Static strings should be used as key in NSLocalizedString in order to genstrings work.
+  - nsobject_prefer_isequal
+    # NSObject subclasses should implement isEqual instead of ==.
   - object_literal
     # Prefer object literals over image and color inits.
   - operator_usage_whitespace
     # Operators should be surrounded by a single whitespace when they are being used.
   - operator_whitespace
     # Operators should be surrounded by a single whitespace when defining them.
+  - optional_enum_case_matching
+    # Matching an enum case against an optional enum without ‘?’ is supported on Swift 5.1 and above.
+  - orphaned_doc_comment
+    # A doc comment should be attached to a declaration.
   - overridden_super_call
     # Some overridden methods should always call super
   - pattern_matching_keywords
     # Combine multiple pattern matching bindings by moving keywords out of tuples.
+  - prefer_self_type_over_type_of_self
+    # Prefer Self over type(of: self) when accessing properties or calling methods.
   - private_action
     # IBActions should be private.
   - private_outlet
@@ -160,10 +208,16 @@ opt_in_rules:
       # UIViewController loadView())
   - protocol_property_accessors_order
     # When declaring properties in protocols, the order of accessors should be get set.
+  - reduce_boolean
+    # Prefer using .allSatisfy() or .contains() over reduce(true) or reduce(false)
+  - reduce_into
+    # Prefer reduce(into:_:) over reduce(_:_:) for copy-on-write types
   - redundant_discardable_let
     # Prefer _ = foo() over let _ = foo() when discarding a result from a function.
   - redundant_nil_coalescing
     # nil coalescing operator is only evaluated if the lhs is nil, coalescing operator with nil as rhs is redundant
+  - redundant_objc_attribute
+    # Objective-C attribute (@objc) is redundant in declaration.
   - redundant_optional_initialization
     # Initializing an optional variable with nil is redundant.
   - redundant_set_access_control
@@ -178,16 +232,26 @@ opt_in_rules:
     # Return arrow and return type should be separated by a single space or on a separate line.
   - shorthand_operator
     # Prefer shorthand operators (+=, -=, *=, /=) over doing the operation and assigning.
+  - single_test_class
+    # Test files should contain a single QuickSpec or XCTestCase class.
   - sorted_first_last
     # Prefer using `min()`` or `max()`` over `sorted().first` or `sorted().last`
   - statement_position
     # Else and catch should be on the same line, one space after the previous declaration.
+  - static_operator
+    # Operators should be declared as static functions, not free functions.
+  - superfluous_disable_command
+    # SwiftLint ‘disable’ commands are superfluous when the disabled rule would not have triggered a violation in the disabled region. Use “ - ” if you wish to document a command.
   - switch_case_alignment
     # Case statements should vertically align with their enclosing switch statement, or indented if configured otherwise.
   - syntactic_sugar
     # Shorthand syntactic sugar should be used, i.e. [Int] instead of Array.
   - todo
     # TODOs and FIXMEs should be resolved.
+  - toggle_bool
+    # Prefer someBool.toggle() over someBool = !someBool.
+  - trailing_closure
+    # Trailing closure syntax should be used whenever possible.
   - trailing_comma
     # Trailing commas in arrays and dictionaries should be avoided/enforced.
   - trailing_newline
@@ -209,12 +273,24 @@ opt_in_rules:
     # Avoid using unneeded break statements.
   - unneeded_parentheses_in_closure_argument
     # Parentheses are not needed when declaring closure arguments.
+  - untyped_error_in_catch
+    # Catch statements should not declare error variables without type casting.
+  - unused_capture_list
+    # Unused reference in a capture list should be removed.
   - unused_closure_parameter
     # Unused parameter in a closure should be replaced with _.
+  - unused_control_flow_label
+    # Unused control flow label should be removed.
+  - unused_declaration
+    # Declarations should be referenced at least once within all files linted.
   - unused_enumerated
     # When the index or the item is not used, .enumerated() can be removed.
+  - unused_import
+    # All imported modules should be required to make the file compile.
   - unused_optional_binding
     # Prefer != nil over let _ =
+  - unused_setter_value
+    # Setter value is not used.
   - valid_ibinspectable
     # @IBInspectable should be applied to variables only, have its type explicit and be of a supported type
   - vertical_parameter_alignment
@@ -224,6 +300,10 @@ opt_in_rules:
   - vertical_whitespace
     # Limit vertical whitespace to a single empty line.
     # See vertical_whitespace below for the exact configuration.
+  - vertical_whitespace_closing_braces
+    # Don’t include vertical whitespace (empty line) before closing braces.
+  - vertical_whitespace_opening_braces
+    # Don’t include vertical whitespace (empty line) after opening braces.
   - void_return
     # Prefer -> Void over -> ().
   - weak_delegate
@@ -233,21 +313,26 @@ opt_in_rules:
   - yoda_condition
     # The variable should be placed on the left, the constant on the right of a comparison operator.
 
+# These rules still get triggered even though they are not in the whitelist_rules
+disabled_rules:
+  - multiple_closures_with_trailing_closure
+    # Trailing closure syntax should not be used when passing more than one closure argument.
+  - opening_brace
+
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Carthage
   - Pods
-  - Tests
-  - "*/Pods"
-  - "*/*/Pods"
-  - "*/*/*/Pods"
-  - "*/*/*/*/Pods"
-  - "*/*/*/*/*/Pods"
   - .build
+  - .swiftpm
   - R.generated.swift
 
 closure_body_length: # Closure bodies should not span too many lines.
   - 25 # warning - default: 20
   - 25 # error - default: 100
+
+enum_case_associated_values_count: # Number of associated values in an enum case should be low
+  - 5 # warning - default: 5
+  - 5 # error - default: 6
 
 file_length: # Files should not span too many lines.
   - 500 # warning - default: 400
@@ -274,10 +359,10 @@ large_tuple: # Tuples shouldn't have too many members. Create a custom type inst
 line_length: # Lines should not span too many characters.
   warning: 80 # default: 120
   error: 80 # default: 200
-  ignores_comments: true # default: false
-  ignores_urls: true # default: false
+  ignores_comments: false # default: false
+  ignores_urls: false # default: false
   ignores_function_declarations: false # default: false
-  ignores_interpolated_strings: true # default: false
+  ignores_interpolated_strings: false # default: false
 
 nesting: # Types should be nested at most 2 level deep, and statements should be nested at most 5 levels deep.
   type_level:

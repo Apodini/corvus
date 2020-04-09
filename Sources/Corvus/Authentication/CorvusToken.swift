@@ -5,7 +5,7 @@ import Fluent
 public final class CorvusToken: CorvusModel {
 
     /// The corresponding database schema.
-    public static let schema = "tokens"
+    public static let schema = "corvus_tokens"
 
     /// The unique identifier of the model in the database.
     @ID
@@ -67,15 +67,9 @@ public struct CreateCorvusToken: Migration {
     }
 }
 
-/// An extension to conform to the `ModelUserToken` protocol, which provides
-/// functionality to authenticate a token.
-extension CorvusToken: ModelUserToken {
-
-    /// Makes the path to a token's value publicly accessible.
-    public static let valueKey = \CorvusToken.$value
-
-    /// Makes the path to a token's user publicly accessible.
-    public static let userKey = \CorvusToken.$user
+/// An extension to conform to the `CorvusModelUserToken` protocol, which
+/// provides functionality to authenticate a token.
+extension CorvusToken: CorvusModelUserToken {
 
     /// Prevents tokens from being deleted after authentication.
     public var isValid: Bool {

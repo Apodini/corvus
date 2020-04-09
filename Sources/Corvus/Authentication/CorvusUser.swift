@@ -5,24 +5,19 @@ import Fluent
 public final class CorvusUser: CorvusModel {
 
     /// The corresponding database schema.
-    public static let schema = "users"
+    public static let schema = "corvus_users"
 
     /// The unique identifier of the model in the database.
     @ID
     public var id: UUID?
 
     /// The name of the user.
-    @Field(key: "name")
-    public var name: String
+    @Field(key: "username")
+    public var username: String
 
-    /// The email of the user, which is used as the username during
-    /// authentication.
-    @Field(key: "email")
-    public var email: String
-
-    /// The password of the user, used during authentication.
-    @Field(key: "password")
-    public var password: String
+    /// The hashed password of the user, used during authentication.
+    @Field(key: "password_hash")
+    public var passwordHash: String
 
     /// Timestamp for soft deletion.
     @Timestamp(key: "deleted_at", on: .delete)
@@ -35,19 +30,16 @@ public final class CorvusUser: CorvusModel {
     ///
     /// - Parameters:
     ///     - id: The identifier of the user, auto generated if not provided.
-    ///     - name: The name of the user.
-    ///     - email: The email (or username) of the user.
-    ///     - password: The password of the user.
+    ///     - username: The username of the user.
+    ///     - passwordHash: The hashed password of the user.
     public init(
         id: UUID? = nil,
-        name: String,
-        email: String,
-        password: String
+        username: String,
+        passwordHash: String
     ) {
         self.id = id
-        self.name = name
-        self.email = email
-        self.password = password
+        self.username = username
+        self.passwordHash = passwordHash
     }
 }
 
@@ -61,9 +53,8 @@ public struct CreateCorvusUser: Migration {
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema(CorvusUser.schema)
             .id()
-            .field("name", .string, .required)
-            .field("email", .string, .required)
-            .field("password", .string, .required)
+            .field("username", .string, .required)
+            .field("password_hash", .string, .required)
             .field("deleted_at", .date)
             .create()
     }
@@ -74,15 +65,15 @@ public struct CreateCorvusUser: Migration {
     }
 }
 
-/// An extension to conform to the `ModelUser` protocol, which provides
+/// An extension to conform to the `CorvusModelUser` protocol, which provides
 /// functionality to authenticate a user with username and password.
-extension CorvusUser: ModelUser {
+extension CorvusUser: CorvusModelUser {
+    
+    /// Provides a path to the user's username.
+    public static let usernameKey = \CorvusUser.$username
 
-    /// Provides a path to the user's username (or in Corvus, the email).
-    public static let usernameKey = \CorvusUser.$email
-
-    /// Provides a path to the user's password.
-    public static let passwordHashKey = \CorvusUser.$password
+    /// Provides a path to the user's hashed password.
+    public static let passwordHashKey = \CorvusUser.$passwordHash
 
     /// Verifies a given string by checking if it matches a user's password.
     ///
@@ -90,35 +81,6 @@ extension CorvusUser: ModelUser {
     /// - Returns: True if the provided password matches the user's, false if
     /// not.
     public func verify(password: String) throws -> Bool {
-        password == self.password
-    }
-}
-
-/// An extension to generate a `CorvusToken` for a given user.
-extension CorvusUser {
-
-    /// A method that generates a unique token for a given user.
-    ///
-    /// - Returns: The generated token.
-    public func generateToken() throws -> CorvusToken {
-        try .init(
-            value: [UInt8].random(count: 16).base64,
-            userID: self.requireID()
-        )
-    }
-}
-
-/// An extension to validate if a given `CorvusUser` is equal to the current
-/// `CorvusUser`, used for `AuthEndpoint.auth()`.
-extension CorvusUser {
-
-    /// Validates if a given user is equal to the current user.
-    ///
-    /// - Parameter requestUser: The user from the request that is to be
-    /// validated.
-    /// - Returns: True if the request's user matches the current user, false if
-    /// not.
-    public func validate(_ requestUser: CorvusUser) -> Bool {
-        requestUser.id == self.id
+        try Bcrypt.verify(password, created: self.passwordHash)
     }
 }

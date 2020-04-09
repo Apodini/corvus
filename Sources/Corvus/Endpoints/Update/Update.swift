@@ -27,6 +27,7 @@ public final class Update<T: CorvusModel>: AuthEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having found the object with the supplied ID.
+    /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         let parameter = String(id.description.dropFirst())
         guard let itemId = req.parameters.get(
@@ -43,6 +44,7 @@ public final class Update<T: CorvusModel>: AuthEndpoint {
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing the updated value of the
     /// object of type `QuerySubject`.
+    /// - Throws: An `Abort` error if the item is not found.
     public func handler(_ req: Request) throws ->
         EventLoopFuture<QuerySubject>
     {

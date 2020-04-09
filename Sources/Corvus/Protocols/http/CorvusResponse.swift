@@ -10,5 +10,7 @@ public protocol CorvusResponse: Content {
     
     /// Initialises a `CorvusResponse` with a given item.
     /// Normally this is the result of the `QueryEndpoints`'s handler function.
+    ///
+    /// - Parameter item: The item to initialize the response with.
     init(item: Item)
 }

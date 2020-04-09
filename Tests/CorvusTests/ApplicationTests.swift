@@ -4,6 +4,7 @@ import FluentSQLiteDriver
 import XCTVapor
 import Foundation
 
+// swiftlint:disable file_length type_body_length function_body_length
 final class ApplicationTests: XCTestCase {
 
     func testCreate() throws {
@@ -293,7 +294,10 @@ final class ApplicationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api", "accounts") {
-                    Custom<Account>(path: "userId", type: .post) { req in
+                    Custom<Account>(
+                        pathComponents: "userId",
+                        type: .post
+                    ) { req in
                         let requestContent = try req.content.decode(
                             Account.self
                         )
@@ -403,7 +407,7 @@ final class ApplicationTests: XCTestCase {
         try app.register(collection: readOneTest)
 
         let account = Account(id: nil, name: "Berzan")
-        var AccountRes: Account!
+        var accountRes: Account!
         
         try app.testable()
             .test(
@@ -412,27 +416,27 @@ final class ApplicationTests: XCTestCase {
                 headers: ["content-type": "application/json"],
                 body: account.encode()
             ) { res in
-                AccountRes = try res.content.decode(Account.self)
+                accountRes = try res.content.decode(Account.self)
             }
-            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
+            .test(.GET, "/api/accounts/\(accountRes.id!)") { res in
                 let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
                 XCTAssertEqual(response, account)
             }
-            .test(.DELETE, "/api/accounts/\(AccountRes.id!)") { res in
+            .test(.DELETE, "/api/accounts/\(accountRes.id!)") { res in
                 print(res.body.string)
                 XCTAssertEqual(res.status, .ok)
             }
-            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
+            .test(.GET, "/api/accounts/\(accountRes.id!)") { res in
                 XCTAssertEqual(res.status, .notFound)
             }
             .test(
                 .PATCH,
-                "/api/accounts/trash/\(AccountRes.id!)/restore"
+                "/api/accounts/trash/\(accountRes.id!)/restore"
             ) { res in
                 XCTAssertEqual(res.status, .ok)
             }
-            .test(.GET, "/api/accounts/\(AccountRes.id!)") { res in
+            .test(.GET, "/api/accounts/\(accountRes.id!)") { res in
                 let response = try res.content.decode(Account.self)
                 XCTAssertEqual(res.status, .ok)
                 XCTAssertEqual(response, account)
@@ -690,7 +694,9 @@ final class ApplicationTests: XCTestCase {
         
         // This response is a more complex example using generics.
         // This allows for responses which work with any number of models.
-        struct ReadResponse<Model: AnyModel & Equatable>: CorvusResponse, Equatable {
+        struct ReadResponse<Model: AnyModel & Equatable>:
+        CorvusResponse,
+        Equatable {
             let success = true
             let payload: [Model]
             

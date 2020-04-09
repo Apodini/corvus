@@ -1,6 +1,5 @@
 module: Corvus
 author: Berzan Yildiz
-min_acl: internal
 theme: fullwidth
 output: ./docs
 documentation: ./*.md
