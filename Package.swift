@@ -13,7 +13,7 @@ let package = Package(
         // 💧 A server-side Swift web framework.
         .package(
             url: "https://github.com/vapor/vapor.git",
-            from: "4.0.0-rc"
+            from: "4.0.0"
         ),
 
         // 💧 Vapor's ORM Framework.

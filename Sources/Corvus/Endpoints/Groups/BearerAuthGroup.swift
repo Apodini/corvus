@@ -2,8 +2,8 @@ import Vapor
 import Fluent
 
 /// A special type of `Group` that protects its `content` with bearer token
-/// authentication for a generic `CorvusModelUserToken`.
-public struct BearerAuthGroup<T: CorvusModelUserToken>: Endpoint {
+/// authentication for a generic `CorvusModelTokenAuthenticatable`.
+public struct BearerAuthGroup<T: CorvusModelTokenAuthenticatable>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the
     /// `BearerAuthGroup` extends.
@@ -44,7 +44,7 @@ public struct BearerAuthGroup<T: CorvusModelUserToken>: Endpoint {
 
         let guardedRoutesBuilder = groupedRoutesBuilder.grouped([
             T.User.guardMiddleware(),
-            T.authenticator().middleware()
+            T.authenticator()
         ])
         
         content.register(to: guardedRoutesBuilder)

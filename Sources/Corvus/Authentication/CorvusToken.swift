@@ -69,7 +69,7 @@ public struct CreateCorvusToken: Migration {
 
 /// An extension to conform to the `CorvusModelUserToken` protocol, which
 /// provides functionality to authenticate a token.
-extension CorvusToken: CorvusModelUserToken {
+extension CorvusToken: CorvusModelTokenAuthenticatable {
 
     /// Prevents tokens from being deleted after authentication.
     public var isValid: Bool {

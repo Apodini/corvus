@@ -3,7 +3,7 @@ import Fluent
 
 /// A special type of `Group` that protects its `content` with basic
 /// authentication for a generic `CorvusModelUser`.
-public struct BasicAuthGroup<T: CorvusModelUser>: Endpoint {
+public struct BasicAuthGroup<T: CorvusModelAuthenticatable>: Endpoint {
 
     /// An array of `PathComponent` describing the path that the
     /// `BasicAuthGroup` extends.
@@ -44,7 +44,7 @@ public struct BasicAuthGroup<T: CorvusModelUser>: Endpoint {
 
         let guardedRoutesBuilder = groupedRoutesBuilder.grouped([
             T.guardMiddleware(),
-            T.authenticator().middleware()
+            T.authenticator()
         ])
         
         content.register(to: guardedRoutesBuilder)

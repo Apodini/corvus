@@ -1,29 +1,28 @@
-import Fluent
 import Vapor
+import Fluent
 
 // swiftlint:disable identifier_name
 
 /// A protocol that defines bearer authentication tokens, similar to
-/// `ModelUserToken`.
-public protocol CorvusModelUserToken: CorvusModel {
-    
+/// `CorvusModelTokenAuthenticatable`.
+public protocol CorvusModelTokenAuthenticatable: CorvusModel, Authenticatable {
     /// The `User` type the token belongs to.
-    associatedtype User: CorvusModel & Authenticatable
-    
-    /// The `String` value of the token.
-    var value: String { get set }
-    
-    /// The `User` associated with the token.
-    var user: User { get set }
-    
-    /// A boolean that deletes tokens if they're not in use.
-    var isValid: Bool { get }
+     associatedtype User: CorvusModel & Authenticatable
+
+     /// The `String` value of the token.
+     var value: String { get set }
+
+     /// The `User` associated with the token.
+     var user: User { get set }
+
+     /// A boolean that deletes tokens if they're not in use.
+     var isValid: Bool { get }
 }
 
 /// An extension to provide a default initializer to tokens so that they can
 /// be initialized manually in module code.
-extension CorvusModelUserToken {
-    
+extension CorvusModelTokenAuthenticatable {
+
     /// Initializes a token.
     /// - Parameters:
     ///   - id: The unique identifier of the token.
@@ -39,15 +38,15 @@ extension CorvusModelUserToken {
 /// An extension to provide an authenticator for the token that can be
 /// registered to the `Vapor` application, and field accessors for `value` and
 /// `user`.
-extension CorvusModelUserToken {
-    
+extension CorvusModelTokenAuthenticatable {
+
     /// Provides a `Vapor` authenticator defined below.
     public static func authenticator(
         database: DatabaseID? = nil
-    ) -> CorvusModelUserTokenAuthenticator<Self> {
-        CorvusModelUserTokenAuthenticator<Self>(database: database)
+    ) -> CorvusModelTokenAuthenticator<Self> {
+        CorvusModelTokenAuthenticator<Self>(database: database)
     }
-    
+
     /// Provides access to the `value` attribute.
     var _$value: Field<String> {
         guard let mirror = Mirror(reflecting: self).descendant("_value"),
@@ -71,16 +70,16 @@ extension CorvusModelUserToken {
 
 /// Provides a `BearerAuthenticator` struct that defines how tokens are
 /// authenticated.
-public struct CorvusModelUserTokenAuthenticator<T: CorvusModelUserToken>:
+public struct CorvusModelTokenAuthenticator<T: CorvusModelTokenAuthenticatable>:
 BearerAuthenticator
 {
-    
+
     /// The token's user.
     public typealias User = T.User
-    
+
     /// The database the token is saved in.
     public let database: DatabaseID?
-    
+
     /// Authenticates a token.
     /// - Parameters:
     ///   - bearer: The bearer token passed in the request.
@@ -89,21 +88,23 @@ BearerAuthenticator
     public func authenticate(
         bearer: BearerAuthorization,
         for request: Request
-    ) -> EventLoopFuture<User?> {
+    ) -> EventLoopFuture<Void> {
         let db = request.db(self.database)
         return T.query(on: db)
             .filter(\._$value == bearer.token)
             .first()
             .flatMap
-        { token -> EventLoopFuture<User?> in
+        { token -> EventLoopFuture<Void> in
             guard let token = token else {
-                return request.eventLoop.makeSucceededFuture(nil)
+                return request.eventLoop.makeSucceededFuture(())
             }
             guard token.isValid else {
-                return token.delete(on: db).map { nil }
+                return token.delete(on: db)
             }
-            return token._$user.get(on: db)
-                .map { $0 }
+            request.auth.login(token)
+            return token._$user.get(on: db).map {
+                request.auth.login($0)
+            }
         }
     }
 }

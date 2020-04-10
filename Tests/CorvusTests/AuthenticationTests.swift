@@ -27,7 +27,7 @@ final class AuthenticationTests: XCTestCase {
         let basicAuthenticatorTest = BasicAuthenticatorTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusUser.authenticator().middleware())
+        app.middleware.use(CorvusUser.authenticator())
         app.migrations.add(CreateAccount())
         app.migrations.add(CreateCorvusUser())
 
@@ -85,7 +85,7 @@ final class AuthenticationTests: XCTestCase {
         let basicAuthenticatorTest = BasicAuthenticatorTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusUser.authenticator().middleware())
+        app.middleware.use(CorvusUser.authenticator())
         app.migrations.add(CreateAccount())
         app.migrations.add(CreateCorvusUser())
 
@@ -141,8 +141,8 @@ final class AuthenticationTests: XCTestCase {
         let bearerAuthenticatorTest = BearerAuthenticatorTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusToken.authenticator().middleware())
-        app.middleware.use(CorvusUser.authenticator().middleware())
+        app.middleware.use(CorvusToken.authenticator())
+        app.middleware.use(CorvusUser.authenticator())
         app.migrations.add(CreateAccount())
         app.migrations.add(CreateCorvusUser())
         app.migrations.add(CreateCorvusToken())
@@ -216,7 +216,7 @@ final class AuthenticationTests: XCTestCase {
         let bearerAuthenticatorTest = BearerAuthenticatorTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusToken.authenticator().middleware())
+        app.middleware.use(CorvusToken.authenticator())
         app.migrations.add(CreateAccount())
         app.migrations.add(CreateCorvusUser())
         app.migrations.add(CreateCorvusToken())
@@ -262,8 +262,8 @@ final class AuthenticationTests: XCTestCase {
         let authModifierTest = AuthModifierTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusToken.authenticator().middleware())
-        app.middleware.use(CorvusUser.authenticator().middleware())
+        app.middleware.use(CorvusToken.authenticator())
+        app.middleware.use(CorvusUser.authenticator())
         app.migrations.add(CreateSecureAccount())
         app.migrations.add(CreateCorvusUser())
         app.migrations.add(CreateCorvusToken())
@@ -392,8 +392,8 @@ final class AuthenticationTests: XCTestCase {
         let authModifierTest = AuthModifierTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CustomToken.authenticator().middleware())
-        app.middleware.use(CustomUser.authenticator().middleware())
+        app.middleware.use(CustomToken.authenticator())
+        app.middleware.use(CustomUser.authenticator())
         app.migrations.add(CreateCustomAccount())
         app.migrations.add(CreateCustomUser())
         app.migrations.add(CreateCustomToken())
@@ -516,8 +516,8 @@ final class AuthenticationTests: XCTestCase {
         let userAuthModifierTest = UserAuthModifierTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusToken.authenticator().middleware())
-        app.middleware.use(CorvusUser.authenticator().middleware())
+        app.middleware.use(CorvusToken.authenticator())
+        app.middleware.use(CorvusUser.authenticator())
         app.migrations.add(CreateSecureAccount())
         app.migrations.add(CreateCorvusUser())
         app.migrations.add(CreateCorvusToken())
