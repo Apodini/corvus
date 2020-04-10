@@ -1,12 +1,13 @@
 import Vapor
 import Fluent
-
+    
 /// A class that provides functionality to log in a user with username and
 /// password credentials sent in a HTTP POST `Request` and save a token for
 /// that user. Needs an object of type `T` which represents the token to be
 /// created upon login.
-public final class Login<T: CorvusModelTokenAuthenticatable & ResponseEncodable>: Endpoint
-where T.User: CorvusModelAuthenticatable {
+public final class Login<
+    T: CorvusModelTokenAuthenticatable & ResponseEncodable>:
+Endpoint where T.User: CorvusModelAuthenticatable {
 
     /// The route for the login functionality
     let path: PathComponent
