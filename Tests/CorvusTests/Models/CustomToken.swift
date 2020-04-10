@@ -2,7 +2,7 @@ import Corvus
 import Foundation
 import Fluent
 
-public final class CustomToken: CorvusModelUserToken {
+public final class CustomToken: CorvusModelTokenAuthenticatable {
 
     public static let schema = "custom_tokens"
 

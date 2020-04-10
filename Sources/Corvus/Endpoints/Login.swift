@@ -5,8 +5,8 @@ import Fluent
 /// password credentials sent in a HTTP POST `Request` and save a token for
 /// that user. Needs an object of type `T` which represents the token to be
 /// created upon login.
-public final class Login<T: CorvusModelUserToken & ResponseEncodable>: Endpoint
-where T.User: CorvusModelUser {
+public final class Login<T: CorvusModelTokenAuthenticatable & ResponseEncodable>: Endpoint
+where T.User: CorvusModelAuthenticatable {
 
     /// The route for the login functionality
     let path: PathComponent
@@ -42,7 +42,7 @@ where T.User: CorvusModelUser {
     /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
         let guardedRoutesBuilder = routes.grouped(
-            T.User.authenticator().middleware()
+            T.User.authenticator()
         )
         
         guardedRoutesBuilder.post(path, use: handler)

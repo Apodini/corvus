@@ -5,7 +5,7 @@ import Fluent
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `AuthEndpoint`. Requires an object `T` that represents the
 /// user to authorize.
-public final class AuthModifier<Q: AuthEndpoint, T: CorvusModelUser>:
+public final class AuthModifier<Q: AuthEndpoint, T: CorvusModelAuthenticatable>:
 AuthEndpoint {
 
     /// The return type for the `.handler()` modifier.
@@ -109,7 +109,7 @@ extension AuthEndpoint {
     /// - Parameter user: A `KeyPath` to the related user property.
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
-    public func auth<T: CorvusModelUser>(
+    public func auth<T: CorvusModelAuthenticatable>(
         _ user: AuthModifier<Self, T>.UserKeyPath
     ) -> AuthModifier<Self, T> {
         AuthModifier(self, user: user)

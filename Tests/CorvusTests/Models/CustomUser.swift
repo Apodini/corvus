@@ -3,7 +3,7 @@ import Fluent
 import Vapor
 import Foundation
 
-public final class CustomUser: CorvusModel {
+public final class CustomUser: CorvusModel, Authenticatable {
 
     public static let schema = "custom_users"
 
@@ -62,7 +62,7 @@ public struct CreateCustomUser: Migration {
     }
 }
 
-extension CustomUser: CorvusModelUser {
+extension CustomUser: CorvusModelAuthenticatable {
 
     public static let usernameKey = \CustomUser.$username
 

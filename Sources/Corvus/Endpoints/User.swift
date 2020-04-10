@@ -3,7 +3,7 @@ import Fluent
 
 /// A class that contains Create, Read, Update and Delete functionality for a
 /// generic type `T` representing a user object.
-public final class User<T: CorvusModelUser & CorvusModel>: Endpoint {
+public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
 
     /// The route path to the parameters.
     let pathComponents: [PathComponent]

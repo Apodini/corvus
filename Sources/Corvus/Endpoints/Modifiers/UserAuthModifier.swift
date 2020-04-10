@@ -5,7 +5,7 @@ import Fluent
 /// That allows Corvus to chain modifiers, as it gets treated as any other
 /// struct conforming to `AuthEndpoint`.
 public final class UserAuthModifier<Q: AuthEndpoint>: AuthEndpoint
-where Q.QuerySubject: CorvusModelUser {
+where Q.QuerySubject: CorvusModelAuthenticatable {
 
     /// The return type for the `.handler()` modifier.
     public typealias Element = Q.Element
@@ -78,7 +78,7 @@ where Q.QuerySubject: CorvusModelUser {
 
 /// An extension that adds the `.userAuth()` modifier to components conforming
 /// to `AuthEndpoint`.
-extension AuthEndpoint where Self.QuerySubject: CorvusModelUser {
+extension AuthEndpoint where Self.QuerySubject: CorvusModelAuthenticatable {
 
     /// A modifier used to make sure components only authorize requests where
     /// the supplied `CorvusUser` is actually related to the `QuerySubject`.

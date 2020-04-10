@@ -67,7 +67,7 @@ public struct CreateCorvusUser: Migration {
 
 /// An extension to conform to the `CorvusModelUser` protocol, which provides
 /// functionality to authenticate a user with username and password.
-extension CorvusUser: CorvusModelUser {
+extension CorvusUser: CorvusModelAuthenticatable {
     
     /// Provides a path to the user's username.
     public static let usernameKey = \CorvusUser.$username
