@@ -5,27 +5,20 @@ import Fluent
 /// That allows Corvus to chain modifiers, as it gets treated as any other
 /// struct conforming to `RestEndpoint`.
 public final class ResponseModifier<
-    Q: RestEndpoint,
-    R: CorvusResponse>:
-RestEndpoint where Q.Element == R.Item {
-    
-    /// The `Response` of this modifier.
-    public typealias Response = R
+    Endpoint: RestEndpoint,
+    Response: CorvusResponse>:
+RestEndpointModfier where Endpoint.Element == Response.Item {
     
     /// The `RestEndpoint` the `.respond(with:)` modifier is attached to.
-    public let restEndpoint: Q
-
-    /// The HTTP operation type of the component.
-    public let operationType: OperationType
+    public let modifiedEndpoint: Endpoint
     
     /// Initializes the modifier with its underlying `RestEndpoint`.
     ///
     /// - Parameters:
     ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
     ///     to.
-    public init(_ restEndpoint: Q) {
-        self.restEndpoint = restEndpoint
-        self.operationType = restEndpoint.operationType
+    public init(_ endpoint: Endpoint) {
+        self.modifiedEndpoint = endpoint
     }
     
     /// A method which transform the restEndpoints's handler return value to a
@@ -35,12 +28,9 @@ RestEndpoint where Q.Element == R.Item {
     /// - Returns: An `EventLoopFuture` containing the
     /// `ResponseModifier`'s `Response`.
     /// - Throws: An `Abort` error if something goes wrong.
-    public func handler(_ req: Request) throws ->
-        EventLoopFuture<Response>
-    {
-            try restEndpoint.handler(req).map(Response.init)
+    public func handler(_ req: Request) throws -> EventLoopFuture<Response> {
+        try modifiedEndpoint.handler(req).map(Response.init)
     }
-
 }
 
 /// An extension that adds a `.respond(with:)` modifier to `RestEndpoint`.
