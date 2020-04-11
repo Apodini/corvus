@@ -17,7 +17,8 @@ extension RestEndpointModfier {
         modifiedEndpoint.operationType
     }
     
-    /// An array of PathComponent describing the path that the TypedEndpoint extends.
+    /// An array of PathComponent describing the path that the
+    /// TypedEndpoint extends.
     public var pathComponents: [PathComponent] {
         modifiedEndpoint.pathComponents
     }

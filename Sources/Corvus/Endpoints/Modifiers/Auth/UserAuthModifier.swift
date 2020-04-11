@@ -6,7 +6,8 @@ import Fluent
 /// struct conforming to `AuthEndpoint`.
 public final class UserAuthModifier<
     A: AuthEndpoint
->: AuthEndpoint, RestEndpointModfier where A.QuerySubject: CorvusModelAuthenticatable {
+>: AuthEndpoint, RestEndpointModfier
+where A.QuerySubject: CorvusModelAuthenticatable {
 
     /// The return type for the `.handler()` modifier.
     public typealias Element = A.Element
