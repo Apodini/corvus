@@ -5,31 +5,30 @@ import Fluent
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `AuthEndpoint`. Requires an object `T` that represents the
 /// user to authorize.
-public final class AuthModifier<Q: AuthEndpoint, T: CorvusModelAuthenticatable>:
-AuthEndpoint {
-
+public final class AuthModifier<
+    A: AuthEndpoint,
+    T: CorvusModelAuthenticatable>:
+AuthEndpoint, RestEndpointModfier {
+    
     /// The return type for the `.handler()` modifier.
-    public typealias Element = Q.Element
+    public typealias Element = A.Element
 
     /// The return value of the `.query()`, so the type being operated on in
     /// the current component.
-    public typealias QuerySubject = Q.QuerySubject
+    public typealias QuerySubject = A.QuerySubject
 
     /// The `KeyPath` to the user property of the `QuerySubject` which is to be
     /// authenticated.
     public typealias UserKeyPath = KeyPath<
-        Q.QuerySubject,
-        Q.QuerySubject.Parent<T>
+        A.QuerySubject,
+        A.QuerySubject.Parent<T>
     >
 
     /// The `ReadEndpoint` the `.auth()` modifier is attached to.
-    public let queryEndpoint: Q
+    public let modifiedEndpoint: A
 
     /// The path to the property to authenticate for.
     public let userKeyPath: UserKeyPath
-
-    /// The HTTP method of the wrapped method.
-    public let operationType: OperationType
 
     /// Initializes the modifier with its underlying `QueryEndpoint` and its
     /// `auth` path, which is the keypath to the property to run authentication
@@ -40,10 +39,9 @@ AuthEndpoint {
     ///     to.
     ///     - user: A `KeyPath` which leads to the property to authenticate for.
     ///     - operationType: The HTTP method of the wrapped component.
-    public init(_ queryEndpoint: Q, user: UserKeyPath) {
-        self.queryEndpoint = queryEndpoint
+    public init(_ authEndpoint: A, user: UserKeyPath) {
+        self.modifiedEndpoint = authEndpoint
         self.userKeyPath = user
-        self.operationType = queryEndpoint.operationType
     }
 
     /// Returns the `queryEndpoint`'s query.
@@ -53,7 +51,7 @@ AuthEndpoint {
     /// by the `queryEndpoint`.
     /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try queryEndpoint.query(req)
+        try modifiedEndpoint.query(req)
     }
 
     /// A method which checks if the user `T` supplied in the `Request` is
@@ -91,7 +89,7 @@ AuthEndpoint {
             }
 
             do {
-                return try self.queryEndpoint.handler(req)
+                return try self.modifiedEndpoint.handler(req)
             } catch {
                 return req.eventLoop.makeFailedFuture(error)
             }

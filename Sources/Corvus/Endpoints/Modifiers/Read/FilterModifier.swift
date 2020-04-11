@@ -4,18 +4,20 @@ import Fluent
 /// A class that wraps a component which utilizes a `.filter()` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `ReadEndpoint`.
-public final class FilterModifier<Q: ReadEndpoint>: ReadEndpoint {
+public final class FilterModifier<
+    R: ReadEndpoint
+>: ReadEndpoint, RestEndpointModfier {
 
     /// The return value of the `.handler()`, so the type being operated on in
     /// the current component.
-    public typealias QuerySubject = Q.QuerySubject
+    public typealias QuerySubject = R.QuerySubject
 
     /// The filter passed to the `.filter()` modifier. It is an alias for
     /// `Fluent's` `ModelValueFilter`.
-    public typealias Filter = ModelValueFilter<Q.QuerySubject>
+    public typealias Filter = ModelValueFilter<R.QuerySubject>
 
     /// The `ReadEndpoint` the `.filter()` modifier is attached to.
-    public let queryEndpoint: Q
+    public let modifiedEndpoint: R
 
     /// The filter of the modifier.
     public let filter: Filter
@@ -28,8 +30,8 @@ public final class FilterModifier<Q: ReadEndpoint>: ReadEndpoint {
     ///     to.
     ///     - filter: A Fluent `ModelValueFilter` which represents a database
     ///     query to filter values by.
-    public init(_ queryEndpoint: Q, filter: ModelValueFilter<QuerySubject>) {
-        self.queryEndpoint = queryEndpoint
+    public init(_ readEndpoint: R, filter: ModelValueFilter<QuerySubject>) {
+        self.modifiedEndpoint = readEndpoint
         self.filter = filter
     }
 
@@ -40,7 +42,7 @@ public final class FilterModifier<Q: ReadEndpoint>: ReadEndpoint {
     /// having attached a filter to the `queryEndpoint`'s query.
     /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try queryEndpoint.query(req).filter(filter)
+        try modifiedEndpoint.query(req).filter(filter)
     }
 
     /// A method to return objects found in the `.query()` from the database.
@@ -53,7 +55,6 @@ public final class FilterModifier<Q: ReadEndpoint>: ReadEndpoint {
         throws -> EventLoopFuture<[QuerySubject]> {
         try query(req).all()
     }
-
 }
 
 /// An extension that adds a `.filter()` modifier to `ReadEndpoints`.

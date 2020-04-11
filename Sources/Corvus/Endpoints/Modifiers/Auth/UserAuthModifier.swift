@@ -4,21 +4,20 @@ import Fluent
 /// A class that wraps a component which utilizes an `.userAuth()` modifier.
 /// That allows Corvus to chain modifiers, as it gets treated as any other
 /// struct conforming to `AuthEndpoint`.
-public final class UserAuthModifier<Q: AuthEndpoint>: AuthEndpoint
-where Q.QuerySubject: CorvusModelAuthenticatable {
+public final class UserAuthModifier<
+    A: AuthEndpoint
+>: AuthEndpoint, RestEndpointModfier
+where A.QuerySubject: CorvusModelAuthenticatable {
 
     /// The return type for the `.handler()` modifier.
-    public typealias Element = Q.Element
+    public typealias Element = A.Element
 
     /// The return value of the `.query()`, so the type being operated on in
     /// the current component.
-    public typealias QuerySubject = Q.QuerySubject
+    public typealias QuerySubject = A.QuerySubject
 
     /// The `AuthEndpoint` the `.userAuth()` modifier is attached to.
-    public let queryEndpoint: Q
-
-    /// The HTTP method of the wrapped method.
-    public let operationType: OperationType
+    public let modifiedEndpoint: A
 
     /// Initializes the modifier with its underlying `QueryEndpoint`.
     ///
@@ -26,9 +25,8 @@ where Q.QuerySubject: CorvusModelAuthenticatable {
     ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
     ///     to.
     ///     - operationType: The HTTP method of the wrapped component.
-    public init(_ queryEndpoint: Q) {
-        self.queryEndpoint = queryEndpoint
-        self.operationType = queryEndpoint.operationType
+    public init(_ queryEndpoint: A) {
+        self.modifiedEndpoint = queryEndpoint
     }
 
     /// Returns the `queryEndpoint`'s query.
@@ -38,7 +36,7 @@ where Q.QuerySubject: CorvusModelAuthenticatable {
     /// by the `queryEndpoint`.
     /// - Throws: An `Abort` error if an item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try queryEndpoint.query(req)
+        try modifiedEndpoint.query(req)
     }
 
     /// A method which checks if the user supplied in the `Request` is
@@ -68,7 +66,7 @@ where Q.QuerySubject: CorvusModelAuthenticatable {
             }
 
             do {
-                return try self.queryEndpoint.handler(req)
+                return try self.modifiedEndpoint.handler(req)
             } catch {
                 return req.eventLoop.makeFailedFuture(error)
             }

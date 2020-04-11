@@ -705,6 +705,14 @@ final class ApplicationTests: XCTestCase {
             }
         }
         
+        struct CustomResponse: CorvusResponse, Equatable {
+            let name: String
+            
+            init(item: Account) {
+                name = item.name
+            }
+        }
+        
         final class ResponseModifierTest: RestApi {
 
             let testParameter = Parameter<Account>()
@@ -713,6 +721,12 @@ final class ApplicationTests: XCTestCase {
                 Group("api", "accounts") {
                     Create<Account>().respond(with: CreateResponse.self)
                     ReadAll<Account>().respond(with: ReadResponse.self)
+                    Custom<Account>(pathComponents: "berzan", type: .get) {
+                        Account
+                            .query(on: $0.db)
+                            .first()
+                            .unwrap(or: Abort(.notFound))
+                    }.respond(with: CustomResponse.self)
                 }
             }
         }
@@ -731,6 +745,7 @@ final class ApplicationTests: XCTestCase {
         let account = Account(name: "Berzan")
         let createRes = CreateResponse(item: account)
         let readRes = ReadResponse(item: [account])
+        let customRes = CustomResponse(item: account)
         
         try app.testable().test(
             .POST,
@@ -743,6 +758,9 @@ final class ApplicationTests: XCTestCase {
         ).test(.GET, "/api/accounts/") { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqualJSON(res.body.string, readRes)
+        }.test(.GET, "/api/accounts/berzan") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqualJSON(res.body.string, customRes)
         }
     }
 }
