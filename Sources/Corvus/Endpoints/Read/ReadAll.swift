@@ -12,6 +12,9 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     /// should be read from the database.
     public let target: ReadTarget<QuerySubject>
     
+    /// The default `operationType` is GET.
+    public var operationType: OperationType { .get }
+    
     /// Initializes the component
     ///
     /// - Parameter target: A `ReadTarget` which controls where to query the

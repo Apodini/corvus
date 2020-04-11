@@ -5,23 +5,23 @@ import Fluent
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `ReadEndpoint`.
 public final class ChildrenModifier<
-    Q: ReadEndpoint,
-    E: CorvusModel>:
-ReadEndpoint {
+    R: ReadEndpoint,
+    M: CorvusModel>:
+RestEndpointModfier, ReadEndpoint {
 
     /// The type of the value loaded with the `.children()` modifier.
-    public typealias Element = [E]
+    public typealias Element = [M]
 
     /// The return value of the `.handler()`, so the type being operated on in
     /// the current component.
-    public typealias QuerySubject = Q.QuerySubject
+    public typealias QuerySubject = R.QuerySubject
 
     /// The `KeyPath` to the related attribute of the `QuerySubject` that is to
     /// be loaded.
-    public typealias Path = KeyPath<Q.QuerySubject, Q.QuerySubject.Children<E>>
+    public typealias Path = KeyPath<R.QuerySubject, R.QuerySubject.Children<M>>
 
-    /// The `ReadEndpoint` the `.with()` modifier is attached to.
-    let queryEndpoint: Q
+    /// The `ReadEndpoint` the `.children()` modifier is attached to.
+    let modifiedEndpoint: R
 
     /// The `KeyPath` passed to the `QuerySubject`.
     let path: Path
@@ -33,8 +33,8 @@ ReadEndpoint {
     ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
     ///     to.
     ///     - with: A `KeyPath` which leads to the desired property.
-    public init(_ queryEndpoint: Q, path: Path) {
-        self.queryEndpoint = queryEndpoint
+    public init(_ readEndpoint: R, path: Path) {
+        self.modifiedEndpoint = readEndpoint
         self.path = path
     }
 
@@ -46,7 +46,7 @@ ReadEndpoint {
     /// having attached a with modifier to the `queryEndpoint`'s query.
     /// - Throws: An `Abort` error if the item is not found.
     public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try queryEndpoint.query(req).with(path)
+        try modifiedEndpoint.query(req).with(path)
     }
 
     /// A method which eager loads objects related to the `QuerySubject` as

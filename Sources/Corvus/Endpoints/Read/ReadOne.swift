@@ -14,6 +14,9 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
     /// Represents the type of `CorvusModel` to be read.
     public let target: ReadTarget<QuerySubject>
     
+    /// The default `operationType` is GET.
+    public var operationType: OperationType { .get }
+    
     /// Initializes the component with a given path parameter.
     ///
     /// - Parameter id: A `PathComponent` which represents the ID of the item
