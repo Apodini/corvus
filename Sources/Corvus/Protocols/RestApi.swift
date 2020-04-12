@@ -20,3 +20,13 @@ extension RestApi {
         content.register(to: routes)
     }
 }
+
+public final class Api: RestApi {
+    public let content: Endpoint
+    let pathComponents: [PathComponent]
+    
+    public init(_ pathComponents: PathComponent..., @EndpointBuilder content: () -> Endpoint) {
+        self.pathComponents = pathComponents
+        self.content = Group(pathComponents) { content() }
+    }
+}
