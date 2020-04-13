@@ -6,9 +6,9 @@ import Fluent
 /// other struct conforming to `CrateAuthEndpoint`. Requires an object `T` that
 /// represents the user to authorize.
 public final class CreateAuthModifier<
-    A: CreateAuthEndpoint,
+    A: CreateEndpoint,
     T: CorvusModelAuthenticatable>:
-CreateAuthEndpoint, RestEndpointModifier {
+CreateEndpoint, RestEndpointModifier {
 
     /// The return value of the `.query()`, so the type being operated on in
     /// the current component.
@@ -79,7 +79,7 @@ CreateAuthEndpoint, RestEndpointModifier {
 
 /// An extension that adds the `.auth()` modifier to components conforming to
 /// `CreateAuthEndpoint`.
-extension CreateAuthEndpoint {
+extension CreateEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
     /// the supplied user `T` is actually related to the `QuerySubject`.
