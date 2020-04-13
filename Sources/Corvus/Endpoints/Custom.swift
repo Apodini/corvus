@@ -40,6 +40,7 @@ public final class Custom<R: ResponseEncodable>: RestEndpoint {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An element of type `T`.
+    /// - Throws: An `Abort` error if something goes wrong.
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
         try customHandler(req)
     }

@@ -41,6 +41,8 @@ extension CorvusModelTokenAuthenticatable {
 extension CorvusModelTokenAuthenticatable {
 
     /// Provides a `Vapor` authenticator defined below.
+    /// - Parameter database: The database to authenticate.
+    /// - Returns: A `CorvusModelTokenAuthenticator`.
     public static func authenticator(
         database: DatabaseID? = nil
     ) -> CorvusModelTokenAuthenticator<Self> {
@@ -84,7 +86,7 @@ BearerAuthenticator
     /// - Parameters:
     ///   - bearer: The bearer token passed in the request.
     ///   - request: The `Request` to be authenticated.
-    /// - Returns: The `User` the token belongs to.
+    /// - Returns: An empty `EventLoopFuture`.
     public func authenticate(
         bearer: BearerAuthorization,
         for request: Request

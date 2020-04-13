@@ -6,7 +6,7 @@ import Fluent
 /// conforming to `ReadEndpoint`.
 public final class FilterModifier<
     R: ReadEndpoint
->: ReadEndpoint, RestEndpointModfier {
+>: ReadEndpoint, RestEndpointModifier {
 
     /// The return value of the `.handler()`, so the type being operated on in
     /// the current component.

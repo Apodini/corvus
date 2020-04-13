@@ -15,6 +15,7 @@ extension RestApi {
     ///
     /// - Parameter routes: The `RoutesBuilder` containing HTTP route
     /// information up to this point.
+    /// - Throws: An error if registration fails.
     public func boot(routes: RoutesBuilder) throws {
         content.register(to: routes)
     }

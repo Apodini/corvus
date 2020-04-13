@@ -46,6 +46,8 @@ public struct CreateCorvusToken: Migration {
     public init() {}
 
     /// Prepares database fields and their value types.
+    /// - Parameter database: The database to authenticate.
+    /// - Returns: An empty `EventLoopFuture`.
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema(CorvusToken.schema)
             .id()
@@ -62,6 +64,8 @@ public struct CreateCorvusToken: Migration {
     }
 
     /// Implements functionality to delete schema when database is reverted.
+    /// - Parameter database: The database to authenticate.
+    /// - Returns: An empty `EventLoopFuture`.
     public func revert(on database: Database) -> EventLoopFuture<Void> {
         database.schema(CorvusToken.schema).delete()
     }

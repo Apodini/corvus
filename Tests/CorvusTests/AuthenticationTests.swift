@@ -506,7 +506,6 @@ final class AuthenticationTests: XCTestCase {
                 Group("api") {
                     Create<CorvusUser>()
                     User<CorvusUser>("users", softDelete: false)
-                    Login<CorvusToken>("login")
                 }
             }
         }
@@ -516,11 +515,8 @@ final class AuthenticationTests: XCTestCase {
         let userAuthModifierTest = UserAuthModifierTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusToken.authenticator())
         app.middleware.use(CorvusUser.authenticator())
-        app.migrations.add(CreateSecureAccount())
         app.migrations.add(CreateCorvusUser())
-        app.migrations.add(CreateCorvusToken())
 
         try app.autoMigrate().wait()
 
@@ -582,4 +578,96 @@ final class AuthenticationTests: XCTestCase {
                     XCTAssertEqualJSON(res.body.string, user1)
                 }
     }
+    
+    func testCreateAuthModifier() throws {
+           final class CreateAuthModifierTest: RestApi {
+
+               var content: Endpoint {
+                   Group("api") {
+                       Group("accounts") {
+                           Create<SecureAccount>().auth(\.$user)
+                       }
+                    
+                       Create<CorvusUser>()
+                       User<CorvusUser>("users", softDelete: false)
+                   }
+               }
+           }
+
+           let app = Application(.testing)
+           defer { app.shutdown() }
+           let createAuthModifierTest = CreateAuthModifierTest()
+
+           app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+           app.middleware.use(CorvusUser.authenticator())
+           app.migrations.add(CreateSecureAccount())
+           app.migrations.add(CreateCorvusUser())
+
+           try app.autoMigrate().wait()
+
+           try app.register(collection: createAuthModifierTest)
+
+           let user1 = CorvusUser(
+                username: "berzan",
+                passwordHash: try Bcrypt.hash("pass")
+            )
+
+           let user2 = CorvusUser(
+                username: "paul",
+                passwordHash: try Bcrypt.hash("pass")
+            )
+
+           let basic1 = "berzan:pass"
+                  .data(using: .utf8)!
+                  .base64EncodedString()
+
+           let basic2 = "paul:pass"
+                   .data(using: .utf8)!
+                   .base64EncodedString()
+           
+           var account: SecureAccount!
+           
+           try app.testable()
+               .test(
+                     .POST,
+                     "/api",
+                     headers: ["content-type": "application/json"],
+                     body: user1.encode(),
+                     afterResponse: { res in
+                         let userRes = try res.content.decode(CorvusUser.self)
+                         account = SecureAccount(
+                             name: "berzan",
+                             userID: userRes.id!
+                         )
+                     }
+                )
+               .test(
+                   .POST,
+                   "/api/users",
+                   headers: ["content-type": "application/json"],
+                   body: user2.encode()
+                )
+                .test(
+                   .POST,
+                   "/api/accounts",
+                   headers: [
+                       "content-type": "application/json",
+                       "Authorization": "Basic \(basic2)"
+                   ],
+                   body: account.encode()
+                ) { res in
+                    XCTAssertEqual(res.status, .unauthorized)
+                }
+                .test(
+                      .POST,
+                      "/api/accounts",
+                      headers: [
+                          "content-type": "application/json",
+                          "Authorization": "Basic \(basic1)"
+                      ],
+                      body: account.encode()
+                   ) { res in
+                       XCTAssertEqual(res.status, .ok)
+               }
+       }
 }

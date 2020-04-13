@@ -7,7 +7,7 @@ import Fluent
 public final class ChildrenModifier<
     R: ReadEndpoint,
     M: CorvusModel>:
-RestEndpointModfier, ReadEndpoint {
+RestEndpointModifier, ReadEndpoint {
 
     /// The type of the value loaded with the `.children()` modifier.
     public typealias Element = [M]

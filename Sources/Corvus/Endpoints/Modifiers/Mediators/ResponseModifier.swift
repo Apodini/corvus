@@ -7,7 +7,7 @@ import Fluent
 public final class ResponseModifier<
     Endpoint: RestEndpoint,
     Response: CorvusResponse>:
-RestEndpointModfier where Endpoint.Element == Response.Item {
+RestEndpointModifier where Endpoint.Element == Response.Item {
     
     /// The `RestEndpoint` the `.respond(with:)` modifier is attached to.
     public let modifiedEndpoint: Endpoint

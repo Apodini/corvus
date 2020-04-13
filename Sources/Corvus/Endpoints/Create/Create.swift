@@ -2,7 +2,7 @@ import Vapor
 
 /// A class that provides functionality to create objects of a generic type
 /// `T` conforming to `CorvusModel`.
-public final class Create<T: CorvusModel>: QueryEndpoint {
+public final class Create<T: CorvusModel>: CreateAuthEndpoint {
 
     /// The return type of the `.handler()`.
     public typealias QuerySubject = T

@@ -1,17 +1,14 @@
 import Vapor
 import Fluent
 
-/// A class that wraps a component which utilizes an `.auth()` modifier. That
-/// allows Corvus to chain modifiers, as it gets treated as any other struct
-/// conforming to `AuthEndpoint`. Requires an object `T` that represents the
-/// user to authorize.
-public final class AuthModifier<
-    A: AuthEndpoint,
+/// A class that wraps a `Create` component which utilizes an `.auth()`
+/// modifier. That allows Corvus to chain modifiers, as it gets treated as any
+/// other struct conforming to `CrateAuthEndpoint`. Requires an object `T` that
+/// represents the user to authorize.
+public final class CreateAuthModifier<
+    A: CreateAuthEndpoint,
     T: CorvusModelAuthenticatable>:
-AuthEndpoint, RestEndpointModifier {
-    
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
+CreateAuthEndpoint, RestEndpointModifier {
 
     /// The return value of the `.query()`, so the type being operated on in
     /// the current component.
@@ -62,54 +59,37 @@ AuthEndpoint, RestEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
-        let users = try query(req)
-            .with(userKeyPath)
-            .all()
-            .mapEach {
-                $0[keyPath: self.userKeyPath].value
-            }
-
-        let authorized: EventLoopFuture<[Bool]> = users
-            .mapEachThrowing { optionalUser throws -> Bool in
-                guard let user = optionalUser else {
-                    throw Abort(.notFound)
-                }
-
-                guard let authorized = req.auth.get(T.self) else {
-                    throw Abort(.unauthorized)
-                }
-
-                return authorized.id == user.id
-            }
-
-        return authorized.flatMap { authorized in
-            guard authorized.allSatisfy({ $0 }) else {
-                return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-            }
-
-            do {
-                return try self.modifiedEndpoint.handler(req)
-            } catch {
-                return req.eventLoop.makeFailedFuture(error)
-            }
+    public func handler(_ req: Request) throws ->
+        EventLoopFuture<A.QuerySubject>
+    {
+        let requestContent = try req.content.decode(A.QuerySubject.self)
+        let requestUser = requestContent[keyPath: self.userKeyPath]
+        
+        guard let authorized = req.auth.get(T.self) else {
+            throw Abort(.unauthorized)
+        }
+        
+        if authorized.id == requestUser.id {
+            return requestContent.save(on: req.db).map { requestContent }
+        } else {
+            return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
         }
     }
 }
 
 /// An extension that adds the `.auth()` modifier to components conforming to
-/// `AuthEndpoint`.
-extension AuthEndpoint {
+/// `CreateAuthEndpoint`.
+extension CreateAuthEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
     /// the supplied user `T` is actually related to the `QuerySubject`.
     ///
     /// - Parameter user: A `KeyPath` to the related user property.
-    /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
-    /// to the user.
+    /// - Returns: An instance of a `CreateAuthModifier` with the supplied
+    /// `KeyPath` to the user.
     public func auth<T: CorvusModelAuthenticatable>(
-        _ user: AuthModifier<Self, T>.UserKeyPath
-    ) -> AuthModifier<Self, T> {
-        AuthModifier(self, user: user)
+        _ user: CreateAuthModifier<Self, T>.UserKeyPath
+    ) -> CreateAuthModifier<Self, T> {
+        CreateAuthModifier(self, user: user)
     }
 }
