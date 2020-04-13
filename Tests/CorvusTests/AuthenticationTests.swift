@@ -758,6 +758,6 @@ final class AuthenticationTests: XCTestCase {
                  body: account.encode()
               ) { res in
                   XCTAssertEqual(res.status, .ok)
-              }
+            }
     }
 }
