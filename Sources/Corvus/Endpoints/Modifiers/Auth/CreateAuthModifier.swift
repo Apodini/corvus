@@ -10,6 +10,9 @@ public final class CreateAuthModifier<
     T: CorvusModelAuthenticatable>:
 CreateEndpoint, RestEndpointModifier {
 
+    /// The return type for the `.handler()` modifier.
+    public typealias Element = A.Element
+    
     /// The return value of the `.query()`, so the type being operated on in
     /// the current component.
     public typealias QuerySubject = A.QuerySubject
@@ -59,9 +62,7 @@ CreateEndpoint, RestEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws ->
-        EventLoopFuture<A.QuerySubject>
-    {
+    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
         let requestContent = try req.content.decode(A.QuerySubject.self)
         let requestUser = requestContent[keyPath: self.userKeyPath]
         
@@ -70,7 +71,7 @@ CreateEndpoint, RestEndpointModifier {
         }
         
         if authorized.id == requestUser.id {
-            return requestContent.save(on: req.db).map { requestContent }
+            return try modifiedEndpoint.handler(req)
         } else {
             return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
         }

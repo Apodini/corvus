@@ -2,7 +2,7 @@ import Vapor
 
 /// A class that contains Create, Read, Update and Delete functionality for a
 /// generic type `T` conforming to `CorvusModel` grouped under a given path.
-public final class CRUD<T: CorvusModel>: Endpoint {
+public class CRUD<T: CorvusModel>: Endpoint {
 
     /// The route path to the parameters.
     let pathComponents: [PathComponent]
@@ -10,7 +10,7 @@ public final class CRUD<T: CorvusModel>: Endpoint {
     /// A property to generate route parameter placeholders.
     let parameter = Parameter<T>()
 
-    /// Indicates wether soft delete should be included or not.
+    /// Indicates whether soft delete should be included or not.
     let useSoftDelete: Bool
     
     /// Initializes the component with one or more route path components.
@@ -18,7 +18,17 @@ public final class CRUD<T: CorvusModel>: Endpoint {
     /// - Parameter pathComponents: One or more `PathComponents` identifying the
     /// path to the operations defined by the `CRUD` component.
     /// - Parameter softDelete: Enable/Disable soft deletion of Models.
-    public init(_ pathComponents: PathComponent..., softDelete: Bool = true) {
+    public init(_ pathComponents: PathComponent..., softDelete: Bool = false) {
+        self.pathComponents = pathComponents
+        self.useSoftDelete = softDelete
+    }
+    
+    /// Initializes the component with multiple route path components.
+    ///
+    /// - Parameter pathComponents: Multiple `PathComponents` identifying the
+    /// path to the operations defined by the `CRUD` component.
+    /// - Parameter softDelete: Enable/Disable soft deletion of Models.
+    public init(_ pathComponents: [PathComponent], softDelete: Bool = false) {
         self.pathComponents = pathComponents
         self.useSoftDelete = softDelete
     }
@@ -52,7 +62,7 @@ public final class CRUD<T: CorvusModel>: Endpoint {
             Group(parameter.id) {
                 ReadOne<T>(parameter.id)
                 Update<T>(parameter.id)
-                SoftDelete<T>(parameter.id)
+                Delete<T>(parameter.id, softDelete: true)
             }
             
             Group("trash") {
@@ -67,5 +77,23 @@ public final class CRUD<T: CorvusModel>: Endpoint {
                 }
             }
         }
+    }
+}
+/// An extension that adds the `.auth()` modifier to `CRUD` components.
+extension CRUD {
+
+    /// A modifier used to make sure components only authorize requests where
+    /// the supplied user `T` is actually related to the `QuerySubject`.
+    ///
+    /// - Parameter user: A `KeyPath` to the related user property.
+    /// - Returns: An instance of a `SecureCRUD` with the supplied `KeyPath` to
+    /// the user.
+    public func auth<A: CorvusModelAuthenticatable>(
+        _ user: KeyPath<
+            T,
+            T.Parent<A>
+        >
+    ) -> CRUD<T> {
+        SecureCRUD<T, A>(pathComponents, user: user)
     }
 }

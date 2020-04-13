@@ -4,20 +4,11 @@ import Fluent
 /// A class that contains Create, Read, Update and Delete functionality for a
 /// generic type `T` conforming to `CorvusModel` grouped under a given path and
 /// allows securing those resources with the `.auth()` modifier.
-public final class SecureCRUD<
+final class SecureCRUD<
     T: CorvusModel,
     A: CorvusModelAuthenticatable
->: Endpoint {
+>: CRUD<T> {
 
-    /// The route path to the parameters.
-    let pathComponents: [PathComponent]
-
-    /// A property to generate route parameter placeholders.
-    let parameter = Parameter<T>()
-
-    /// Indicates whether soft delete should be included or not.
-    let useSoftDelete: Bool
-    
     /// The `KeyPath` to the user property of the `QuerySubject` which is to be
     /// authenticated.
     public typealias UserKeyPath = KeyPath<
@@ -36,18 +27,17 @@ public final class SecureCRUD<
     /// - Parameter userKeyPath: The path to the user property of the model `T`
     /// the component operates on.
     public init(
-        _ pathComponents: PathComponent...,
+        _ pathComponents: [PathComponent],
         user userKeyPath: UserKeyPath,
-        softDelete: Bool = true
+        softDelete: Bool = false
     ) {
-        self.pathComponents = pathComponents
-        self.useSoftDelete = softDelete
         self.userKeyPath = userKeyPath
+        super.init(pathComponents, softDelete: softDelete)
     }
 
     /// The `content` of the `SecureCRUD`, containing Create, Read, Update and
     /// Delete functionality grouped under one and secured by `.auth()`.
-    public var content: Endpoint {
+    override public var content: Endpoint {
         if useSoftDelete {
             return contentWithSoftDelete
         }
@@ -67,7 +57,7 @@ public final class SecureCRUD<
     /// The `content` of the `SecureCRUD`, containing Create, Read, Update,
     /// Delete and SoftDelete functionality grouped under one and secured by
     /// `.auth()`.
-    public var contentWithSoftDelete: Endpoint {
+    override public var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
             Create<T>().auth(userKeyPath)
             ReadAll<T>().auth(userKeyPath)
@@ -75,7 +65,7 @@ public final class SecureCRUD<
             Group(parameter.id) {
                 ReadOne<T>(parameter.id).auth(userKeyPath)
                 Update<T>(parameter.id).auth(userKeyPath)
-                SoftDelete<T>(parameter.id).auth(userKeyPath)
+                Delete<T>(parameter.id, softDelete: true).auth(userKeyPath)
             }
             
             Group("trash") {

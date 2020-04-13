@@ -505,7 +505,7 @@ final class AuthenticationTests: XCTestCase {
             var content: Endpoint {
                 Group("api") {
                     Create<CorvusUser>()
-                    User<CorvusUser>("users", softDelete: false)
+                    User<CorvusUser>("users")
                 }
             }
         }
@@ -677,12 +677,8 @@ final class AuthenticationTests: XCTestCase {
             var content: Endpoint {
                 Group("api") {
                     Create<CorvusUser>()
-                    User<CorvusUser>("users", softDelete: false)
-                    SecureCRUD<SecureAccount, CorvusUser>(
-                        "accounts",
-                        user: \.$user,
-                        softDelete: false
-                    )
+                    User<CorvusUser>("users")
+                    CRUD<SecureAccount>("accounts").auth(\.$user)
                 }
             }
         }

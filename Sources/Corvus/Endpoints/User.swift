@@ -19,7 +19,7 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
     /// - Parameter pathComponents: One or more `PathComponents` identifying the
     /// path to the operations defined by the `CRUD` component.
     /// - Parameter softDelete: Enable/Disable soft deletion of Models.
-    public init(_ pathComponents: PathComponent..., softDelete: Bool = true) {
+    public init(_ pathComponents: PathComponent..., softDelete: Bool = false) {
         self.pathComponents = pathComponents
         self.useSoftDelete = softDelete
     }
@@ -63,7 +63,7 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
                 Group(parameter.id) {
                     ReadOne<T>(parameter.id).userAuth()
                     Update<T>(parameter.id).userAuth()
-                    SoftDelete<T>(parameter.id).userAuth()
+                    Delete<T>(parameter.id, softDelete: true).userAuth()
                 }
                 
                 Group("trash") {
