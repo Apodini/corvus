@@ -14,6 +14,9 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
 
     /// The id of the object to be deleted.
     let id: PathComponent
+    
+    /// Indicates whether soft delete should be included or not.
+    let useSoftDelete: Bool
 
     /// The HTTP operation type of the component.
     public let operationType: OperationType = .delete
@@ -21,8 +24,11 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
     /// Initializes the component with a given path parameter.
     ///
     /// - Parameter id: A `PathComponent` which represents the ID of the item.
-    public init(_ id: PathComponent) {
+    /// - Parameter softDelete: Whether deletion should include soft deleted
+    /// items or not.
+    public init(_ id: PathComponent, softDelete: Bool = false) {
         self.id = id
+        self.useSoftDelete = softDelete
     }
 
     /// A method to find an item by an ID supplied in the `Request`.
@@ -39,6 +45,11 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
         ) else {
             throw Abort(.badRequest)
         }
+        
+        if useSoftDelete {
+            return T.query(on: req.db).filter(\T._$id == itemId)
+        }
+        
         return T.query(on: req.db).withDeleted().filter(\T._$id == itemId)
     }
 
@@ -52,7 +63,11 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
         try query(req)
             .first()
             .unwrap(or: Abort(.notFound))
-            .flatMap { $0.delete(force: true, on: req.db) }
+            .flatMap {
+                self.useSoftDelete
+                    ? $0.delete(on: req.db)
+                    : $0.delete(force: true, on: req.db)
+            }
             .map { .ok }
     }
 }

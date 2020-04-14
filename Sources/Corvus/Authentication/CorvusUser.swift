@@ -50,6 +50,8 @@ public struct CreateCorvusUser: Migration {
     public init() {}
 
     /// Prepares database fields and their value types.
+    /// - Parameter database: The database to authenticate.
+    /// - Returns: An empty `EventLoopFuture`.
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema(CorvusUser.schema)
             .id()
@@ -60,6 +62,8 @@ public struct CreateCorvusUser: Migration {
     }
 
     /// Implements functionality to delete schema when database is reverted.
+    /// - Parameter database: The database to authenticate.
+    /// - Returns: An empty `EventLoopFuture`.
     public func revert(on database: Database) -> EventLoopFuture<Void> {
         database.schema(CorvusUser.schema).delete()
     }
@@ -80,6 +84,7 @@ extension CorvusUser: CorvusModelAuthenticatable {
     /// - Parameter password: The password to verify.
     /// - Returns: True if the provided password matches the user's, false if
     /// not.
+    /// - Throws: An error if encryption fails.
     public func verify(password: String) throws -> Bool {
         try Bcrypt.verify(password, created: self.passwordHash)
     }

@@ -385,7 +385,7 @@ final class ApplicationTests: XCTestCase {
                     
                     Group(testParameter.id) {
                         ReadOne<Account>(testParameter.id)
-                        SoftDelete<Account>(testParameter.id)
+                        Delete<Account>(testParameter.id, softDelete: true)
                     }
                     
                     Group("trash", testParameter.id, "restore") {
@@ -453,7 +453,7 @@ final class ApplicationTests: XCTestCase {
                     Create<Account>()
                     
                     Group(testParameter.id) {
-                        SoftDelete<Account>(testParameter.id)
+                        Delete<Account>(testParameter.id, softDelete: true)
                     }
                     
                     Group("default") {
@@ -538,7 +538,7 @@ final class ApplicationTests: XCTestCase {
                     Create<Account>()
                     
                     Group(testParameter.id) {
-                        SoftDelete<Account>(testParameter.id)
+                        Delete<Account>(testParameter.id, softDelete: true)
                     }
                     
                     Group("default", testParameter.id) {
@@ -628,7 +628,7 @@ final class ApplicationTests: XCTestCase {
                     ReadAll<Account>()
                     
                     Group(testParameter.id) {
-                        SoftDelete<Account>(testParameter.id)
+                        Delete<Account>(testParameter.id, softDelete: true)
                     }
                     
                     Group("trash") {

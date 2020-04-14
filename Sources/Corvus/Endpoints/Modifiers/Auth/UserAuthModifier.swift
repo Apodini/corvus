@@ -6,7 +6,7 @@ import Fluent
 /// struct conforming to `AuthEndpoint`.
 public final class UserAuthModifier<
     A: AuthEndpoint
->: AuthEndpoint, RestEndpointModfier
+>: AuthEndpoint, RestEndpointModifier
 where A.QuerySubject: CorvusModelAuthenticatable {
 
     /// The return type for the `.handler()` modifier.
