@@ -28,7 +28,7 @@ public class CRUD<T: CorvusModel>: Endpoint {
     /// - Parameter pathComponents: Multiple `PathComponents` identifying the
     /// path to the operations defined by the `CRUD` component.
     /// - Parameter softDelete: Enable/Disable soft deletion of Models.
-    public init(_ pathComponents: [PathComponent], softDelete: Bool = false) {
+    init(_ pathComponents: [PathComponent], softDelete: Bool = false) {
         self.pathComponents = pathComponents
         self.useSoftDelete = softDelete
     }
