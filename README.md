@@ -90,7 +90,7 @@ let package = Package(
         // 💧 A server-side Swift web framework.
         .package(
             url: "https://github.com/Apodini/corvus",
-            from: "0.0.8"
+            from: <corvus-version>
         ),
 
         .package(
