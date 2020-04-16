@@ -85,8 +85,10 @@ AuthEndpoint, RestEndpointModifier {
             .mapEach {
                 $0[keyPath: self.intermediateKeyPath].value
             }.map {
-                $0[0]
-            }.unwrap(or: Abort(.internalServerError))
+                $0.first
+            }
+            .unwrap(or: Abort(.internalServerError))
+            .unwrap(or: Abort(.internalServerError))
             .flatMap {
                 I.query(on: req.db)
                     .filter(\I._$id == $0.id!)
