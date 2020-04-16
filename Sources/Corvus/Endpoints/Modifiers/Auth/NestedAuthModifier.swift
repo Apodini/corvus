@@ -78,20 +78,24 @@ AuthEndpoint, RestEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    ///.mapEach {
-//        $0[keyPath: self.userKeyPath].value
-//    }
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
-        let eventIntermediate = try query(req)
+        let users = try query(req)
             .with(intermediateKeyPath)
             .all()
             .mapEach {
                 $0[keyPath: self.intermediateKeyPath].value
+            }.map {
+                $0[0]
+            }.unwrap(or: Abort(.internalServerError))
+            .flatMap {
+                I.query(on: req.db)
+                    .filter(\I._$id == $0.id!)
+                    .with(self.userKeyPath)
+                    .all()
+                    .mapEach {
+                        $0[keyPath: self.userKeyPath].value
+                    }
             }
-        
-        let users = eventIntermediate.mapEach {
-            $0![keyPath: self.userKeyPath].value
-        }
 
         let authorized: EventLoopFuture<[Bool]> = users
             .mapEachThrowing { optionalUser throws -> Bool in
@@ -120,7 +124,8 @@ AuthEndpoint, RestEndpointModifier {
     }
 }
 
-/// An extension that adds a version of the  `.auth()` modifier to components conforming to `AuthEndpoint` that allows defining an intermediate type `I`.
+/// An extension that adds a version of the  `.auth()` modifier to components
+/// conforming to `AuthEndpoint` that allows defining an intermediate type `I`.
 extension AuthEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
@@ -132,8 +137,8 @@ extension AuthEndpoint {
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
     public func auth<I: CorvusModel, T: CorvusModelAuthenticatable> (
-        intermediate: NestedAuthModifier<Self, I, T>.IntermediateKeyPath,
-        user: NestedAuthModifier<Self, I, T>.UserKeyPath
+        _ intermediate: NestedAuthModifier<Self, I, T>.IntermediateKeyPath,
+        _ user: NestedAuthModifier<Self, I, T>.UserKeyPath
     ) -> NestedAuthModifier<Self, I, T> {
         NestedAuthModifier(self, intermediate: intermediate, user: user)
     }

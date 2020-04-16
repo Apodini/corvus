@@ -6,7 +6,7 @@ final class SecureTransaction: CorvusModel {
 
     static let schema = "transactions"
 
-    @ID(key: .id)
+    @ID
     var id: UUID?
 
     @Field(key: "amount")
@@ -15,9 +15,6 @@ final class SecureTransaction: CorvusModel {
     @Field(key: "currency")
     var currency: String
 
-    @Field(key: "date")
-    var date: Date
-
     @Parent(key: "account_id")
     var account: SecureAccount
 
@@ -25,13 +22,11 @@ final class SecureTransaction: CorvusModel {
         id: UUID? = nil,
         amount: Double,
         currency: String,
-        date: Date,
         accountID: SecureAccount.IDValue
     ) {
       self.id = id
       self.amount = amount
       self.currency = currency
-      self.date = date
       self.$account.id = accountID
     }
 
@@ -45,7 +40,6 @@ struct CreateSecureTransaction: Migration {
             .id()
             .field("amount", .double, .required)
             .field("currency", .string, .required)
-            .field("date", .datetime, .required)
             .field("account_id", .uuid, .references(SecureAccount.schema, .id))
             .create()
     }
