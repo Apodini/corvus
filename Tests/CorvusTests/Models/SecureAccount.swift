@@ -7,11 +7,7 @@ final class SecureAccount: CorvusModel {
     static let schema = "accounts"
 
     @ID
-    var id: UUID? {
-        didSet {
-            $id.exists = true
-        }
-    }
+    var id: UUID?
 
     @Field(key: "name")
     var name: String
@@ -40,7 +36,7 @@ struct CreateSecureAccount: Migration {
         .field(
             "user_id",
             .uuid,
-            .references(CorvusUser.schema, "id")
+            .references(CorvusUser.schema, .id)
         )
         .create()
     }
