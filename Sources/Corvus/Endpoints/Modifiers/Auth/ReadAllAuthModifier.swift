@@ -5,14 +5,11 @@ import Fluent
 /// from `AuthModifier` by authenticating on the user of an intermediate parent
 /// `I` of `A.QuerySubject`. Requires an object `T` that represents the user to
 /// authorize.
-public final class NestedAuthModifier<
+public final class ReadAllAuthModifier<
     A: AuthEndpoint,
     I: CorvusModel,
     T: CorvusModelAuthenticatable>:
 AuthEndpoint, RestEndpointModifier {
-    
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
 
     /// The return value of the `.query()`, so the type being operated on in
     /// the current component.
@@ -78,12 +75,14 @@ AuthEndpoint, RestEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
-        let users = try query(req)
+    public func handler(_ req: Request) throws ->
+        EventLoopFuture<[QuerySubject]>
+    {
+        try query(req)
             .with(intermediateKeyPath) {
                 $0.with(userKeyPath)
             }.all()
-            .mapEachThrowing { item -> T in
+            .flatMapEachCompactThrowing { item -> QuerySubject? in
                 guard let intermediate = item[
                     keyPath: self.intermediateKeyPath
                 ].value else {
@@ -96,35 +95,22 @@ AuthEndpoint, RestEndpointModifier {
                     throw Abort(.notFound)
                 }
                 
-                return user
-            }
-
-        let authorized: EventLoopFuture<[Bool]> = users
-            .mapEachThrowing { user throws -> Bool in
                 guard let authorized = req.auth.get(T.self) else {
                     throw Abort(.unauthorized)
                 }
-
-                return authorized.id == user.id
-            }
-
-        return authorized.flatMap { authorized in
-            guard authorized.allSatisfy({ $0 }) else {
-                return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
-            }
-
-            do {
-                return try self.modifiedEndpoint.handler(req)
-            } catch {
-                return req.eventLoop.makeFailedFuture(error)
-            }
+                
+                if authorized.id == user.id {
+                    return item
+                } else {
+                    return nil
+                }
         }
     }
 }
 
 /// An extension that adds a version of the  `.auth()` modifier to components
 /// conforming to `AuthEndpoint` that allows defining an intermediate type `I`.
-extension AuthEndpoint {
+extension ReadAll {
 
     /// A modifier used to make sure components only authorize requests where
     /// the supplied user `T` is actually related to the `QuerySubject`.
@@ -135,9 +121,9 @@ extension AuthEndpoint {
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
     public func auth<I: CorvusModel, T: CorvusModelAuthenticatable> (
-        _ intermediate: NestedAuthModifier<Self, I, T>.IntermediateKeyPath,
-        _ user: NestedAuthModifier<Self, I, T>.UserKeyPath
-    ) -> NestedAuthModifier<Self, I, T> {
-        NestedAuthModifier(self, intermediate: intermediate, user: user)
+        _ intermediate: ReadAllAuthModifier<ReadAll, I, T>.IntermediateKeyPath,
+        _ user: ReadAllAuthModifier<ReadAll, I, T>.UserKeyPath
+    ) -> ReadAllAuthModifier<ReadAll, I, T> {
+        ReadAllAuthModifier(self, intermediate: intermediate, user: user)
     }
 }
