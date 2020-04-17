@@ -5,8 +5,9 @@ import Fluent
 /// from `AuthModifier` by authenticating on the user of an intermediate parent
 /// `I` of `A.QuerySubject`. Requires an object `T` that represents the user to
 /// authorize.
-public final class ReadAllAuthModifier<
+public final class NestedReadAllAuthModifier<
     A: AuthEndpoint,
+    I: CorvusModel,
     T: CorvusModelAuthenticatable>:
 AuthEndpoint, RestEndpointModifier {
 
@@ -17,16 +18,24 @@ AuthEndpoint, RestEndpointModifier {
     /// The `KeyPath` to the user property of the intermediate `I` which is to
     /// be authenticated.
     public typealias UserKeyPath = KeyPath<
-        A.QuerySubject,
-        A.QuerySubject.Parent<T>
+        I,
+        I.Parent<T>
     >
     
+    /// The `KeyPath` to the intermediate `I` of the endpoint's `QuerySubject`.
+    public typealias IntermediateKeyPath = KeyPath<
+        A.QuerySubject,
+        A.QuerySubject.Parent<I>
+    >
+
     /// The `AuthEndpoint` the `.auth()` modifier is attached to.
     public let modifiedEndpoint: A
 
     /// The path to the property to authenticate for.
     public let userKeyPath: UserKeyPath
     
+    /// The path to the intermediate.
+    public let intermediateKeyPath: IntermediateKeyPath
 
     /// Initializes the modifier with its underlying `QueryEndpoint` and its
     /// `auth` path, which is the keypath to the property to run authentication
@@ -35,13 +44,16 @@ AuthEndpoint, RestEndpointModifier {
     /// - Parameters:
     ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
     ///     to.
+    ///     - intermediate: A `KeyPath` to the intermediate.
     ///     - user: A `KeyPath` which leads to the property to authenticate for.
     ///     - operationType: The HTTP method of the wrapped component.
     public init(
         _ authEndpoint: A,
+        intermediate: IntermediateKeyPath,
         user: UserKeyPath
     ) {
         self.modifiedEndpoint = authEndpoint
+        self.intermediateKeyPath = intermediate
         self.userKeyPath = user
     }
 
@@ -67,10 +79,17 @@ AuthEndpoint, RestEndpointModifier {
         EventLoopFuture<[QuerySubject]>
     {
         try query(req)
-            .with(userKeyPath)
-            .all()
+            .with(intermediateKeyPath) {
+                $0.with(userKeyPath)
+            }.all()
             .flatMapEachCompactThrowing { item -> QuerySubject? in
-                guard let user = item[
+                guard let intermediate = item[
+                    keyPath: self.intermediateKeyPath
+                ].value else {
+                    throw Abort(.notFound)
+                }
+                
+                guard let user = intermediate[
                     keyPath: self.userKeyPath
                 ].value else {
                     throw Abort(.notFound)
@@ -96,13 +115,16 @@ extension ReadAll {
     /// A modifier used to make sure components only authorize requests where
     /// the supplied user `T` is actually related to the `QuerySubject`.
     ///
+    /// - Parameter intermediate: A `KeyPath` to the intermediate property.
     /// - Parameter user: A `KeyPath` to the related user property from the
     /// intermediate.
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
-    public func auth<T: CorvusModelAuthenticatable> (
-        _ user: ReadAllAuthModifier<ReadAll, T>.UserKeyPath
-    ) -> ReadAllAuthModifier<ReadAll, T> {
-        ReadAllAuthModifier(self, user: user)
+    public func auth<I: CorvusModel, T: CorvusModelAuthenticatable> (
+        _ intermediate: NestedReadAllAuthModifier<ReadAll, I, T>
+        .IntermediateKeyPath,
+        _ user: NestedReadAllAuthModifier<ReadAll, I, T>.UserKeyPath
+    ) -> NestedReadAllAuthModifier<ReadAll, I, T> {
+        NestedReadAllAuthModifier(self, intermediate: intermediate, user: user)
     }
 }
