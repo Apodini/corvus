@@ -892,8 +892,8 @@ final class AuthenticationTests: XCTestCase {
                 }
     }
     
-    func testReadAllAuthModifier() throws {
-           final class ReadAllAuthModifierTest: RestApi {
+    func testNestedReadAllAuthModifier() throws {
+           final class NestedReadAllAuthModifierTest: RestApi {
 
                var content: Endpoint {
                    Group("api") {
@@ -914,7 +914,7 @@ final class AuthenticationTests: XCTestCase {
 
            let app = Application(.testing)
            defer { app.shutdown() }
-           let readAllAuthModifierTest = ReadAllAuthModifierTest()
+           let nestedReadAllAuthModifierTest = NestedReadAllAuthModifierTest()
 
            app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
            app.middleware.use(CorvusUser.authenticator())
@@ -924,7 +924,7 @@ final class AuthenticationTests: XCTestCase {
 
            try app.autoMigrate().wait()
 
-           try app.register(collection: readAllAuthModifierTest)
+           try app.register(collection: nestedReadAllAuthModifierTest)
 
            let user1 = CorvusUser(
                 username: "berzan",
@@ -1025,4 +1025,122 @@ final class AuthenticationTests: XCTestCase {
                        XCTAssertEqual(transactions.count, 2)
                    }
        }
+    
+    func testReadAllAuthModifier() throws {
+        final class ReadAllAuthModifierTest: RestApi {
+
+            var content: Endpoint {
+                Group("api") {
+                    CRUD<CorvusUser>("users", softDelete: false)
+
+                    BasicAuthGroup<CorvusUser>("accounts") {
+                        CRUD<SecureAccount>().auth(\.$user)
+                    }
+                }
+            }
+        }
+
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        let readAllAuthModifierTest = ReadAllAuthModifierTest()
+
+        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+        app.middleware.use(CorvusUser.authenticator())
+        app.migrations.add(CreateSecureAccount())
+        app.migrations.add(CreateCorvusUser())
+
+        try app.autoMigrate().wait()
+
+        try app.register(collection: readAllAuthModifierTest)
+
+        let user1 = CorvusUser(
+             username: "berzan",
+             passwordHash: try Bcrypt.hash("pass")
+         )
+
+        let user2 = CorvusUser(
+             username: "paul",
+             passwordHash: try Bcrypt.hash("pass")
+         )
+
+        var account1: SecureAccount!
+        var account2: SecureAccount!
+
+        let basic1 = "berzan:pass"
+               .data(using: .utf8)!
+               .base64EncodedString()
+
+        let basic2 = "paul:pass"
+                .data(using: .utf8)!
+                .base64EncodedString()
+        
+        try app.testable()
+            .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user1.encode(),
+                afterResponse: { res in
+                    let userRes = try res.content.decode(CorvusUser.self)
+                    account1 = SecureAccount(
+                        name: "berzan1",
+                        userID: userRes.id!
+                    )
+                    account2 = SecureAccount(
+                          name: "berzan2",
+                          userID: userRes.id!
+                      )
+                }
+            )
+            .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user2.encode()
+             )
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: [
+                      "content-type": "application/json",
+                      "Authorization": "Basic \(basic1)"
+                  ],
+                body: account1.encode()
+              )
+            .test(
+                  .POST,
+                  "/api/accounts",
+                    headers: [
+                        "content-type": "application/json",
+                        "Authorization": "Basic \(basic1)"
+                    ],
+                  body: account2.encode()
+                )
+            .test(
+                  .GET,
+                  "/api/accounts",
+                  headers: [
+                      "Authorization": "Basic \(basic2)"
+                  ]
+                ) { res in
+                    let accounts = try res.content.decode(
+                        [SecureAccount].self
+                    )
+                    
+                    XCTAssertEqual(accounts.count, 0)
+                }
+            .test(
+                  .GET,
+                  "/api/accounts",
+                  headers: [
+                      "Authorization": "Basic \(basic1)"
+                  ]
+                ) { res in
+                    let accounts = try res.content.decode(
+                        [SecureAccount].self
+                    )
+                    
+                    XCTAssertEqual(accounts.count, 2)
+                }
+    }
 }
