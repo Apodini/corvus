@@ -4,7 +4,7 @@ import Fluent
 // swiftlint:disable identifier_name
 
 /// A protocol that defines bearer authentication tokens, similar to
-/// `CorvusModelTokenAuthenticatable`.
+/// `ModelTokenAuthenticatable`.
 public protocol CorvusModelTokenAuthenticatable: CorvusModel, Authenticatable {
     /// The `User` type the token belongs to.
      associatedtype User: CorvusModel & Authenticatable

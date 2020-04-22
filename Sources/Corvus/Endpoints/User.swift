@@ -34,6 +34,9 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
         return Group(pathComponents) {
             Custom<HTTPStatus>(type: .post) { req in
                 let requestContent = try req.content.decode(T.self)
+                requestContent.password = try Bcrypt.hash(
+                    requestContent.password
+                )
                 return requestContent.save(on: req.db).map { .ok }
             }
             
@@ -54,6 +57,9 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
         Group(pathComponents) {
             Custom<HTTPStatus>(type: .post) { req in
                 let requestContent = try req.content.decode(T.self)
+                requestContent.password = try Bcrypt.hash(
+                    requestContent.password
+                )
                 return requestContent.save(on: req.db).map { .ok }
             }
             
