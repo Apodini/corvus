@@ -18,8 +18,8 @@ public protocol CorvusModelAuthenticatable: CorvusModel, Authenticatable {
 }
 
 /// An extension to provide an authenticator for the user that can be
-/// registered to the `Vapor` application, and field accessors for `username` and
-/// `password`.
+/// registered to the `Vapor` application, and field accessors for `username` 
+/// and `password`.
 extension CorvusModelAuthenticatable {
 
     /// Provides a `Vapor` authenticator defined below.
@@ -55,7 +55,7 @@ extension CorvusModelAuthenticatable {
 /// Provides a `BasicAuthenticator` struct that defines how users are
 /// authenticated.
 public struct CorvusModelAuthenticator<User: CorvusModelAuthenticatable>:
-    BasicAuthenticator
+BasicAuthenticator
 {
     /// The database the user is saved in.
     public let database: DatabaseID?
