@@ -43,7 +43,8 @@ Endpoint where T.User: CorvusModelAuthenticatable {
     /// about the HTTP route leading to the current component.
     public func register(to routes: RoutesBuilder) {
         let guardedRoutesBuilder = routes.grouped(
-            T.User.authenticator()
+            T.User.authenticator(),
+            T.User.guardMiddleware()
         )
         
         guardedRoutesBuilder.post(path, use: handler)

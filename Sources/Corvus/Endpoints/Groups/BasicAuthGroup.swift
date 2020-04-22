@@ -43,8 +43,8 @@ public struct BasicAuthGroup<T: CorvusModelAuthenticatable>: Endpoint {
         )
 
         let guardedRoutesBuilder = groupedRoutesBuilder.grouped([
-            T.guardMiddleware(),
-            T.authenticator()
+            T.authenticator(),
+            T.guardMiddleware()
         ])
         
         content.register(to: guardedRoutesBuilder)
