@@ -32,7 +32,7 @@ public final class Api: RestApi {
     public let content: Endpoint
 
     /// An array of `PathComponent` describing the path that the
-    /// `TypedEndpoint` extends.
+    /// `Api` extends.
     public let pathComponents: [PathComponent]
     
     /// Creates a `Api` from a path and a builder function passed as
