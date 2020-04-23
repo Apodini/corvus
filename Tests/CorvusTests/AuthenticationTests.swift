@@ -559,14 +559,22 @@ final class AuthenticationTests: XCTestCase {
                 body: user2.encode()
              )
             .test(
+               .POST,
+               "/api/users",
+               headers: ["content-type": "application/json"],
+               body: user2.encode()
+            ) { res in
+                XCTAssertEqual(res.status, .badRequest)
+            }
+            .test(
                   .GET,
                   "/api/users/\(userRes.id!)",
                   headers: [
                       "Authorization": "Basic \(basic2)"
                   ]
-                ) { res in
-                    XCTAssertEqual(res.status, .unauthorized)
-                }
+            ) { res in
+                XCTAssertEqual(res.status, .unauthorized)
+            }
             .test(
                   .GET,
                   "/api/users/\(userRes.id!)",
