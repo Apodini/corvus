@@ -20,6 +20,6 @@ jobs:
     - name: Check version
       run: swift --version
     - name: Build
-      run: swift build
+      run: swift build --enable-test-discovery --sanitize=thread
     - name: Test
       run: swift test --enable-test-discovery --sanitize=thread
