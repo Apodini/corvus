@@ -32,10 +32,25 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
         }
         
         return Group(pathComponents) {
-            Custom<HTTPStatus>(type: .post) { req in
-                let requestContent = try req.content.decode(T.self)
-                return requestContent.save(on: req.db).map { .ok }
-            }
+            Custom<T>(type: .post) { req in
+                let requestUser = try req.content.decode(T.self)
+                let passwordHash = try Bcrypt.hash(requestUser.password)
+                 
+                return T
+                    .query(on: req.db)
+                    .filter(\T._$username == requestUser.username)
+                    .first()
+                    .flatMapThrowing { existingUser in
+                        guard existingUser == nil else {
+                            throw Abort(.badRequest)
+                        }
+                    }
+                    .flatMap {
+                        requestUser.password = passwordHash
+                        return requestUser.save(on: req.db).map { requestUser }
+                    }
+            }.respond(with: UserResponse.self)
+            
             
             BasicAuthGroup<T> {
                 ReadAll<T>().userAuth()
@@ -52,10 +67,24 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
     /// SoftDelete functionality grouped under one.
     public var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
-            Custom<HTTPStatus>(type: .post) { req in
-                let requestContent = try req.content.decode(T.self)
-                return requestContent.save(on: req.db).map { .ok }
-            }
+            Custom<T>(type: .post) { req in
+                let requestUser = try req.content.decode(T.self)
+                let passwordHash = try Bcrypt.hash(requestUser.password)
+                 
+                return T
+                    .query(on: req.db)
+                    .filter(\T._$username == requestUser.username)
+                    .first()
+                    .flatMapThrowing { existingUser in
+                        guard existingUser == nil else {
+                            throw Abort(.badRequest)
+                        }
+                    }
+                    .flatMap {
+                        requestUser.password = passwordHash
+                        return requestUser.save(on: req.db).map { requestUser }
+                    }
+            }.respond(with: UserResponse.self)
             
             BasicAuthGroup<T> {
                 ReadAll<T>().userAuth()
@@ -79,5 +108,23 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
                 }
             }
         }
+    }
+}
+
+/// Defines a custom response so that only username and id are returned when a
+/// user is created.
+struct UserResponse<U: CorvusModelAuthenticatable>: CorvusResponse {
+    
+    /// Identifier of the user.
+    let id: U.IDValue?
+    
+    /// Username of the user.
+    let username: String
+    
+    /// Initializes a user response with a user object.
+    /// - Parameter user: The user object to respond with.
+    init(item user: U) {
+        self.id = user.id
+        self.username = user.username
     }
 }

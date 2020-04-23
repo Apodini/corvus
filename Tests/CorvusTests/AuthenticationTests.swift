@@ -40,7 +40,7 @@ final class AuthenticationTests: XCTestCase {
         
         let user = CorvusUser(
             username: "berzan",
-            passwordHash: try Bcrypt.hash("pass")
+            password: "pass"
         )
 
         let account = Account(name: "Berzan")
@@ -95,7 +95,7 @@ final class AuthenticationTests: XCTestCase {
         
         let user = CorvusUser(
             username: "berzan",
-            passwordHash: try Bcrypt.hash("pass")
+            password: "pass"
         )
         let account = Account(name: "berzan")
         
@@ -153,7 +153,7 @@ final class AuthenticationTests: XCTestCase {
         
         let user = CorvusUser(
             username: "berzan",
-            passwordHash: try Bcrypt.hash("pass")
+            password: "pass"
         )
         let account = Account(name: "berzan")
         
@@ -274,12 +274,12 @@ final class AuthenticationTests: XCTestCase {
 
         let user1 = CorvusUser(
              username: "berzan",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         let user2 = CorvusUser(
              username: "paul",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         var account: SecureAccount!
@@ -406,14 +406,14 @@ final class AuthenticationTests: XCTestCase {
              username: "berzan",
              surname: "yildiz",
              email: "berzan@corvus.com",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         let user2 = CustomUser(
              username: "paul",
              surname: "schmiedmayer",
              email: "paul@corvus.com",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         var account: CustomAccount!
@@ -524,12 +524,12 @@ final class AuthenticationTests: XCTestCase {
 
         let user1 = CorvusUser(
              username: "berzan",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         let user2 = CorvusUser(
              username: "paul",
-             passwordHash: try Bcrypt.hash("pass")
+             password: "pass"
          )
 
         let basic1 = "berzan:pass"
@@ -559,14 +559,22 @@ final class AuthenticationTests: XCTestCase {
                 body: user2.encode()
              )
             .test(
+               .POST,
+               "/api/users",
+               headers: ["content-type": "application/json"],
+               body: user2.encode()
+            ) { res in
+                XCTAssertEqual(res.status, .badRequest)
+            }
+            .test(
                   .GET,
                   "/api/users/\(userRes.id!)",
                   headers: [
                       "Authorization": "Basic \(basic2)"
                   ]
-                ) { res in
-                    XCTAssertEqual(res.status, .unauthorized)
-                }
+            ) { res in
+                XCTAssertEqual(res.status, .unauthorized)
+            }
             .test(
                   .GET,
                   "/api/users/\(userRes.id!)",
@@ -609,12 +617,12 @@ final class AuthenticationTests: XCTestCase {
 
            let user1 = CorvusUser(
                 username: "berzan",
-                passwordHash: try Bcrypt.hash("pass")
+                password: try Bcrypt.hash("pass")
             )
 
            let user2 = CorvusUser(
                 username: "paul",
-                passwordHash: try Bcrypt.hash("pass")
+                password: try Bcrypt.hash("pass")
             )
 
            let basic1 = "berzan:pass"
@@ -699,12 +707,12 @@ final class AuthenticationTests: XCTestCase {
 
         let user1 = CorvusUser(
              username: "berzan",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         let user2 = CorvusUser(
              username: "paul",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         let basic1 = "berzan:pass"
@@ -802,12 +810,12 @@ final class AuthenticationTests: XCTestCase {
 
         let user1 = CorvusUser(
              username: "berzan",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         let user2 = CorvusUser(
              username: "paul",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         var account: SecureAccount!
@@ -928,12 +936,12 @@ final class AuthenticationTests: XCTestCase {
 
            let user1 = CorvusUser(
                 username: "berzan",
-                passwordHash: try Bcrypt.hash("pass")
+                password: try Bcrypt.hash("pass")
             )
 
            let user2 = CorvusUser(
                 username: "paul",
-                passwordHash: try Bcrypt.hash("pass")
+                password: try Bcrypt.hash("pass")
             )
 
            var account: SecureAccount!
@@ -1055,12 +1063,12 @@ final class AuthenticationTests: XCTestCase {
 
         let user1 = CorvusUser(
              username: "berzan",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         let user2 = CorvusUser(
              username: "paul",
-             passwordHash: try Bcrypt.hash("pass")
+             password: try Bcrypt.hash("pass")
          )
 
         var account1: SecureAccount!
