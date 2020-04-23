@@ -21,11 +21,18 @@ extension RestApi {
     }
 }
 
+/// A convenience wrapper around `RestApi`.
+///
+/// Wraps `RestApi` by using a `Group` component
+/// to reduce indendation when creating a Api.
 public final class Api: RestApi {
     public let content: Endpoint
     let pathComponents: [PathComponent]
     
-    public init(_ pathComponents: PathComponent..., @EndpointBuilder content: () -> Endpoint) {
+    public init(
+        _ pathComponents: PathComponent...,
+        @EndpointBuilder content: () -> Endpoint
+    ) {
         self.pathComponents = pathComponents
         self.content = Group(pathComponents) { content() }
     }
