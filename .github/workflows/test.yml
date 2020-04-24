@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Update Packages
+      run: apt-get update -y
     - name: Install Libsqlite3
       run: apt-get install -y libsqlite3-dev
     - name: Test
@@ -31,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Update Packages
+      run: apt-get update -y
     - name: Install Libsqlite3
       run: apt-get install -y libsqlite3-dev
     - name: Test
