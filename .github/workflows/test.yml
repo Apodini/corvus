@@ -7,19 +7,25 @@ on:
     branches: [ develop, master ]
 
 jobs:
-  build:
+  macos:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        swift-version: "5.2.0"
     - name: Xcode 11.4
       run: sudo xcode-select -s /Applications/Xcode_11.4.app/Contents/Developer
-    - name: Xcode version check
-      run: xcodebuild -version
-    - name: Check version
-      run: swift --version
-    - name: Build
-      run: swift build --enable-test-discovery --sanitize=thread
     - name: Test
       run: swift test --enable-test-discovery --sanitize=thread
+  xenial:
+    container: 
+      image: vapor/swift:5.2-xenial
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: swift test --enable-test-discovery --sanitize=thread
+  bionic:
+    container: 
+      image: vapor/swift:5.2-bionic
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: swift test --enable-test-discovery --sanitize=thread
