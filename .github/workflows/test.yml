@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Libsqlite3
-      run: sudo apt-get install -y libsqlite3-dev
+      run: apt-get install -y libsqlite3-dev
     - name: Test
       run: swift test --enable-test-discovery --sanitize=thread
   bionic:
@@ -32,6 +32,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Libsqlite3
-      run: sudo apt-get install -y libsqlite3-dev
+      run: apt-get install -y libsqlite3-dev
     - name: Test
       run: swift test --enable-test-discovery --sanitize=thread
