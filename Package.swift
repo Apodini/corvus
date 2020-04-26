@@ -21,6 +21,12 @@ let package = Package(
             url: "https://github.com/vapor/fluent.git",
             from: "4.0.0-rc.3"
         ),
+        
+        // A JWT driver.
+        .package(
+            url: "https://github.com/vapor/jwt.git",
+            from: "4.0.0-rc"
+        ),
 
         // A database driver for testing.
         .package(
@@ -34,7 +40,8 @@ let package = Package(
             name: "Corvus",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
-                .product(name: "Fluent", package: "fluent")
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "JWT", package: "jwt")
             ]
         ),
 
