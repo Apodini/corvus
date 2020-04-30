@@ -4,10 +4,13 @@ import Fluent
 /// A class that contains custom functionality passed in by the implementor for
 /// a generic type `T conforming to `ResponseEncodable` grouped under a given
 /// path.
-public final class Custom<R: ResponseEncodable>: RestEndpoint {
+public final class Custom<R: CorvusModel>: QueryEndpoint {
     
     /// The return value of the `.handler()`.
     public typealias Element = R
+    
+    /// The type the Component operates on.
+    public typealias QuerySubject = R
 
     /// The path to the component, can be used for route parameters.
     public let pathComponents: [PathComponent]

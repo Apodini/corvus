@@ -7,18 +7,23 @@ import Fluent
 public final class ChildrenModifier<
     R: ReadEndpoint,
     M: CorvusModel>:
-RestEndpointModifier, ReadEndpoint {
+QueryEndpointModifier, ReadEndpoint {
 
     /// The type of the value loaded with the `.children()` modifier.
     public typealias Element = [M]
 
     /// The return value of the `.handler()`, so the type being operated on in
     /// the current component.
-    public typealias QuerySubject = R.QuerySubject
+    public typealias QuerySubject = M
+    
+    /// The type being operated on by the prior component in the modifier chain.
+    public typealias ParentQuerySubject = R.QuerySubject
 
     /// The `KeyPath` to the related attribute of the `QuerySubject` that is to
     /// be loaded.
-    public typealias Path = KeyPath<R.QuerySubject, R.QuerySubject.Children<M>>
+    public typealias Path = KeyPath<
+        ParentQuerySubject, ParentQuerySubject.Children<M>
+    >
 
     /// The `ReadEndpoint` the `.children()` modifier is attached to.
     let modifiedEndpoint: R
@@ -45,7 +50,9 @@ RestEndpointModifier, ReadEndpoint {
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having attached a with modifier to the `queryEndpoint`'s query.
     /// - Throws: An `Abort` error if the item is not found.
-    public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
+    public func query(_ req: Request)
+        throws -> QueryBuilder<ParentQuerySubject>
+    {
         try modifiedEndpoint.query(req).with(path)
     }
 

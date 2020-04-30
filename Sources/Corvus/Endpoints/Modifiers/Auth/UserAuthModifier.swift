@@ -6,15 +6,11 @@ import Fluent
 /// struct conforming to `AuthEndpoint`.
 public final class UserAuthModifier<
     A: AuthEndpoint
->: AuthEndpoint, RestEndpointModifier
+>: AuthEndpoint, QueryEndpointModifier
 where A.QuerySubject: CorvusModelAuthenticatable {
 
     /// The return type for the `.handler()` modifier.
     public typealias Element = A.Element
-
-    /// The return value of the `.query()`, so the type being operated on in
-    /// the current component.
-    public typealias QuerySubject = A.QuerySubject
 
     /// The `AuthEndpoint` the `.userAuth()` modifier is attached to.
     public let modifiedEndpoint: A
@@ -27,16 +23,6 @@ where A.QuerySubject: CorvusModelAuthenticatable {
     ///     - operationType: The HTTP method of the wrapped component.
     public init(_ queryEndpoint: A) {
         self.modifiedEndpoint = queryEndpoint
-    }
-
-    /// Returns the `queryEndpoint`'s query.
-    ///
-    /// - Parameter req: An incoming `Request`.
-    /// - Returns: A `QueryBuilder`, which represents a `Fluent` query defined
-    /// by the `queryEndpoint`.
-    /// - Throws: An `Abort` error if an item is not found.
-    public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try modifiedEndpoint.query(req)
     }
 
     /// A method which checks if the user supplied in the `Request` is

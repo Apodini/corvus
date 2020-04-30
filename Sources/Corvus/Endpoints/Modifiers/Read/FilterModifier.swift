@@ -6,15 +6,11 @@ import Fluent
 /// conforming to `ReadEndpoint`.
 public final class FilterModifier<
     R: ReadEndpoint
->: ReadEndpoint, RestEndpointModifier {
-
-    /// The return value of the `.handler()`, so the type being operated on in
-    /// the current component.
-    public typealias QuerySubject = R.QuerySubject
+>: ReadEndpoint, QueryEndpointModifier {
 
     /// The filter passed to the `.filter()` modifier. It is an alias for
     /// `Fluent's` `ModelValueFilter`.
-    public typealias Filter = ModelValueFilter<R.QuerySubject>
+    public typealias Filter = ModelValueFilter<QuerySubject>
 
     /// The `ReadEndpoint` the `.filter()` modifier is attached to.
     public let modifiedEndpoint: R
@@ -41,7 +37,7 @@ public final class FilterModifier<
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having attached a filter to the `queryEndpoint`'s query.
     /// - Throws: An `Abort` error if the item is not found.
-    public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
+    public func query(_ req: Request) throws -> QueryBuilder<R.QuerySubject> {
         try modifiedEndpoint.query(req).filter(filter)
     }
 

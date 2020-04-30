@@ -8,14 +8,10 @@ import Fluent
 public final class AuthModifier<
     A: AuthEndpoint,
     T: CorvusModelAuthenticatable>:
-AuthEndpoint, RestEndpointModifier {
+AuthEndpoint, QueryEndpointModifier {
     
     /// The return type for the `.handler()` modifier.
     public typealias Element = A.Element
-
-    /// The return value of the `.query()`, so the type being operated on in
-    /// the current component.
-    public typealias QuerySubject = A.QuerySubject
 
     /// The `KeyPath` to the user property of the `QuerySubject` which is to be
     /// authenticated.
@@ -42,16 +38,6 @@ AuthEndpoint, RestEndpointModifier {
     public init(_ authEndpoint: A, user: UserKeyPath) {
         self.modifiedEndpoint = authEndpoint
         self.userKeyPath = user
-    }
-
-    /// Returns the `queryEndpoint`'s query.
-    ///
-    /// - Parameter req: An incoming `Request`.
-    /// - Returns: A `QueryBuilder`, which represents a `Fluent` query defined
-    /// by the `queryEndpoint`.
-    /// - Throws: An `Abort` error if the item is not found.
-    public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try modifiedEndpoint.query(req)
     }
 
     /// A method which checks if the user `T` supplied in the `Request` is
