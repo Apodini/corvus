@@ -914,6 +914,7 @@ final class AuthenticationTests: XCTestCase {
                        BasicAuthGroup<CorvusUser>("transactions") {
                            Create<SecureTransaction>()
                         ReadAll<SecureTransaction>()
+                            .filter(\.$currency == "USD")
                             .auth(\.$account, \.$user)
                        }
                    }
@@ -944,8 +945,12 @@ final class AuthenticationTests: XCTestCase {
                 password: try Bcrypt.hash("pass")
             )
 
-           var account: SecureAccount!
-           var transaction: SecureTransaction!
+           var account1: SecureAccount!
+            var account2: SecureAccount!
+
+           var transaction1: SecureTransaction!
+        var transaction2: SecureTransaction!
+
 
            let basic1 = "berzan:pass"
                   .data(using: .utf8)!
@@ -963,7 +968,7 @@ final class AuthenticationTests: XCTestCase {
                    body: user1.encode(),
                    afterResponse: { res in
                        let userRes = try res.content.decode(CorvusUser.self)
-                       account = SecureAccount(
+                       account1 = SecureAccount(
                            name: "berzan",
                            userID: userRes.id!
                        )
@@ -973,21 +978,41 @@ final class AuthenticationTests: XCTestCase {
                    .POST,
                    "/api/users",
                    headers: ["content-type": "application/json"],
-                   body: user2.encode()
+                   body: user2.encode(),
+                   afterResponse: { res in
+                       let userRes = try res.content.decode(CorvusUser.self)
+                       account2 = SecureAccount(
+                           name: "paul",
+                           userID: userRes.id!
+                       )
+                   }
                 )
                .test(
                    .POST,
                    "/api/accounts",
                    headers: ["content-type": "application/json"],
-                   body: account.encode()
+                   body: account1.encode()
                  ) { res in
                      let accountRes = try res.content.decode(SecureAccount.self)
-                     transaction = SecureTransaction(
+                     transaction1 = SecureTransaction(
                        amount: 42.0,
-                        currency: "€",
+                        currency: "USD",
                         accountID: accountRes.id!
                      )
                }
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account2.encode()
+              ) { res in
+                  let accountRes = try res.content.decode(SecureAccount.self)
+                  transaction2 = SecureTransaction(
+                    amount: 42.0,
+                     currency: "€",
+                     accountID: accountRes.id!
+                  )
+            }
                .test(
                    .POST,
                    "/api/transactions",
@@ -995,16 +1020,16 @@ final class AuthenticationTests: XCTestCase {
                        "content-type": "application/json",
                        "Authorization": "Basic \(basic1)"
                    ],
-                   body: transaction.encode()
+                   body: transaction1.encode()
                  )
               .test(
                 .POST,
                 "/api/transactions",
                 headers: [
                     "content-type": "application/json",
-                    "Authorization": "Basic \(basic1)"
+                    "Authorization": "Basic \(basic2)"
                 ],
-                body: transaction.encode()
+                body: transaction2.encode()
               )
                .test(
                      .GET,
@@ -1013,11 +1038,7 @@ final class AuthenticationTests: XCTestCase {
                          "Authorization": "Basic \(basic2)"
                      ]
                    ) { res in
-                       let transactions = try res.content.decode(
-                           [SecureTransaction].self
-                       )
-                       
-                       XCTAssertEqual(transactions.count, 0)
+                      XCTAssertEqual(res.status, .unauthorized)
                    }
                .test(
                      .GET,
@@ -1029,8 +1050,8 @@ final class AuthenticationTests: XCTestCase {
                        let transactions = try res.content.decode(
                            [SecureTransaction].self
                        )
-                       
-                       XCTAssertEqual(transactions.count, 2)
+
+                    XCTAssertEqual(transactions.count, 1)
                    }
        }
     

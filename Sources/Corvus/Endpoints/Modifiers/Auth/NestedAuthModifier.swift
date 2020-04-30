@@ -3,12 +3,12 @@ import Fluent
 
 /// A class that wraps a component which utilizes an `.auth()` modifier. Differs
 /// from `AuthModifier` by authenticating on the user of an intermediate parent
-/// `I` of `A.QuerySubject`. Requires an object `T` that represents the user to
+/// `I` of `A.QuerySubject`. Requires an object `U` that represents the user to
 /// authorize.
 public final class NestedAuthModifier<
     A: AuthEndpoint,
     I: CorvusModel,
-    T: CorvusModelAuthenticatable>:
+    U: CorvusModelAuthenticatable>:
 AuthEndpoint, QueryEndpointModifier {
     
     /// The return type for the `.handler()` modifier.
@@ -18,7 +18,7 @@ AuthEndpoint, QueryEndpointModifier {
     /// be authenticated.
     public typealias UserKeyPath = KeyPath<
         I,
-        I.Parent<T>
+        I.Parent<U>
     >
     
     /// The `KeyPath` to the intermediate `I` of the endpoint's `QuerySubject`.
@@ -56,7 +56,7 @@ AuthEndpoint, QueryEndpointModifier {
         self.userKeyPath = user
     }
     
-    /// A method which checks if the user `T` supplied in the `Request` is
+    /// A method which checks if the user `U` supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
     ///
     /// - Parameter req: An incoming `Request`.
@@ -69,7 +69,7 @@ AuthEndpoint, QueryEndpointModifier {
             .with(intermediateKeyPath) {
                 $0.with(userKeyPath)
             }.all()
-            .mapEachThrowing { item -> T in
+            .mapEachThrowing { item -> U in
                 guard let intermediate = item[
                     keyPath: self.intermediateKeyPath
                 ].value else {
@@ -87,7 +87,7 @@ AuthEndpoint, QueryEndpointModifier {
 
         let authorized: EventLoopFuture<[Bool]> = users
             .mapEachThrowing { user throws -> Bool in
-                guard let authorized = req.auth.get(T.self) else {
+                guard let authorized = req.auth.get(U.self) else {
                     throw Abort(.unauthorized)
                 }
 
@@ -113,7 +113,7 @@ AuthEndpoint, QueryEndpointModifier {
 extension AuthEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
-    /// the supplied user `T` is actually related to the `QuerySubject`.
+    /// the supplied user `U` is actually related to the `QuerySubject`.
     ///
     /// - Parameter intermediate: A `KeyPath` to the intermediate property.
     /// - Parameter user: A `KeyPath` to the related user property from the
