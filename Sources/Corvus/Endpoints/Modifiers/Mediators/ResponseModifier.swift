@@ -4,9 +4,8 @@ import Fluent
 /// A class that wraps a component which utilizes a `.respond(with:)` modifier.
 /// That allows Corvus to chain modifiers, as it gets treated as any other
 /// struct conforming to `RestEndpoint`.
-public final class ResponseModifier<Q: QueryEndpoint,R: CorvusResponse>:
-    QueryEndpointModifier where Q.Element == R.Item
-{
+public final class ResponseModifier<Q: QueryEndpoint, R: CorvusResponse>:
+QueryEndpointModifier where Q.Element == R.Item {
     
     /// The Element that is returned by the handler.
     public typealias Element = R
@@ -16,9 +15,8 @@ public final class ResponseModifier<Q: QueryEndpoint,R: CorvusResponse>:
     
     /// Initializes the modifier with its underlying `RestEndpoint`.
     ///
-    /// - Parameters:
-    ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
-    ///     to.
+    /// - Parameter queryEndpoint: The `QueryEndpoint` which the modifer is
+    /// attached to.
     public init(_ endpoint: Q) {
         self.modifiedEndpoint = endpoint
     }

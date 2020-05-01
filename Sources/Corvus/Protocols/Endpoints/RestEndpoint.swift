@@ -17,6 +17,8 @@ public protocol RestEndpoint: Endpoint {
     /// those results asynchronously in an  `EventLoopFuture`.
     ///
     /// - Parameter req: The incoming `Request`.
+    /// - Throws: An error if something goes wrong.
+    /// - Returns: An `EventLoopFuture` containing the processed object.
     func handler(_ req: Request) throws -> EventLoopFuture<Element>
 }
 

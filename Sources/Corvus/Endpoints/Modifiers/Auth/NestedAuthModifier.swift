@@ -45,7 +45,6 @@ AuthEndpoint, QueryEndpointModifier {
     ///     to.
     ///     - intermediate: A `KeyPath` to the intermediate.
     ///     - user: A `KeyPath` which leads to the property to authenticate for.
-    ///     - operationType: The HTTP method of the wrapped component.
     public init(
         _ authEndpoint: A,
         intermediate: IntermediateKeyPath,
@@ -115,9 +114,10 @@ extension AuthEndpoint {
     /// A modifier used to make sure components only authorize requests where
     /// the supplied user `U` is actually related to the `QuerySubject`.
     ///
-    /// - Parameter intermediate: A `KeyPath` to the intermediate property.
-    /// - Parameter user: A `KeyPath` to the related user property from the
-    /// intermediate.
+    /// - Parameters:
+    ///     - intermediate: A `KeyPath` to the intermediate property.
+    ///     - user: A `KeyPath` to the related user property from the
+    ///     intermediate.
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
     public func auth<I: CorvusModel, T: CorvusModelAuthenticatable> (

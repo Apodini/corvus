@@ -12,6 +12,8 @@ public protocol QueryEndpoint: RestEndpoint {
     /// A method to run database queries on a component's `QuerySubject`.
     ///
     /// - Parameter req: The incoming `Request`.
+    /// - Throws: An error if something goes wrong.
+    /// - Returns: A `QueryBuilder` for further querying after this `.query`.
     func query(_ req: Request) throws -> QueryBuilder<QuerySubject>
 }
 

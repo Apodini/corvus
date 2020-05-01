@@ -17,10 +17,8 @@ where A.QuerySubject: CorvusModelAuthenticatable {
 
     /// Initializes the modifier with its underlying `QueryEndpoint`.
     ///
-    /// - Parameters:
-    ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
-    ///     to.
-    ///     - operationType: The HTTP method of the wrapped component.
+    /// - Parameter queryEndpoint: The `QueryEndpoint` which the modifer is
+    /// attached to.
     public init(_ queryEndpoint: A) {
         self.modifiedEndpoint = queryEndpoint
     }

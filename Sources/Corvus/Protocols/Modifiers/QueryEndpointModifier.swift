@@ -42,4 +42,3 @@ extension QueryEndpointModifier {
         try modifiedEndpoint.query(req)
     }
 }
-

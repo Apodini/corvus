@@ -23,9 +23,10 @@ public final class Delete<T: CorvusModel>: AuthEndpoint {
     
     /// Initializes the component with a given path parameter.
     ///
-    /// - Parameter id: A `PathComponent` which represents the ID of the item.
-    /// - Parameter softDelete: Whether deletion should include soft deleted
-    /// items or not.
+    /// - Parameters:
+    ///     - id: A `PathComponent` which represents the ID of the item.
+    ///     - softDelete: Whether deletion should include soft deleted
+    ///     items or not.
     public init(_ id: PathComponent, softDelete: Bool = false) {
         self.id = id
         self.useSoftDelete = softDelete

@@ -21,11 +21,12 @@ final class SecureCRUD<
     
     /// Initializes the component with one or more route path components.
     ///
-    /// - Parameter pathComponents: One or more `PathComponents` identifying the
-    /// path to the operations defined by the `SecureCRUD` component.
-    /// - Parameter softDelete: Enable/Disable soft deletion of Models.
-    /// - Parameter userKeyPath: The path to the user property of the model `T`
-    /// the component operates on.
+    /// - Parameters:
+    ///     - pathComponents: One or more `PathComponents` identifying the path
+    ///     to the operations defined by the `SecureCRUD` component.
+    ///     - softDelete: Enable/Disable soft deletion of Models.
+    ///     - userKeyPath: The path to the user property of the model `T` the
+    ///     component operates on.
     public init(
         _ pathComponents: [PathComponent],
         user userKeyPath: UserKeyPath,
