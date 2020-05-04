@@ -7,7 +7,7 @@ import Fluent
 /// user to authorize.
 public final class AuthModifier<
     A: AuthEndpoint,
-    T: CorvusModelAuthenticatable>:
+    U: CorvusModelAuthenticatable>:
 AuthEndpoint, QueryEndpointModifier {
     
     /// The return type for the `.handler()` modifier.
@@ -17,7 +17,7 @@ AuthEndpoint, QueryEndpointModifier {
     /// authenticated.
     public typealias UserKeyPath = KeyPath<
         A.QuerySubject,
-        A.QuerySubject.Parent<T>
+        A.QuerySubject.Parent<U>
     >
 
     /// The `ReadEndpoint` the `.auth()` modifier is attached to.
@@ -62,7 +62,7 @@ AuthEndpoint, QueryEndpointModifier {
                     throw Abort(.notFound)
                 }
 
-                guard let authorized = req.auth.get(T.self) else {
+                guard let authorized = req.auth.get(U.self) else {
                     throw Abort(.unauthorized)
                 }
 
@@ -88,14 +88,14 @@ AuthEndpoint, QueryEndpointModifier {
 extension AuthEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
-    /// the supplied user `T` is actually related to the `QuerySubject`.
+    /// the supplied user `U` is actually related to the `QuerySubject`.
     ///
     /// - Parameter user: A `KeyPath` to the related user property.
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
-    public func auth<T: CorvusModelAuthenticatable>(
-        _ user: AuthModifier<Self, T>.UserKeyPath
-    ) -> AuthModifier<Self, T> {
+    public func auth<U: CorvusModelAuthenticatable>(
+        _ user: AuthModifier<Self, U>.UserKeyPath
+    ) -> AuthModifier<Self, U> {
         AuthModifier(self, user: user)
     }
 }

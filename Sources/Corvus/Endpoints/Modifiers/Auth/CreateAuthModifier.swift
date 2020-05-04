@@ -3,7 +3,7 @@ import Fluent
 
 /// A class that wraps a `Create` component which utilizes an `.auth()`
 /// modifier. That allows Corvus to chain modifiers, as it gets treated as any
-/// other struct conforming to `CrateAuthEndpoint`. Requires an object `T` that
+/// other struct conforming to `CreateAuthModifier`. Requires an object `T` that
 /// represents the user to authorize.
 public final class CreateAuthModifier<
     A: CreateEndpoint,
@@ -65,7 +65,7 @@ CreateEndpoint, QueryEndpointModifier {
 }
 
 /// An extension that adds the `.auth()` modifier to components conforming to
-/// `CreateAuthEndpoint`.
+/// `CreateEndpoint`.
 extension CreateEndpoint {
 
     /// A modifier used to make sure components only authorize requests where

@@ -1,16 +1,17 @@
+// swiftlint:disable line_length
 import Vapor
 import Fluent
 
-/// A class that wraps a component which utilizes an `.auth()` modifier. Differs
-/// from `AuthModifier` by authenticating on the user of an intermediate parent
-/// `I` of `A.QuerySubject`. Requires an object `U` that represents the user to
-/// authorize.
-public final class NestedAuthModifier<
-    A: AuthEndpoint,
+/// A class that wraps a `Create` component which utilizes an `.auth()`
+/// modifier. That allows Corvus to chain modifiers, as it gets treated as any
+/// other struct conforming to `NestedCreateAuthModifier`. Requires an object
+/// `U` that represents the user to authorize.
+public final class NestedCreateAuthModifier<
+    A: CreateEndpoint,
     I: CorvusModel,
     U: CorvusModelAuthenticatable>:
-AuthEndpoint, QueryEndpointModifier {
-    
+CreateEndpoint, QueryEndpointModifier {
+
     /// The return type for the `.handler()` modifier.
     public typealias Element = A.Element
 
@@ -27,7 +28,7 @@ AuthEndpoint, QueryEndpointModifier {
         A.QuerySubject.Parent<I>
     >
 
-    /// The `AuthEndpoint` the `.auth()` modifier is attached to.
+    /// The `ReadEndpoint` the `.auth()` modifier is attached to.
     public let modifiedEndpoint: A
 
     /// The path to the property to authenticate for.
@@ -54,7 +55,7 @@ AuthEndpoint, QueryEndpointModifier {
         self.intermediateKeyPath = intermediate
         self.userKeyPath = user
     }
-    
+
     /// A method which checks if the user `U` supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
     ///
@@ -64,14 +65,20 @@ AuthEndpoint, QueryEndpointModifier {
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
     public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
-        let users = try query(req)
-            .with(intermediateKeyPath) {
-                $0.with(userKeyPath)
-            }.all()
-            .mapEachThrowing { item -> U in
-                guard let intermediate = item[
-                    keyPath: self.intermediateKeyPath
-                ].value else {
+        let requestContent = try req.content.decode(A.QuerySubject.self)
+        
+        guard let intermediateId = requestContent[
+              keyPath: self.intermediateKeyPath
+        ].$id.value else {
+            throw Abort(.notFound)
+        }
+        
+        let authorized = I.query(on: req.db)
+            .filter(\._$id == intermediateId)
+            .with(userKeyPath)
+            .first()
+            .flatMapThrowing { optionalIntermediate -> Bool in
+                guard let intermediate = optionalIntermediate else {
                     throw Abort(.notFound)
                 }
                 
@@ -81,20 +88,16 @@ AuthEndpoint, QueryEndpointModifier {
                     throw Abort(.notFound)
                 }
                 
-                return user
-            }
-
-        let authorized: EventLoopFuture<[Bool]> = users
-            .mapEachThrowing { user throws -> Bool in
                 guard let authorized = req.auth.get(U.self) else {
                     throw Abort(.unauthorized)
                 }
+                
+                return user.id == authorized.id
 
-                return authorized.id == user.id
             }
-
+        
         return authorized.flatMap { authorized in
-            guard authorized.allSatisfy({ $0 }) else {
+            guard authorized else {
                 return req.eventLoop.makeFailedFuture(Abort(.unauthorized))
             }
 
@@ -107,9 +110,9 @@ AuthEndpoint, QueryEndpointModifier {
     }
 }
 
-/// An extension that adds a version of the  `.auth()` modifier to components
-/// conforming to `AuthEndpoint` that allows defining an intermediate type `I`.
-extension AuthEndpoint {
+/// An extension that adds the `.auth()` modifier to components conforming to
+/// `CreateEndpoint`.
+extension CreateEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
     /// the supplied user `U` is actually related to the `QuerySubject`.
@@ -121,9 +124,9 @@ extension AuthEndpoint {
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
     public func auth<I: CorvusModel, U: CorvusModelAuthenticatable> (
-        _ intermediate: NestedAuthModifier<Self, I, U>.IntermediateKeyPath,
-        _ user: NestedAuthModifier<Self, I, U>.UserKeyPath
-    ) -> NestedAuthModifier<Self, I, U> {
-        NestedAuthModifier(self, intermediate: intermediate, user: user)
+        _ intermediate: NestedCreateAuthModifier<Self, I, U>.IntermediateKeyPath,
+        _ user: NestedCreateAuthModifier<Self, I, U>.UserKeyPath
+    ) -> NestedCreateAuthModifier<Self, I, U> {
+        NestedCreateAuthModifier(self, intermediate: intermediate, user: user)
     }
 }
