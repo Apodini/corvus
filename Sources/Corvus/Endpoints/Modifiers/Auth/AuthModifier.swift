@@ -3,7 +3,7 @@ import Fluent
 
 /// A class that wraps a component which utilizes an `.auth()` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
-/// conforming to `AuthEndpoint`. Requires an object `T` that represents the
+/// conforming to `AuthEndpoint`. Requires an object `U` that represents the
 /// user to authorize.
 public final class AuthModifier<
     A: AuthEndpoint,
@@ -40,7 +40,7 @@ AuthEndpoint, QueryEndpointModifier {
         self.userKeyPath = user
     }
 
-    /// A method which checks if the user `T` supplied in the `Request` is
+    /// A method which checks if the user `U` supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
     ///
     /// - Parameter req: An incoming `Request`.

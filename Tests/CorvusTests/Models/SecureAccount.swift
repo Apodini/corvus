@@ -7,7 +7,11 @@ final class SecureAccount: CorvusModel {
     static let schema = "accounts"
 
     @ID
-    var id: UUID?
+    var id: UUID? {
+        didSet {
+            $id.exists = true
+        }
+    }
 
     @Field(key: "name")
     var name: String
