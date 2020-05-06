@@ -36,44 +36,40 @@ public class CRUD<T: CorvusModel>: Endpoint {
     /// The `content` of the `CRUD`, containing Create, Read, Update and Delete
     /// functionality grouped under one.
     public var content: Endpoint {
-        if useSoftDelete {
-            return contentWithSoftDelete
-        }
-        
-        return Group(pathComponents) {
-            Create<T>()
-            ReadAll<T>()
+        Group {
+            if useSoftDelete {
+                Group(pathComponents) {
+                    Create<T>()
+                    ReadAll<T>()
 
-            Group(parameter.id) {
-                ReadOne<T>(parameter.id)
-                Update<T>(parameter.id)
-                Delete<T>(parameter.id)
-            }
-        }
-    }
-
-    /// The `content` of the `CRUD`, containing Create, Read, Update, Delete and
-    /// SoftDelete functionality grouped under one.
-    public var contentWithSoftDelete: Endpoint {
-        Group(pathComponents) {
-            Create<T>()
-            ReadAll<T>()
-            
-            Group(parameter.id) {
-                ReadOne<T>(parameter.id)
-                Update<T>(parameter.id)
-                Delete<T>(parameter.id, softDelete: true)
-            }
-            
-            Group("trash") {
-                ReadAll<T>(.trashed)
-                Group(parameter.id) {
-                    ReadOne<T>(parameter.id, .trashed)
-                    Delete<T>(parameter.id)
-                    
-                    Group("restore") {
-                        Restore<T>(parameter.id)
+                    Group(parameter.id) {
+                        ReadOne<T>(parameter.id)
+                        Update<T>(parameter.id)
+                        Delete<T>(parameter.id, softDelete: true)
                     }
+
+                    Group("trash") {
+                        ReadAll<T>(.trashed)
+                        Group(parameter.id) {
+                            ReadOne<T>(parameter.id, .trashed)
+                            Delete<T>(parameter.id)
+
+                            Group("restore") {
+                                Restore<T>(parameter.id)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Group(pathComponents) {
+                      Create<T>()
+                      ReadAll<T>()
+
+                      Group(parameter.id) {
+                          ReadOne<T>(parameter.id)
+                          Update<T>(parameter.id)
+                          Delete<T>(parameter.id)
+                      }
                 }
             }
         }

@@ -38,44 +38,40 @@ final class SecureCRUD<
     /// The `content` of the `SecureCRUD`, containing Create, Read, Update and
     /// Delete functionality grouped under one and secured by `.auth()`.
     override public var content: Endpoint {
-        if useSoftDelete {
-            return contentWithSoftDelete
-        }
-        
-        return Group(pathComponents) {
-            Create<T>().auth(userKeyPath)
-            ReadAll<T>().auth(userKeyPath)
-
-            Group(parameter.id) {
-                ReadOne<T>(parameter.id).auth(userKeyPath)
-                Update<T>(parameter.id).auth(userKeyPath)
-                Delete<T>(parameter.id).auth(userKeyPath)
-            }
-        }
-    }
-    
-    /// The `content` of the `SecureCRUD`, containing Create, Read, Update,
-    /// Delete and SoftDelete functionality grouped under one and secured by
-    /// `.auth()`.
-    override public var contentWithSoftDelete: Endpoint {
-        Group(pathComponents) {
-            Create<T>().auth(userKeyPath)
-            ReadAll<T>().auth(userKeyPath)
-            
-            Group(parameter.id) {
-                ReadOne<T>(parameter.id).auth(userKeyPath)
-                Update<T>(parameter.id).auth(userKeyPath)
-                Delete<T>(parameter.id, softDelete: true).auth(userKeyPath)
-            }
-            
-            Group("trash") {
-                ReadAll<T>(.trashed)
-                Group(parameter.id) {
-                    ReadOne<T>(parameter.id, .trashed).auth(userKeyPath)
-                    Delete<T>(parameter.id).auth(userKeyPath)
+        Group {
+            if useSoftDelete {
+                Group(pathComponents) {
+                    Create<T>().auth(userKeyPath)
+                    ReadAll<T>().auth(userKeyPath)
                     
-                    Group("restore") {
-                        Restore<T>(parameter.id).auth(userKeyPath)
+                    Group(parameter.id) {
+                        ReadOne<T>(parameter.id).auth(userKeyPath)
+                        Update<T>(parameter.id).auth(userKeyPath)
+                        Delete<T>(parameter.id, softDelete: true)
+                            .auth(userKeyPath)
+                    }
+                    
+                    Group("trash") {
+                        ReadAll<T>(.trashed)
+                        Group(parameter.id) {
+                            ReadOne<T>(parameter.id, .trashed).auth(userKeyPath)
+                            Delete<T>(parameter.id).auth(userKeyPath)
+                            
+                            Group("restore") {
+                                Restore<T>(parameter.id).auth(userKeyPath)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Group(pathComponents) {
+                    Create<T>().auth(userKeyPath)
+                    ReadAll<T>().auth(userKeyPath)
+
+                    Group(parameter.id) {
+                        ReadOne<T>(parameter.id).auth(userKeyPath)
+                        Update<T>(parameter.id).auth(userKeyPath)
+                        Delete<T>(parameter.id).auth(userKeyPath)
                     }
                 }
             }

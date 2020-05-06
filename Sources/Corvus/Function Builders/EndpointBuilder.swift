@@ -10,4 +10,23 @@ public enum EndpointBuilder {
     public static func buildBlock(_ endpoints: Endpoint...) -> Endpoint {
         endpoints
     }
+    
+    /// A method that enables the use of if-else in the Corvus DSL. This returns
+    /// `Endpoints` within the if-part.
+    ///
+    /// - Parameter first: One or more `Endpoints` to transform into a
+    /// single endpoint.
+    public static func buildEither(first: Endpoint) -> Endpoint {
+        first
+    }
+    
+    /// A method that enables the use of if-else in the Corvus DSL. This returns
+    /// `Endpoints` within the else-part.
+    ///
+    /// - Parameter first: One or more `Endpoints` to transform into a
+    /// single endpoint.
+    public static func buildEither(second: Endpoint) -> Endpoint {
+        second
+    }
+    
 }
