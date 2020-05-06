@@ -63,7 +63,7 @@ extension ReadEndpoint {
     /// - Returns: An instance of a `FilterModifier` with the supplied filter.
     public func filter(
         _ filter: FilterModifier<Self>.Filter
-    ) -> Self {
-        FilterModifier(self, filter: filter) as! Self
+    ) -> FilterModifier<Self> {
+        FilterModifier(self, filter: filter)
     }
 }
