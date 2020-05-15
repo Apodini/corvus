@@ -19,8 +19,8 @@ public final class CustomUser: CorvusModel, Authenticatable {
     @Field(key: "email")
     public var email: String
 
-    @Field(key: "password_hash")
-    public var passwordHash: String
+    @Field(key: "password")
+    public var password: String
 
     @Timestamp(key: "deleted_at", on: .delete)
     var deletedAt: Date?
@@ -32,13 +32,13 @@ public final class CustomUser: CorvusModel, Authenticatable {
         username: String,
         surname: String,
         email: String,
-        passwordHash: String
+        password: String
     ) {
         self.id = id
         self.username = username
         self.surname = surname
         self.email = email
-        self.passwordHash = passwordHash
+        self.password = password
     }
 }
 
@@ -52,7 +52,7 @@ public struct CreateCustomUser: Migration {
             .field("username", .string, .required)
             .field("surname", .string, .required)
             .field("email", .string, .required)
-            .field("password_hash", .string, .required)
+            .field("password", .string, .required)
             .field("deleted_at", .date)
             .create()
     }
@@ -63,13 +63,9 @@ public struct CreateCustomUser: Migration {
 }
 
 extension CustomUser: CorvusModelAuthenticatable {
-
-    public static let usernameKey = \CustomUser.$username
-
-    public static let passwordHashKey = \CustomUser.$passwordHash
-
+    
     public func verify(password: String) throws -> Bool {
-        try Bcrypt.verify(password, created: self.passwordHash)
+        try Bcrypt.verify(password, created: self.password)
     }
 }
 

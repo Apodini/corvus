@@ -16,8 +16,8 @@ public final class CorvusUser: CorvusModel {
     public var username: String
 
     /// The hashed password of the user, used during authentication.
-    @Field(key: "password_hash")
-    public var passwordHash: String
+    @Field(key: "password")
+    public var password: String
 
     /// Timestamp for soft deletion.
     @Timestamp(key: "deleted_at", on: .delete)
@@ -31,15 +31,15 @@ public final class CorvusUser: CorvusModel {
     /// - Parameters:
     ///     - id: The identifier of the user, auto generated if not provided.
     ///     - username: The username of the user.
-    ///     - passwordHash: The hashed password of the user.
+    ///     - password: The hashed password of the user.
     public init(
         id: UUID? = nil,
         username: String,
-        passwordHash: String
+        password: String
     ) {
         self.id = id
         self.username = username
-        self.passwordHash = passwordHash
+        self.password = password
     }
 }
 
@@ -56,7 +56,7 @@ public struct CreateCorvusUser: Migration {
         database.schema(CorvusUser.schema)
             .id()
             .field("username", .string, .required)
-            .field("password_hash", .string, .required)
+            .field("password", .string, .required)
             .field("deleted_at", .date)
             .create()
     }
@@ -69,16 +69,11 @@ public struct CreateCorvusUser: Migration {
     }
 }
 
-/// An extension to conform to the `CorvusModelUser` protocol, which provides
-/// functionality to authenticate a user with username and password.
+/// An extension to conform to the `CorvusModelAuthenticatable` protocol, which
+/// provides functionality to authenticate a user with username and password.
 extension CorvusUser: CorvusModelAuthenticatable {
+
     
-    /// Provides a path to the user's username.
-    public static let usernameKey = \CorvusUser.$username
-
-    /// Provides a path to the user's hashed password.
-    public static let passwordHashKey = \CorvusUser.$passwordHash
-
     /// Verifies a given string by checking if it matches a user's password.
     ///
     /// - Parameter password: The password to verify.
@@ -86,6 +81,6 @@ extension CorvusUser: CorvusModelAuthenticatable {
     /// not.
     /// - Throws: An error if encryption fails.
     public func verify(password: String) throws -> Bool {
-        try Bcrypt.verify(password, created: self.passwordHash)
+        try Bcrypt.verify(password, created: self.password)
     }
 }

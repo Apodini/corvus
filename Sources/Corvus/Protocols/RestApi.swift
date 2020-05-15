@@ -20,3 +20,34 @@ extension RestApi {
         content.register(to: routes)
     }
 }
+
+/// A convenience wrapper around `RestApi`.
+///
+/// Wraps `RestApi` by using a `Group` component
+/// to reduce indendation when creating a Api.
+public final class Api: RestApi {
+
+    /// The content of an `Endpoint`, used for components which can harbor other
+    /// components, e.g.`Group`.
+    public let content: Endpoint
+
+    /// An array of `PathComponent` describing the path that the
+    /// `Api` extends.
+    public let pathComponents: [PathComponent]
+    
+    /// Creates a `Api` from a path and a builder function passed as
+    /// a closure.
+    ///
+    /// - Parameters:
+    ///     - pathComponents: One or more objects describing the route.
+    ///     - content: An `EndpointBuilder`, which is a function builder that
+    ///     takes in multiple `Endpoints` and returns them as a single
+    ///     `Endpoint`.
+    public init(
+        _ pathComponents: PathComponent...,
+        @EndpointBuilder content: () -> Endpoint
+    ) {
+        self.pathComponents = pathComponents
+        self.content = Group(pathComponents) { content() }
+    }
+}

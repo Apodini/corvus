@@ -19,9 +19,10 @@ public final class ReadOne<T: CorvusModel>: ReadEndpoint {
     
     /// Initializes the component with a given path parameter.
     ///
-    /// - Parameter id: A `PathComponent` which represents the ID of the item
-    /// - Parameter target: A `ReadTarget` which controls where to query the
-    /// item from that is to be deleted.
+    /// - Parameters:
+    ///     - id: A `PathComponent` which represents the ID of the item
+    ///     - target: A `ReadTarget` which controls where to query the item from
+    ///     that is to be deleted.
     public init(
         _ id: PathComponent,
         _ target: ReadTarget<QuerySubject> = .existing) {
