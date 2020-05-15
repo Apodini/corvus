@@ -4,7 +4,7 @@ import Fluent
 /// A class that contains custom functionality passed in by the implementor for
 /// a generic type `T conforming to `ResponseEncodable` grouped under a given
 /// path.
-public final class Custom<R: CorvusModel>: QueryEndpoint {
+public final class Custom<R: CorvusModel>: RestEndpoint {
     
     /// The return value of the `.handler()`.
     public typealias Element = R

@@ -5,17 +5,14 @@ import Fluent
 /// from `AuthModifier` by authenticating on the user of an intermediate parent
 /// `I` of `A.QuerySubject`. Requires an object `U` that represents the user to
 /// authorize.
-public final class NestedAuthModifier<
+public class NestedAuthModifier<
     A: AuthEndpoint,
     I: CorvusModel,
     U: CorvusModelAuthenticatable>:
-AuthEndpoint, QueryEndpointModifier {
+RestModifier<A>, AuthEndpoint {
     
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
-
-    /// The `KeyPath` to the user property of the intermediate `I` which is to
-    /// be authenticated.
+    /// The `KeyPath` to the user property of the `QuerySubject` which is to be
+    /// authenticated.
     public typealias UserKeyPath = KeyPath<
         I,
         I.Parent<U>
@@ -26,13 +23,10 @@ AuthEndpoint, QueryEndpointModifier {
         A.QuerySubject,
         A.QuerySubject.Parent<I>
     >
-
-    /// The `AuthEndpoint` the `.auth()` modifier is attached to.
-    public let modifiedEndpoint: A
-
+    
     /// The path to the property to authenticate for.
     public let userKeyPath: UserKeyPath
-    
+        
     /// The path to the intermediate.
     public let intermediateKeyPath: IntermediateKeyPath
 
@@ -50,10 +44,11 @@ AuthEndpoint, QueryEndpointModifier {
         intermediate: IntermediateKeyPath,
         user: UserKeyPath
     ) {
-        self.modifiedEndpoint = authEndpoint
         self.intermediateKeyPath = intermediate
         self.userKeyPath = user
+        super.init(authEndpoint)
     }
+    
     
     /// A method which checks if the user `U` supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
@@ -63,7 +58,9 @@ AuthEndpoint, QueryEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
+    override public func handler(_ req: Request)
+        throws -> EventLoopFuture<Element>
+    {
         let users = try query(req)
             .with(intermediateKeyPath) {
                 $0.with(userKeyPath)

@@ -6,22 +6,8 @@ import Fluent
 /// struct conforming to `AuthEndpoint`.
 public final class UserAuthModifier<
     A: AuthEndpoint
->: AuthEndpoint, QueryEndpointModifier
+>:  RestModifier<A>, AuthEndpoint
 where A.QuerySubject: CorvusModelAuthenticatable {
-
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
-
-    /// The `AuthEndpoint` the `.userAuth()` modifier is attached to.
-    public let modifiedEndpoint: A
-
-    /// Initializes the modifier with its underlying `QueryEndpoint`.
-    ///
-    /// - Parameter queryEndpoint: The `QueryEndpoint` which the modifer is
-    /// attached to.
-    public init(_ queryEndpoint: A) {
-        self.modifiedEndpoint = queryEndpoint
-    }
 
     /// A method which checks if the user supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
@@ -31,7 +17,9 @@ where A.QuerySubject: CorvusModelAuthenticatable {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
+    override public func handler(_ req: Request)
+        throws -> EventLoopFuture<Element>
+    {
         let users = try query(req).all()
              
         let authorized: EventLoopFuture<[Bool]> = users

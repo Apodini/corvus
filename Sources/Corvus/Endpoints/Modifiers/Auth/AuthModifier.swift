@@ -5,23 +5,17 @@ import Fluent
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
 /// conforming to `AuthEndpoint`. Requires an object `U` that represents the
 /// user to authorize.
-public final class AuthModifier<
+public class AuthModifier<
     A: AuthEndpoint,
     U: CorvusModelAuthenticatable>:
-AuthEndpoint, QueryEndpointModifier {
+RestModifier<A>, AuthEndpoint {
     
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
-
     /// The `KeyPath` to the user property of the `QuerySubject` which is to be
     /// authenticated.
     public typealias UserKeyPath = KeyPath<
-        A.QuerySubject,
-        A.QuerySubject.Parent<U>
+        QuerySubject,
+        QuerySubject.Parent<U>
     >
-
-    /// The `ReadEndpoint` the `.auth()` modifier is attached to.
-    public let modifiedEndpoint: A
 
     /// The path to the property to authenticate for.
     public let userKeyPath: UserKeyPath
@@ -36,8 +30,8 @@ AuthEndpoint, QueryEndpointModifier {
     ///     - user: A `KeyPath` which leads to the property to authenticate for.
     ///     - operationType: The HTTP method of the wrapped component.
     public init(_ authEndpoint: A, user: UserKeyPath) {
-        self.modifiedEndpoint = authEndpoint
         self.userKeyPath = user
+        super.init(authEndpoint)
     }
 
     /// A method which checks if the user `U` supplied in the `Request` is
@@ -48,7 +42,9 @@ AuthEndpoint, QueryEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
+    override public func handler(_ req: Request)
+        throws -> EventLoopFuture<Element>
+    {
         let users = try query(req)
             .with(userKeyPath)
             .all()

@@ -10,51 +10,7 @@ public final class NestedCreateAuthModifier<
     A: CreateEndpoint,
     I: CorvusModel,
     U: CorvusModelAuthenticatable>:
-CreateEndpoint, QueryEndpointModifier {
-
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
-
-    /// The `KeyPath` to the user property of the intermediate `I` which is to
-    /// be authenticated.
-    public typealias UserKeyPath = KeyPath<
-        I,
-        I.Parent<U>
-    >
-    
-    /// The `KeyPath` to the intermediate `I` of the endpoint's `QuerySubject`.
-    public typealias IntermediateKeyPath = KeyPath<
-        A.QuerySubject,
-        A.QuerySubject.Parent<I>
-    >
-
-    /// The `ReadEndpoint` the `.auth()` modifier is attached to.
-    public let modifiedEndpoint: A
-
-    /// The path to the property to authenticate for.
-    public let userKeyPath: UserKeyPath
-    
-    /// The path to the intermediate.
-    public let intermediateKeyPath: IntermediateKeyPath
-
-    /// Initializes the modifier with its underlying `QueryEndpoint` and its
-    /// `auth` path, which is the keypath to the property to run authentication
-    /// for.
-    ///
-    /// - Parameters:
-    ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
-    ///     to.
-    ///     - intermediate: A `KeyPath` to the intermediate.
-    ///     - user: A `KeyPath` which leads to the property to authenticate for.
-    public init(
-        _ authEndpoint: A,
-        intermediate: IntermediateKeyPath,
-        user: UserKeyPath
-    ) {
-        self.modifiedEndpoint = authEndpoint
-        self.intermediateKeyPath = intermediate
-        self.userKeyPath = user
-    }
+NestedAuthModifier<A, I, U>, CreateEndpoint {
 
     /// A method which checks if the user `U` supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
@@ -64,7 +20,9 @@ CreateEndpoint, QueryEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
+    override public func handler(_ req: Request)
+        throws -> EventLoopFuture<Element>
+    {
         let requestContent = try req.content.decode(A.QuerySubject.self)
         
         guard let intermediateId = requestContent[

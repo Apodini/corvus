@@ -6,18 +6,25 @@ import Fluent
 /// conforming to `ReadEndpoint`.
 public final class FilterModifier<
     R: ReadEndpoint
->: ReadEndpoint, QueryEndpointModifier {
+>: ReadEndpoint {
+    
+    /// The return value of the `.query()`, so the type being operated on in
+    /// the current component.
+    public typealias QuerySubject = R.QuerySubject
+    
+    /// The return type for the `.handler()` modifier.
+    public typealias Element = [QuerySubject]
 
     /// The filter passed to the `.filter()` modifier. It is an alias for
     /// `Fluent's` `ModelValueFilter`.
     public typealias Filter = ModelValueFilter<QuerySubject>
 
-    /// The `ReadEndpoint` the `.filter()` modifier is attached to.
-    public let modifiedEndpoint: R
-
     /// The filter of the modifier.
     public let filter: Filter
 
+    /// The instance of `Endpoint` the `RestEndpointModifier` is modifying.
+    let modifiedEndpoint: R
+    
     /// Initializes the modifier with its underlying `QueryEndpoint` and its
     /// `filter`.
     ///
@@ -37,7 +44,7 @@ public final class FilterModifier<
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having attached a filter to the `queryEndpoint`'s query.
     /// - Throws: An `Abort` error if the item is not found.
-    public func query(_ req: Request) throws -> QueryBuilder<R.QuerySubject> {
+    public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
         try modifiedEndpoint.query(req).filter(filter)
     }
 
@@ -47,8 +54,7 @@ public final class FilterModifier<
     /// - Returns: An `EventLoopFuture` containing an array of the
     /// `FilterModifier`'s `QuerySubject`.
     /// - Throws: An `Abort` error if the item is not found.
-    public func handler(_ req: Request)
-        throws -> EventLoopFuture<[QuerySubject]> {
+    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
         try query(req).all()
     }
 }

@@ -8,37 +8,7 @@ import Fluent
 public final class UpdateAuthModifier<
     A: UpdateEndpoint,
     U: CorvusModelAuthenticatable>:
-UpdateEndpoint, QueryEndpointModifier {
-
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
-
-    /// The `KeyPath` to the user property of the `QuerySubject` which is to be
-    /// authenticated.
-    public typealias UserKeyPath = KeyPath<
-        A.QuerySubject,
-        A.QuerySubject.Parent<U>
-    >
-
-    /// The `ReadEndpoint` the `.auth()` modifier is attached to.
-    public let modifiedEndpoint: A
-
-    /// The path to the property to authenticate for.
-    public let userKeyPath: UserKeyPath
-
-    /// Initializes the modifier with its underlying `QueryEndpoint` and its
-    /// `auth` path, which is the keypath to the property to run authentication
-    /// for.
-    ///
-    /// - Parameters:
-    ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
-    ///     to.
-    ///     - user: A `KeyPath` which leads to the property to authenticate for.
-    ///     - operationType: The HTTP method of the wrapped component.
-    public init(_ authEndpoint: A, user: UserKeyPath) {
-        self.modifiedEndpoint = authEndpoint
-        self.userKeyPath = user
-    }
+AuthModifier<A, U>, UpdateEndpoint {
 
     /// A method which checks if the old value and the updated value both belong
     /// to the user making the request.
@@ -48,7 +18,9 @@ UpdateEndpoint, QueryEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
+    override public func handler(_ req: Request)
+        throws -> EventLoopFuture<Element>
+    {
         let updateContent = try req.content.decode(A.QuerySubject.self)
         let updateUser = updateContent[keyPath: self.userKeyPath]
         
