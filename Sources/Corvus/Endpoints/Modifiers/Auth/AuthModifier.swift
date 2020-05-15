@@ -3,29 +3,19 @@ import Fluent
 
 /// A class that wraps a component which utilizes an `.auth()` modifier. That
 /// allows Corvus to chain modifiers, as it gets treated as any other struct
-/// conforming to `AuthEndpoint`. Requires an object `T` that represents the
+/// conforming to `AuthEndpoint`. Requires an object `U` that represents the
 /// user to authorize.
-public final class AuthModifier<
+public class AuthModifier<
     A: AuthEndpoint,
-    T: CorvusModelAuthenticatable>:
-AuthEndpoint, RestEndpointModifier {
+    U: CorvusModelAuthenticatable>:
+RestModifier<A>, AuthEndpoint {
     
-    /// The return type for the `.handler()` modifier.
-    public typealias Element = A.Element
-
-    /// The return value of the `.query()`, so the type being operated on in
-    /// the current component.
-    public typealias QuerySubject = A.QuerySubject
-
     /// The `KeyPath` to the user property of the `QuerySubject` which is to be
     /// authenticated.
     public typealias UserKeyPath = KeyPath<
-        A.QuerySubject,
-        A.QuerySubject.Parent<T>
+        QuerySubject,
+        QuerySubject.Parent<U>
     >
-
-    /// The `ReadEndpoint` the `.auth()` modifier is attached to.
-    public let modifiedEndpoint: A
 
     /// The path to the property to authenticate for.
     public let userKeyPath: UserKeyPath
@@ -40,21 +30,11 @@ AuthEndpoint, RestEndpointModifier {
     ///     - user: A `KeyPath` which leads to the property to authenticate for.
     ///     - operationType: The HTTP method of the wrapped component.
     public init(_ authEndpoint: A, user: UserKeyPath) {
-        self.modifiedEndpoint = authEndpoint
         self.userKeyPath = user
+        super.init(authEndpoint)
     }
 
-    /// Returns the `queryEndpoint`'s query.
-    ///
-    /// - Parameter req: An incoming `Request`.
-    /// - Returns: A `QueryBuilder`, which represents a `Fluent` query defined
-    /// by the `queryEndpoint`.
-    /// - Throws: An `Abort` error if the item is not found.
-    public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try modifiedEndpoint.query(req)
-    }
-
-    /// A method which checks if the user `T` supplied in the `Request` is
+    /// A method which checks if the user `U` supplied in the `Request` is
     /// equal to the user belonging to the particular `QuerySubject`.
     ///
     /// - Parameter req: An incoming `Request`.
@@ -62,7 +42,9 @@ AuthEndpoint, RestEndpointModifier {
     /// defined by `Element`. If authentication fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
-    public func handler(_ req: Request) throws -> EventLoopFuture<Element> {
+    override public func handler(_ req: Request)
+        throws -> EventLoopFuture<Element>
+    {
         let users = try query(req)
             .with(userKeyPath)
             .all()
@@ -76,7 +58,7 @@ AuthEndpoint, RestEndpointModifier {
                     throw Abort(.notFound)
                 }
 
-                guard let authorized = req.auth.get(T.self) else {
+                guard let authorized = req.auth.get(U.self) else {
                     throw Abort(.unauthorized)
                 }
 
@@ -102,14 +84,14 @@ AuthEndpoint, RestEndpointModifier {
 extension AuthEndpoint {
 
     /// A modifier used to make sure components only authorize requests where
-    /// the supplied user `T` is actually related to the `QuerySubject`.
+    /// the supplied user `U` is actually related to the `QuerySubject`.
     ///
     /// - Parameter user: A `KeyPath` to the related user property.
     /// - Returns: An instance of a `AuthModifier` with the supplied `KeyPath`
     /// to the user.
-    public func auth<T: CorvusModelAuthenticatable>(
-        _ user: AuthModifier<Self, T>.UserKeyPath
-    ) -> AuthModifier<Self, T> {
+    public func auth<U: CorvusModelAuthenticatable>(
+        _ user: AuthModifier<Self, U>.UserKeyPath
+    ) -> AuthModifier<Self, U> {
         AuthModifier(self, user: user)
     }
 }

@@ -5,3 +5,8 @@ import Fluent
 /// which provide access to modifiers that are applcable for Database read
 /// requests
 public protocol ReadEndpoint: AuthEndpoint {}
+
+extension ReadEndpoint {
+    
+    public var operationType: OperationType { .get }
+}

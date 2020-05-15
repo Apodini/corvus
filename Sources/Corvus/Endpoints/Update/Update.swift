@@ -3,7 +3,7 @@ import Fluent
 
 /// A class that provides functionality to update objects of a generic type
 /// `T` conforming to `CorvusModel` and identified by a route parameter.
-public final class Update<T: CorvusModel>: AuthEndpoint {
+public final class Update<T: CorvusModel>: UpdateEndpoint {
 
     /// The return type of the `.handler()`.
     public typealias QuerySubject = T

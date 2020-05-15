@@ -242,7 +242,9 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users", softDelete: false)
+                    Group("users") {
+                        Create<CorvusUser>()
+                    }
 
                     Login<CorvusToken>("login")
 
@@ -372,7 +374,9 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CustomUser>("users", softDelete: false)
+                    Group("users") {
+                        Create<CustomUser>()
+                    }
 
                     Login<CustomToken>("login")
 
@@ -592,7 +596,7 @@ final class AuthenticationTests: XCTestCase {
 
                var content: Endpoint {
                    Group("api") {
-                       Group("accounts") {
+                       BasicAuthGroup<CorvusUser>("accounts") {
                            Create<SecureAccount>().auth(\.$user)
                        }
                     
@@ -679,96 +683,6 @@ final class AuthenticationTests: XCTestCase {
                }
        }
     
-    func testSecureCRUD() throws {
-        final class SecureCRUDTest: RestApi {
-
-            var content: Endpoint {
-                Group("api") {
-                    Create<CorvusUser>()
-                    User<CorvusUser>("users")
-                    CRUD<SecureAccount>("accounts").auth(\.$user)
-                }
-            }
-        }
-
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        let secureCRUDTest = SecureCRUDTest()
-
-        app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
-        app.middleware.use(CorvusUser.authenticator())
-        app.migrations.add(CreateCorvusUser())
-        app.migrations.add(CreateSecureAccount())
-
-
-        try app.autoMigrate().wait()
-
-        try app.register(collection: secureCRUDTest)
-
-        let user1 = CorvusUser(
-             username: "berzan",
-             password: try Bcrypt.hash("pass")
-         )
-
-        let user2 = CorvusUser(
-             username: "paul",
-             password: try Bcrypt.hash("pass")
-         )
-
-        let basic1 = "berzan:pass"
-               .data(using: .utf8)!
-               .base64EncodedString()
-
-        let basic2 = "paul:pass"
-                .data(using: .utf8)!
-                .base64EncodedString()
-        
-        var account: SecureAccount!
-
-        try app.testable()
-            .test(
-                 .POST,
-                 "/api",
-                 headers: ["content-type": "application/json"],
-                 body: user1.encode(),
-                 afterResponse: { res in
-                     let userRes = try res.content.decode(CorvusUser.self)
-                     account = SecureAccount(
-                         name: "berzan",
-                         userID: userRes.id!
-                     )
-                 }
-            )
-            .test(
-                .POST,
-                "/api/users",
-                headers: ["content-type": "application/json"],
-                body: user2.encode()
-             )
-             .test(
-                  .POST,
-                  "/api/accounts",
-                  headers: [
-                      "content-type": "application/json",
-                      "Authorization": "Basic \(basic2)"
-                  ],
-                  body: account.encode()
-               ) { res in
-                   XCTAssertEqual(res.status, .unauthorized)
-            }
-            .test(
-                 .POST,
-                 "/api/accounts",
-                 headers: [
-                     "content-type": "application/json",
-                     "Authorization": "Basic \(basic1)"
-                 ],
-                 body: account.encode()
-              ) { res in
-                  XCTAssertEqual(res.status, .ok)
-            }
-    }
-    
     func testNestedAuthModifier() throws {
         final class NestedAuthModifierTest: RestApi {
 
@@ -776,7 +690,9 @@ final class AuthenticationTests: XCTestCase {
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users", softDelete: false)
+                    Group("users") {
+                        Create<CorvusUser>()
+                    }
 
                     Group("accounts") {
                         Create<SecureAccount>()
@@ -905,7 +821,9 @@ final class AuthenticationTests: XCTestCase {
 
                var content: Endpoint {
                    Group("api") {
-                       CRUD<CorvusUser>("users", softDelete: false)
+                    Group("users") {
+                        Create<CorvusUser>()
+                    }
 
                        Group("accounts") {
                            Create<SecureAccount>()
@@ -914,6 +832,7 @@ final class AuthenticationTests: XCTestCase {
                        BasicAuthGroup<CorvusUser>("transactions") {
                            Create<SecureTransaction>()
                         ReadAll<SecureTransaction>()
+                            .filter(\.$currency == "USD")
                             .auth(\.$account, \.$user)
                        }
                    }
@@ -944,8 +863,12 @@ final class AuthenticationTests: XCTestCase {
                 password: try Bcrypt.hash("pass")
             )
 
-           var account: SecureAccount!
-           var transaction: SecureTransaction!
+           var account1: SecureAccount!
+            var account2: SecureAccount!
+
+           var transaction1: SecureTransaction!
+        var transaction2: SecureTransaction!
+
 
            let basic1 = "berzan:pass"
                   .data(using: .utf8)!
@@ -963,7 +886,7 @@ final class AuthenticationTests: XCTestCase {
                    body: user1.encode(),
                    afterResponse: { res in
                        let userRes = try res.content.decode(CorvusUser.self)
-                       account = SecureAccount(
+                       account1 = SecureAccount(
                            name: "berzan",
                            userID: userRes.id!
                        )
@@ -973,21 +896,41 @@ final class AuthenticationTests: XCTestCase {
                    .POST,
                    "/api/users",
                    headers: ["content-type": "application/json"],
-                   body: user2.encode()
+                   body: user2.encode(),
+                   afterResponse: { res in
+                       let userRes = try res.content.decode(CorvusUser.self)
+                       account2 = SecureAccount(
+                           name: "paul",
+                           userID: userRes.id!
+                       )
+                   }
                 )
                .test(
                    .POST,
                    "/api/accounts",
                    headers: ["content-type": "application/json"],
-                   body: account.encode()
+                   body: account1.encode()
                  ) { res in
                      let accountRes = try res.content.decode(SecureAccount.self)
-                     transaction = SecureTransaction(
+                     transaction1 = SecureTransaction(
                        amount: 42.0,
-                        currency: "€",
+                        currency: "USD",
                         accountID: accountRes.id!
                      )
                }
+            .test(
+                .POST,
+                "/api/accounts",
+                headers: ["content-type": "application/json"],
+                body: account2.encode()
+              ) { res in
+                  let accountRes = try res.content.decode(SecureAccount.self)
+                  transaction2 = SecureTransaction(
+                    amount: 42.0,
+                     currency: "€",
+                     accountID: accountRes.id!
+                  )
+            }
                .test(
                    .POST,
                    "/api/transactions",
@@ -995,16 +938,16 @@ final class AuthenticationTests: XCTestCase {
                        "content-type": "application/json",
                        "Authorization": "Basic \(basic1)"
                    ],
-                   body: transaction.encode()
+                   body: transaction1.encode()
                  )
               .test(
                 .POST,
                 "/api/transactions",
                 headers: [
                     "content-type": "application/json",
-                    "Authorization": "Basic \(basic1)"
+                    "Authorization": "Basic \(basic2)"
                 ],
-                body: transaction.encode()
+                body: transaction2.encode()
               )
                .test(
                      .GET,
@@ -1013,11 +956,7 @@ final class AuthenticationTests: XCTestCase {
                          "Authorization": "Basic \(basic2)"
                      ]
                    ) { res in
-                       let transactions = try res.content.decode(
-                           [SecureTransaction].self
-                       )
-                       
-                       XCTAssertEqual(transactions.count, 0)
+                      XCTAssertEqual(res.status, .unauthorized)
                    }
                .test(
                      .GET,
@@ -1029,28 +968,159 @@ final class AuthenticationTests: XCTestCase {
                        let transactions = try res.content.decode(
                            [SecureTransaction].self
                        )
-                       
-                       XCTAssertEqual(transactions.count, 2)
+
+                    XCTAssertEqual(transactions.count, 1)
                    }
        }
     
-    func testReadAllAuthModifier() throws {
-        final class ReadAllAuthModifierTest: RestApi {
+    func testNestedCreateAuthModifier() throws {
+          final class NestedCreateAuthModifierTest: RestApi {
+
+              var content: Endpoint {
+                  Group("api") {
+                      BasicAuthGroup<CorvusUser>("transactions") {
+                          Create<SecureTransaction>()
+                            .auth(\.$account, \.$user)
+                      }
+                   
+                      Create<SecureAccount>()
+                    Group("users") {
+                        Create<CorvusUser>()
+                    }
+                  }
+              }
+          }
+
+          let app = Application(.testing)
+          defer { app.shutdown() }
+          let nestedCreateAuthModifierTest = NestedCreateAuthModifierTest()
+
+          app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
+          app.middleware.use(CorvusUser.authenticator())
+          app.migrations.add(CreateSecureAccount())
+          app.migrations.add(CreateSecureTransaction())
+          app.migrations.add(CreateCorvusUser())
+
+          try app.autoMigrate().wait()
+
+          try app.register(collection: nestedCreateAuthModifierTest)
+
+          let user1 = CorvusUser(
+               username: "berzan",
+               password: try Bcrypt.hash("pass")
+           )
+
+          let user2 = CorvusUser(
+               username: "paul",
+               password: try Bcrypt.hash("pass")
+           )
+
+          let basic1 = "berzan:pass"
+                 .data(using: .utf8)!
+                 .base64EncodedString()
+
+          let basic2 = "paul:pass"
+                  .data(using: .utf8)!
+                  .base64EncodedString()
+          
+          var account1: SecureAccount!
+        var account2: SecureAccount!
+        var transaction: SecureTransaction!
+          
+          try app.testable()
+              .test(
+                .POST,
+                "/api/users",
+                headers: ["content-type": "application/json"],
+                body: user1.encode(),
+                afterResponse: { res in
+                    let userRes = try res.content.decode(CorvusUser.self)
+                    account1 = SecureAccount(
+                        name: "berzan",
+                        userID: userRes.id!
+                    )
+                }
+               )
+              .test(
+                  .POST,
+                  "/api/users",
+                  headers: ["content-type": "application/json"],
+                  body: user2.encode(),
+                  afterResponse: { res in
+                      let userRes = try res.content.decode(CorvusUser.self)
+                      account2 = SecureAccount(
+                          name: "paul",
+                          userID: userRes.id!
+                      )
+                  }
+               )
+               .test(
+                  .POST,
+                  "/api",
+                    headers: ["content-type": "application/json"],
+                  body: account1.encode(),
+                afterResponse: { res in
+                     let accountRes = try res.content.decode(SecureAccount.self)
+                     transaction = SecureTransaction(
+                       amount: 42.0,
+                        currency: "€",
+                        accountID: accountRes.id!
+                     )
+                }
+               )
+               .test(
+                     .POST,
+                     "/api",
+                     headers: ["content-type": "application/json"],
+                     body: account2.encode()
+                  )
+            .test(
+                 .POST,
+                 "/api/transactions",
+                 headers: [
+                     "content-type": "application/json",
+                     "Authorization": "Basic \(basic2)"
+                 ],
+                 body: transaction.encode()
+            ) { res in
+                XCTAssertEqual(res.status, .unauthorized)
+            }
+            .test(
+                 .POST,
+                 "/api/transactions",
+                 headers: [
+                      "content-type": "application/json",
+                      "Authorization": "Basic \(basic1)"
+                  ],
+                 body: transaction.encode()
+               ) { res in
+                XCTAssertEqual(res.status, .ok)
+             }
+      }
+    
+    func testUpdateAuthModifier() throws {
+        final class UpdateAuthModifierTest: RestApi {
+            
+            let parameter = Parameter<SecureAccount>()
 
             var content: Endpoint {
                 Group("api") {
-                    CRUD<CorvusUser>("users", softDelete: false)
-
-                    BasicAuthGroup<CorvusUser>("accounts") {
-                        CRUD<SecureAccount>().auth(\.$user)
+                    Group("accounts") {
+                        Create<SecureAccount>()
+                        
+                        BasicAuthGroup<CorvusUser>(parameter.id) {
+                            Update<SecureAccount>(parameter.id).auth(\.$user)
+                        }
                     }
+                 
+                    Create<CorvusUser>()
                 }
             }
         }
 
         let app = Application(.testing)
         defer { app.shutdown() }
-        let readAllAuthModifierTest = ReadAllAuthModifierTest()
+        let updateAuthModifierTest = UpdateAuthModifierTest()
 
         app.databases.use(.sqlite(.memory), as: .test, isDefault: true)
         app.middleware.use(CorvusUser.authenticator())
@@ -1059,7 +1129,7 @@ final class AuthenticationTests: XCTestCase {
 
         try app.autoMigrate().wait()
 
-        try app.register(collection: readAllAuthModifierTest)
+        try app.register(collection: updateAuthModifierTest)
 
         let user1 = CorvusUser(
              username: "berzan",
@@ -1071,84 +1141,83 @@ final class AuthenticationTests: XCTestCase {
              password: try Bcrypt.hash("pass")
          )
 
-        var account1: SecureAccount!
-        var account2: SecureAccount!
-
         let basic1 = "berzan:pass"
                .data(using: .utf8)!
                .base64EncodedString()
-
-        let basic2 = "paul:pass"
-                .data(using: .utf8)!
-                .base64EncodedString()
+        
+        var account1: SecureAccount!
+        var account2: SecureAccount!
+        var accountRes: SecureAccount!
         
         try app.testable()
             .test(
-                .POST,
-                "/api/users",
-                headers: ["content-type": "application/json"],
-                body: user1.encode(),
-                afterResponse: { res in
-                    let userRes = try res.content.decode(CorvusUser.self)
-                    account1 = SecureAccount(
-                        name: "berzan1",
-                        userID: userRes.id!
-                    )
-                    account2 = SecureAccount(
-                          name: "berzan2",
+                  .POST,
+                  "/api",
+                  headers: ["content-type": "application/json"],
+                  body: user1.encode(),
+                  afterResponse: { res in
+                      let userRes = try res.content.decode(CorvusUser.self)
+                      account1 = SecureAccount(
+                          name: "berzan",
                           userID: userRes.id!
                       )
-                }
-            )
-            .test(
-                .POST,
-                "/api/users",
-                headers: ["content-type": "application/json"],
-                body: user2.encode()
+                  }
              )
             .test(
                 .POST,
+                "/api",
+                headers: ["content-type": "application/json"],
+                body: user2.encode(),
+                afterResponse: { res in
+                    let userRes = try res.content.decode(CorvusUser.self)
+                       account2 = SecureAccount(
+                           name: "paul",
+                           userID: userRes.id!
+                       )
+                   }
+             )
+             .test(
+                .POST,
                 "/api/accounts",
                 headers: [
+                    "content-type": "application/json",
+                    "Authorization": "Basic \(basic1)"
+                ],
+                body: account1.encode(),
+                afterResponse: { res in
+                   accountRes = try res.content.decode(SecureAccount.self)
+                }
+             )
+            .test(
+               .POST,
+               "/api/accounts",
+               headers: [
+                   "content-type": "application/json",
+                   "Authorization": "Basic \(basic1)"
+               ],
+               body: account2.encode()
+            )
+            .test(
+              .PUT,
+              "/api/accounts/\(accountRes.id!)",
+              headers: [
+                  "content-type": "application/json",
+                  "Authorization": "Basic \(basic1)"
+              ],
+              body: account2.encode()
+            ) { res in
+                XCTAssertEqual(res.status, .unauthorized)
+            }
+            .test(
+                  .PUT,
+                  "/api/accounts/\(accountRes.id!)",
+                  headers: [
                       "content-type": "application/json",
                       "Authorization": "Basic \(basic1)"
                   ],
-                body: account1.encode()
-              )
-            .test(
-                  .POST,
-                  "/api/accounts",
-                    headers: [
-                        "content-type": "application/json",
-                        "Authorization": "Basic \(basic1)"
-                    ],
-                  body: account2.encode()
-                )
-            .test(
-                  .GET,
-                  "/api/accounts",
-                  headers: [
-                      "Authorization": "Basic \(basic2)"
-                  ]
+                  body: account1.encode()
                 ) { res in
-                    let accounts = try res.content.decode(
-                        [SecureAccount].self
-                    )
-                    
-                    XCTAssertEqual(accounts.count, 0)
-                }
-            .test(
-                  .GET,
-                  "/api/accounts",
-                  headers: [
-                      "Authorization": "Basic \(basic1)"
-                  ]
-                ) { res in
-                    let accounts = try res.content.decode(
-                        [SecureAccount].self
-                    )
-                    
-                    XCTAssertEqual(accounts.count, 2)
-                }
+                    XCTAssertEqual(res.status, .ok)
+            }
     }
 }

@@ -7,35 +7,40 @@ import Fluent
 public final class ChildrenModifier<
     R: ReadEndpoint,
     M: CorvusModel>:
-RestEndpointModifier, ReadEndpoint {
+ReadEndpoint {
 
     /// The type of the value loaded with the `.children()` modifier.
     public typealias Element = [M]
 
     /// The return value of the `.handler()`, so the type being operated on in
     /// the current component.
-    public typealias QuerySubject = R.QuerySubject
+    public typealias QuerySubject = M
+    
+    /// The type being operated on by the prior component in the modifier chain.
+    public typealias ParentQuerySubject = R.QuerySubject
 
     /// The `KeyPath` to the related attribute of the `QuerySubject` that is to
     /// be loaded.
-    public typealias Path = KeyPath<R.QuerySubject, R.QuerySubject.Children<M>>
-
-    /// The `ReadEndpoint` the `.children()` modifier is attached to.
-    let modifiedEndpoint: R
+    public typealias ChildrenPath = KeyPath<
+        ParentQuerySubject, ParentQuerySubject.Children<M>
+    >
 
     /// The `KeyPath` passed to the `QuerySubject`.
-    let path: Path
+    let childrenPath: ChildrenPath
+    
+    /// The instance of `Endpoint` the `RestEndpointModifier` is modifying.
+    let modifiedEndpoint: R
 
     /// Initializes the modifier with its underlying `QueryEndpoint` and its
-    /// `with` relation, which is the keypath to the related property.
+    /// `with` relation, which is the keypath to the child property.
     ///
     /// - Parameters:
     ///     - queryEndpoint: The `QueryEndpoint` which the modifer is attached
     ///     to.
-    ///     - with: A `KeyPath` which leads to the desired property.
-    public init(_ readEndpoint: R, path: Path) {
+    ///     - childrenPath: A `KeyPath` which leads to the child property.
+    public init(_ readEndpoint: R, path: ChildrenPath) {
         self.modifiedEndpoint = readEndpoint
-        self.path = path
+        self.childrenPath = path
     }
 
     /// Builds a query on the `queryEndpoint`'s query by attaching a with query
@@ -45,8 +50,10 @@ RestEndpointModifier, ReadEndpoint {
     /// - Returns: A `QueryBuilder`, which represents a `Fluent` query after
     /// having attached a with modifier to the `queryEndpoint`'s query.
     /// - Throws: An `Abort` error if the item is not found.
-    public func query(_ req: Request) throws -> QueryBuilder<QuerySubject> {
-        try modifiedEndpoint.query(req).with(path)
+    public func query(_ req: Request)
+        throws -> QueryBuilder<ParentQuerySubject>
+    {
+        try modifiedEndpoint.query(req).with(childrenPath)
     }
 
     /// A method which eager loads objects related to the `QuerySubject` as
@@ -62,7 +69,9 @@ RestEndpointModifier, ReadEndpoint {
                 throw Abort(.notFound)
             }
             
-            guard let eagerLoaded = item[keyPath: self.path].value else {
+            guard let eagerLoaded = item[
+                keyPath: self.childrenPath
+            ].value else {
                 throw Abort(.notFound)
             }
             
@@ -81,7 +90,7 @@ extension ReadEndpoint {
     /// - Returns: An instance of a `ChildrenModifier` with the supplied
     /// `KeyPath` to the relationship.
     public func children<M: CorvusModel>(
-        _ path: ChildrenModifier<Self, M>.Path
+        _ path: ChildrenModifier<Self, M>.ChildrenPath
     ) -> ChildrenModifier<Self, M> {
         ChildrenModifier(self, path: path)
     }
