@@ -6,7 +6,7 @@ import Fluent
 /// struct conforming to `AuthEndpoint`.
 public final class UserAuthModifier<
     A: AuthEndpoint
->:  RestModifier<A>, AuthEndpoint
+>: RestModifier<A>, AuthEndpoint
 where A.QuerySubject: CorvusModelAuthenticatable {
 
     /// A method which checks if the user supplied in the `Request` is
