@@ -9,8 +9,10 @@ final class Account: CorvusModel {
     @ID
     var id: UUID? {
         didSet {
-            $id.exists = true
-        }
+              if id != nil {
+                  $id.exists = true
+              }
+          }
     }
 
     @Field(key: "name")

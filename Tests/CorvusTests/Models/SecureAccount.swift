@@ -4,7 +4,7 @@ import Foundation
 
 final class SecureAccount: CorvusModel {
 
-    static let schema = "accounts"
+    static let schema = "secure_accounts"
 
     @ID
     var id: UUID? {
