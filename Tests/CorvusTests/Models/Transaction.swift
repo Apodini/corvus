@@ -6,8 +6,14 @@ final class Transaction: CorvusModel {
 
     static let schema = "transactions"
 
-    @ID(key: .id)
-    var id: UUID?
+    @ID
+    var id: UUID? {
+        didSet {
+              if id != nil {
+                  $id.exists = true
+              }
+          }
+    }
 
     @Field(key: "amount")
     var amount: Double
@@ -21,18 +27,11 @@ final class Transaction: CorvusModel {
     @Parent(key: "account_id")
     var account: Account
 
-    init(
-        id: UUID? = nil,
-        amount: Double,
-        currency: String,
-        date: Date,
-        accountID: Account.IDValue
-    ) {
+    init(id: UUID? = nil, amount: Double, currency: String, date: Date) {
       self.id = id
       self.amount = amount
       self.currency = currency
       self.date = date
-      self.$account.id = accountID
     }
 
     init() {}

@@ -2,9 +2,9 @@ import Corvus
 import Fluent
 import Foundation
 
-final class Account: CorvusModel {
+final class SoloAccount: CorvusModel {
 
-    static let schema = "accounts"
+    static let schema = "solo_accounts"
 
     @ID
     var id: UUID? {
@@ -17,13 +17,7 @@ final class Account: CorvusModel {
 
     @Field(key: "name")
     var name: String
-
-    @Children(for: \.$account)
-    var transactions: [Transaction]
     
-    @Parent(key: "user_id")
-    var user: CorvusUser
-
     @Timestamp(key: "deleted_at", on: .delete)
     var deletedAt: Date?
     
@@ -35,28 +29,23 @@ final class Account: CorvusModel {
     init() {}
 }
 
-struct CreateAccount: Migration {
+struct CreateSoloAccount: Migration {
 
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema(Account.schema)
+        return database.schema(SoloAccount.schema)
         .id()
         .field("name", .string, .required)
         .field("deleted_at", .date)
-        .field(
-            "user_id",
-            .uuid,
-            .references(CorvusUser.schema, .id, onDelete: .cascade)
-        )
         .create()
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema(Account.schema).delete()
+        return database.schema(SoloAccount.schema).delete()
     }
 }
 
-extension Account: Equatable {
-    static func == (lhs: Account, rhs: Account) -> Bool {
+extension SoloAccount: Equatable {
+    static func == (lhs: SoloAccount, rhs: SoloAccount) -> Bool {
         var result = lhs.name == rhs.name
         
         if let lhsId = lhs.id, let rhsId = rhs.id {

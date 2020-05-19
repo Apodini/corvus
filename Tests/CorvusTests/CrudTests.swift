@@ -5,7 +5,7 @@ import XCTVapor
 import Foundation
 
 final class CrudTests: CorvusTests {
-        
+
     override func setUpWithError() throws {
         try super.setUpWithError()
         
@@ -19,7 +19,7 @@ final class CrudTests: CorvusTests {
                 Group(accountParameter) {
                     ReadOne<Account>(accountParameter)
                     Update<Account>(accountParameter)
-                    Delete<Account>(accountParameter)
+                    Delete<SoloAccount>(accountParameter)
                 }
             }
             
@@ -41,8 +41,9 @@ final class CrudTests: CorvusTests {
     }
 
     func testCreate() throws {
-        let account = Account(name: "Berzan's Wallet")
-
+        let account = Account(name: "Creator")
+        user1.id.map { account.$user.id = $0 }
+        
         try tester()
             .test(
                 .POST,
@@ -56,51 +57,23 @@ final class CrudTests: CorvusTests {
     }
 
     func testReadOne() throws {
-        let account = Account(name: "Berzan's Wallet")
-        try account.create(on: database()).wait()
-        let accountId = try XCTUnwrap(account.id)
-
         try tester()
-            .test(.GET, "/api/accounts/\(accountId)") { res in
+            .test(.GET, "/api/accounts/\(accountId1)") { res in
                 let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account)
+                XCTAssertEqual(content, account1)
             }
     }
 
     func testReadAll() throws {
-        let account1 = Account(name: "Berzan's Wallet")
-        try account1.create(on: database()).wait()
-        
-        let account2 = Account(name: "Paul's Wallet")
-        try account2.create(on: database()).wait()
-        
         try tester()
             .test(.GET, "/api/accounts/") { res in
                 let content = try res.content.decode([Account].self)
                 XCTAssertEqual(content, [account1, account2])
             }
     }
-
-    func testUpdate() throws {
-        let account1 = Account(name: "Berzan's Wallet")
-        let account2 = Account(name: "Paul's Wallet")
-        try account1.create(on: database()).wait()
-        let accountId1 = try XCTUnwrap(account1.id)
-
-        try tester()
-            .test(
-                .PUT,
-                "/api/accounts/\(accountId1)",
-                headers: ["content-type": "application/json"],
-                body: account2.encode()
-            ).test(.GET, "/api/accounts/\(accountId1)") { res in
-                let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account2)
-            }
-    }
-
+    
     func testDelete() throws {
-        let account = Account(name: "Berzan's Wallet")
+        let account = SoloAccount(name: "Delete")
         try account.create(on: database()).wait()
         let accountId = try XCTUnwrap(account.id)
         
@@ -109,9 +82,26 @@ final class CrudTests: CorvusTests {
                 XCTAssertEqual(res.status, .ok)
             }
     }
+
+    func testUpdate() throws {
+        let update = Account(name: "Update")
+        user1.id.map { update.$user.id = $0 }
+
+        try tester()
+            .test(
+                .PUT,
+                "/api/accounts/\(accountId1)",
+                headers: ["content-type": "application/json"],
+                body: update.encode()
+            ).test(.GET, "/api/accounts/\(accountId1)") { res in
+                let content = try res.content.decode(Account.self)
+                XCTAssertEqual(content, update)
+            }
+    }
     
     func testCustom() throws {
-        let account = Account(name: "Berzan's Wallet")
+        let account = Account(name: "Creator")
+        user1.id.map { account.$user.id = $0 }
 
         try tester()
             .test(

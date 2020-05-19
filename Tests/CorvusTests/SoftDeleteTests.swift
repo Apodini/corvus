@@ -5,142 +5,133 @@ import XCTVapor
 import Foundation
 
 final class SoftDeleteTests: CorvusTests {
+    
+    var acc1 = SoloAccount(name: "Delete1")
+    var acc2 = SoloAccount(name: "Delete2")
+    var accId1 = UUID()
+    var accId2 = UUID()
         
     override func setUpWithError() throws {
         try super.setUpWithError()
         
-        let accountParameter = Parameter<Account>().id
+        let accountParameter = Parameter<SoloAccount>().id
         
         let api = Api("api") {
             Group("accounts") {
-                ReadAll<Account>()
+                ReadAll<SoloAccount>()
 
                 Group(accountParameter) {
-                    ReadOne<Account>(accountParameter)
-                    Delete<Account>(accountParameter)
+                    ReadOne<SoloAccount>(accountParameter)
+                    Delete<SoloAccount>(accountParameter)
                 }
                 
                 Group("trash") {
                     Group(accountParameter) {
-                        ReadOne<Account>(accountParameter, .trashed)
-                        Delete<Account>(accountParameter, softDelete: true)
+                        ReadOne<SoloAccount>(accountParameter, .trashed)
+                        Delete<SoloAccount>(accountParameter, softDelete: true)
                         
                         Group("restore") {
-                            Restore<Account>(accountParameter)
+                            Restore<SoloAccount>(accountParameter)
                         }
                     }
                     
-                    ReadAll<Account>(.trashed)
+                    ReadAll<SoloAccount>(.trashed)
                 }
                 
                 Group("existing") {
                     Group(accountParameter) {
-                        ReadOne<Account>(accountParameter, .existing)
+                        ReadOne<SoloAccount>(accountParameter, .existing)
                     }
                     
-                    ReadAll<Account>(.existing)
+                    ReadAll<SoloAccount>(.existing)
                 }
 
                 Group("all") {
                     Group(accountParameter) {
-                        ReadOne<Account>(accountParameter, .all)
+                        ReadOne<SoloAccount>(accountParameter, .all)
                     }
                     
-                    ReadAll<Account>(.all)
+                    ReadAll<SoloAccount>(.all)
                 }
             }
         }
+        
+        try acc1.create(on: database()).wait()
+        try acc2.create(on: database()).wait()
+        accId1 = try XCTUnwrap(acc1.id)
+        accId2 = try XCTUnwrap(acc2.id)
         
         try app.register(collection: api)
     }
     
     func testRestore() throws {
-        let account = Account(name: "Berzan's Wallet")
-        try account.create(on: database()).wait()
-        let accountId = try XCTUnwrap(account.id)
-
         try tester()
-            .test(.DELETE, "/api/accounts/trash/\(accountId)") { res in
+            .test(.DELETE, "/api/accounts/trash/\(accId1)") { res in
                 XCTAssertEqual(res.status, .ok)
-            }.test(.GET, "/api/accounts/\(accountId)") { res in
+            }.test(.GET, "/api/accounts/\(accId1)") { res in
                 XCTAssertEqual(res.status, .notFound)
-            }.test(.PATCH, "/api/accounts/trash/\(accountId)/restore") { res in
+            }.test(.PATCH, "/api/accounts/trash/\(accId1)/restore") { res in
                 XCTAssertEqual(res.status, .ok)
-            }.test(.GET, "/api/accounts/\(accountId)") { res in
-                let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account)
+            }.test(.GET, "/api/accounts/\(accId1)") { res in
+                let content = try res.content.decode(SoloAccount.self)
+                XCTAssertEqual(content, acc1)
             }
     }
     
     func testReadAllTrashed() throws {
-        let account1 = Account(name: "Berzan's Wallet")
-        try account1.create(on: database()).wait()
-        let accountId1 = try XCTUnwrap(account1.id)
-        
-        let account2 = Account(name: "Paul's Wallet")
-        try account2.create(on: database()).wait()
-        
         try tester()
-            .test(.DELETE, "/api/accounts/trash/\(accountId1)")
+            .test(.DELETE, "/api/accounts/trash/\(accId1)")
             .test(.GET, "/api/accounts") { res in
-                let response = try res.content.decode([Account].self)
+                let response = try res.content.decode([SoloAccount].self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqual(response, [account2])
+                XCTAssertEqual(response, [acc2])
             }
             .test(.GET, "/api/accounts/existing") { res in
-                let response = try res.content.decode([Account].self)
+                let response = try res.content.decode([SoloAccount].self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqual(response, [account2])
+                XCTAssertEqual(response, [acc2])
             }
             .test(.GET, "/api/accounts/all") { res in
-                let response = try res.content.decode([Account].self)
+                let response = try res.content.decode([SoloAccount].self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqual(response, [account1, account2])
+                XCTAssertEqual(response, [acc1, acc2])
             }
             .test(.GET, "/api/accounts/trash") { res in
-                let response = try res.content.decode([Account].self)
+                let response = try res.content.decode([SoloAccount].self)
                 XCTAssertEqual(res.status, .ok)
-                XCTAssertEqual(response, [account1])
+                XCTAssertEqual(response, [acc1])
             }
     }
 
     func testReadOneTrashed() throws {
-        let account = Account(name: "Berzan's Wallet")
-        try account.create(on: database()).wait()
-        let accountId = try XCTUnwrap(account.id)
-
         try tester()
-            .test(.GET, "/api/accounts/\(accountId)") { res in
-                let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account)
-            }.test(.GET, "/api/accounts/existing/\(accountId)") { res in
-                let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account)
-            }.test(.DELETE, "/api/accounts/trash/\(accountId)")
-            .test(.GET, "/api/accounts/existing/\(accountId)") { res in
+            .test(.GET, "/api/accounts/\(accId1)") { res in
+                let content = try res.content.decode(SoloAccount.self)
+                XCTAssertEqual(content, acc1)
+            }.test(.GET, "/api/accounts/existing/\(accId1)") { res in
+                let content = try res.content.decode(SoloAccount.self)
+                XCTAssertEqual(content, acc1)
+            }.test(.DELETE, "/api/accounts/trash/\(accId1)")
+            .test(.GET, "/api/accounts/existing/\(accId1)") { res in
                 XCTAssertEqual(res.status, .notFound)
-            }.test(.GET, "/api/accounts/all/\(accountId)") { res in
-                let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account)
-            }.test(.GET, "/api/accounts/trash/\(accountId)") { res in
-                let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account)
+            }.test(.GET, "/api/accounts/all/\(accId1)") { res in
+                let content = try res.content.decode(SoloAccount.self)
+                XCTAssertEqual(content, acc1)
+            }.test(.GET, "/api/accounts/trash/\(accId1)") { res in
+                let content = try res.content.decode(SoloAccount.self)
+                XCTAssertEqual(content, acc1)
             }
     }
 
     func testDeleteTrashed() throws {
-        let account = Account(name: "Berzan's Wallet")
-        try account.create(on: database()).wait()
-        let accountId = try XCTUnwrap(account.id)
-
         try tester()
-            .test(.DELETE, "/api/accounts/trash/\(accountId)")
-            .test(.GET, "/api/accounts/trash/\(accountId)") { res in
-                let content = try res.content.decode(Account.self)
-                XCTAssertEqual(content, account)
+            .test(.DELETE, "/api/accounts/trash/\(accId1)")
+            .test(.GET, "/api/accounts/trash/\(accId1)") { res in
+                let content = try res.content.decode(SoloAccount.self)
+                XCTAssertEqual(content, acc1)
             }
-            .test(.DELETE, "/api/accounts/\(accountId)")
-            .test(.GET, "/api/accounts/trash/\(accountId)") { res in
+            .test(.DELETE, "/api/accounts/\(accId1)")
+            .test(.GET, "/api/accounts/trash/\(accId2)") { res in
                 XCTAssertEqual(res.status, .notFound)
             }
     }

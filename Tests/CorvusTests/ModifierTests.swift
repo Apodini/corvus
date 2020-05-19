@@ -74,32 +74,14 @@ final class ModifierTests: CorvusTests {
     
 
     func testChildrenModifier() throws {
-        let account = Account(name: "Berzan's Wallet")
-        try account.create(on: database()).wait()
-        let accountId = try XCTUnwrap(account.id)
-        
-        let transaction = Transaction(
-            amount: 40.0,
-            currency: "EUR",
-            date: Date(),
-            accountID: accountId
-        )
-        try transaction.create(on: database()).wait()
-
         try tester()
-            .test(.GET, "/api/accounts/\(accountId)/transactions") { res in
+            .test(.GET, "/api/accounts/\(accountId1)/transactions") { res in
                 let content = try res.content.decode([Transaction].self)
-                XCTAssertEqual(content, [transaction])
+                XCTAssertEqual(content, [transaction1])
         }
     }
 
     func testFilter() throws {
-        let account1 = Account(name: "Berzan's Wallet")
-        try account1.create(on: database()).wait()
-         
-        let account2 = Account(name: "Paul's Wallet")
-        try account2.create(on: database()).wait()
-
         try tester()
             .test(.GET, "/api/accounts") { res in
                 let content = try res.content.decode([Account].self)
@@ -108,10 +90,11 @@ final class ModifierTests: CorvusTests {
     }
 
     func testResponseModifier() throws {
-        let account = Account(name: "Berzan's Wallet")
+        let account = Account(name: "Respondant")
+        user1.id.map { account.$user.id = $0 }
         let createRes = CreateResponse(item: account)
-        let readRes = ReadResponse(item: [account])
-        let customRes = CustomResponse(item: account)
+        let readRes = ReadResponse(item: [account1, account2, account])
+        let customRes = CustomResponse(item: account1)
 
         try tester()
             .test(
