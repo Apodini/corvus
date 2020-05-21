@@ -4,9 +4,12 @@ import Fluent
 /// A class that provides functionality to read all objects of a generic type
 /// `T` conforming to `CorvusModel`.
 public final class ReadAll<T: CorvusModel>: ReadEndpoint {
-
-    /// The return type of the `.handler()`.
+    
+    /// The return type of the `.query()`.
     public typealias QuerySubject = T
+    
+    /// The return type of the `.handler()`.
+    public typealias Element = [T]
 
     /// A property that describes if only existing, only trashed or both objects
     /// should be read from the database.
@@ -30,7 +33,7 @@ public final class ReadAll<T: CorvusModel>: ReadEndpoint {
     /// - Returns: An array of `QuerySubjects`.
     /// - Throws: An `Abort` error if something goes wrong.
     public func handler(_ req: Request) throws ->
-        EventLoopFuture<[QuerySubject]>
+        EventLoopFuture<Element>
     {
         switch target.option {
         case .existing:
