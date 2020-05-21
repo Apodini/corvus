@@ -137,7 +137,7 @@ public func routes(_ app: Application) throws {
 }
 ```
 
-Finally the application's `main.swift` function (which is usually under the path `Sources/Run`) should look like this:
+Finally the application's `main.swift` file (which is usually under the path `Sources/Run`) should look like this:
 
 ```Swift
 import App
