@@ -28,40 +28,33 @@ Corvus is the first truly declarative server-side framework for Swift. It provid
 Below is an example of a full-featured API that manages Bank Accounts and Transactions belonging to certain users. It also showcases the ease of using authentication and setting authorization rules for specific routes.
 
 ```Swift
-import Corvus
+let xpenseApi = Api("api") {
+    User<CorvusUser>("users")
+    
+    Login<CorvusToken>("login")
+    
+    BearerAuthGroup<CorvusToken> {
+        AccountsEndpoint()
+        TransactionsEndpoint()
+    }
+}
+```
 
-final class Api: RestApi {
-
-    let accountParameter = Parameter<Account>()
-
+Because Corvus is composable, it is easy to use a group of components as its own component:
+```Swift
+final class AccountsEndpoint: Endpoint {
+    let parameter = Parameter<Account>()
+    
     var content: Endpoint {
-        Group {
-            BearerAuthGroup("api") {
-                Group("accounts") {
-                    Create<Account>()
-                    ReadAll<Account>().auth(\.$user)
-                    
-                    Group(accountParameter.id) {
-                        ReadOne<Account>(accountParameter.id)
-                            .auth(\.$user)
-                        Update<Account>(accountParameter.id)
-                            .auth(\.$user)
-                        Delete<Account>(accountParameter.id)
-                            .auth(\.$user)
-
-                        Group("transactions") {
-                            ReadOne<Account>(accountParameter.id)
-                                .children(\.$transactions).auth(\.$user)
-                        }
-                    }
-                }
-
-                CRUD<Transaction>("transactions")
+        Group("accounts") {
+            Create<Account>().auth(\.$user)
+            ReadAll<Account>().auth(\.$user)
+            
+            Group(parameter.id) {
+                ReadOne<Account>(parameter.id).auth(\.$user)
+                Update<Account>(parameter.id).auth(\.$user)
+                Delete<Account>(parameter.id).auth(\.$user)
             }
-
-            Login("login")
-
-            CRUD<CorvusUser>("users", softDelete: false)
         }
     }
 }
@@ -78,38 +71,34 @@ for `Corvus` and a `Fluent` database driver of your choice. Below is an example 
 import PackageDescription
 
 let package = Package(
-    name: "app",
+    name: "XpenseServer",
     platforms: [
-       .macOS(.v10_15)
+        .macOS(.v10_15)
     ],
     products: [
-        .executable(name: "Run", targets: ["Run"]),
-        .library(name: "App", targets: ["App"]),
+        .library(name: "XpenseServer", targets: ["XpenseServer"])
     ],
     dependencies: [
-        // 💧 A server-side Swift web framework.
-        .package(
-            url: "https://github.com/Apodini/corvus",
-            from: <corvus-version>
-        ),
-
-        .package(
-            url: "https://github.com/vapor/fluent-sqlite-driver.git",
-            from: "4.0.0-rc"
-        ),
+        .package(url: "https://github.com/Apodini/corvus.git", from: "0.0.14"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0-rc")
     ],
     targets: [
-        .target(
-            name: "App",
-            dependencies: [
-                .product(name: "Corvus", package: "corvus"),
-                .product(
-                    name: "FluentSQLiteDriver",
-                    package: "fluent-sqlite-driver"
-                ),
-            ]
-        ),
-        .target(name: "Run", dependencies: ["App"]),
+        .target(name: "Run",
+                dependencies: [
+                    .target(name: "XpenseServer")
+                ]),
+        .target(name: "XpenseServer",
+                dependencies: [
+                    .product(name: "Corvus", package: "corvus"),
+                    .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver")
+                ]),
+        .testTarget(name: "XpenseServerTests",
+                    dependencies: [
+                        .target(name: "XpenseServer"),
+                        .product(name: "XCTVapor", package: "vapor"),
+                        .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver")
+                    ])
     ]
 )
 ```
@@ -124,11 +113,17 @@ import Corvus
 import Vapor
 import FluentSQLiteDriver
 
-func configure(_ app: Application) throws {
+public func configure(_ app: Application) throws {
+    app.middleware.use(CorvusUser.authenticator())
+    app.middleware.use(CorvusToken.authenticator())
+    
+    app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
+    app.migrations.add(CreateAccount())
+    app.migrations.add(CreateTransaction())
+    app.migrations.add(CreateCorvusUser())
+    app.migrations.add(CreateCorvusToken())
 
-  try app.autoMigrate().wait()
-
-  try routes(app)
+    try app.autoMigrate().wait()
 }
 ```
 
@@ -137,24 +132,8 @@ And `routes.swift`, which registers the routes from the `Corvus` API:
 import Corvus
 import Vapor
 
-func routes(_ app: Application) throws {
-    let api = Api()
-    try app.register(collection: api)
-}
-```
-
-The collection `Api` is a struct conforming to `Corvus`'s `RestApi` protocol. It may look
-something like this:
-
-```Swift
-final class Api: RestApi {
-
-    var content: Endpoint {
-        Group("api", "accounts") {
-            Create<Account>()
-            ReadAll<Account>()
-        }
-    }
+public func routes(_ app: Application) throws {
+    try app.register(collection: xpenseApi)
 }
 ```
 
@@ -164,11 +143,14 @@ Finally the application's `main.swift` function (which is usually under the path
 import App
 import Vapor
 
-var env = try Environment.detect()
-try LoggingSystem.bootstrap(from: &env)
-let app = Application(env)
-defer { app.shutdown() }
+var environment = try Environment.detect()
+try LoggingSystem.bootstrap(from: &environment)
+let app = Application(environment)
 try configure(app)
+try routes(app)
+defer {
+    app.shutdown()
+}
 try app.run()
 ```
 
