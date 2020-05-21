@@ -14,7 +14,7 @@ where A.QuerySubject: CorvusModelAuthenticatable {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing an eagerloaded value as
-    /// defined by `Element`. If authentication fails or a user is not found,
+    /// defined by `Element`. If authorization fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
     override public func handler(_ req: Request)

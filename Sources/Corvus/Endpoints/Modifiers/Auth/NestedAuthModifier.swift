@@ -31,7 +31,7 @@ RestModifier<A>, AuthEndpoint {
     public let intermediateKeyPath: IntermediateKeyPath
 
     /// Initializes the modifier with its underlying `QueryEndpoint` and its
-    /// `auth` path, which is the keypath to the property to run authentication
+    /// `auth` path, which is the keypath to the property to run authorization
     /// for.
     ///
     /// - Parameters:
@@ -55,7 +55,7 @@ RestModifier<A>, AuthEndpoint {
     ///
     /// - Parameter req: An incoming `Request`.
     /// - Returns: An `EventLoopFuture` containing an eagerloaded value as
-    /// defined by `Element`. If authentication fails or a user is not found,
+    /// defined by `Element`. If authorization fails or a user is not found,
     /// HTTP `.unauthorized` and `.notFound` are thrown respectively.
     /// - Throws: An `Abort` error if an item is not found.
     override public func handler(_ req: Request)
