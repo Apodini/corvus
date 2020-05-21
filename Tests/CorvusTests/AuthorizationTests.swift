@@ -28,9 +28,7 @@ final class AuthorizationTests: CorvusTests {
             
             BearerAuthGroup<CorvusToken>("transactions") {
                 Create<Transaction>().auth(\.$account, \.$user)
-                ReadAll<Transaction>()
-                    .filter(\.$currency == "USD")
-                    .auth(\.$account, \.$user)
+                ReadAll<Transaction>().auth(\.$account, \.$user)
                 
                 Group(transactionParameter) {
                     ReadOne<Transaction>(transactionParameter)
@@ -170,7 +168,8 @@ final class AuthorizationTests: CorvusTests {
                     "Authorization": "\(user1.bearerToken())"
                 ]
             ) { res in
-                XCTAssertEqual(res.status, .unauthorized)
+                let content = try res.content.decode([Transaction].self)
+                XCTAssertEqual(content, [transaction1])
             }
             .test(
                 .GET,
@@ -178,10 +177,10 @@ final class AuthorizationTests: CorvusTests {
                 headers: [
                     "Authorization": "\(user2.bearerToken())"
                 ]
-                ) { res in
-                    let content = try res.content.decode([Transaction].self)
-                    XCTAssertEqual(content.count, 1)
-                }
+            ) { res in
+                let content = try res.content.decode([Transaction].self)
+                XCTAssertEqual(content, [transaction2])
+            }
        }
 
     func testNestedCreateAuthModifier() throws {
