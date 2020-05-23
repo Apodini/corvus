@@ -28,47 +28,8 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
     /// The `content` of the `User`, containing Create, Read, Update and Delete
     /// functionality grouped under one.
     public var content: Endpoint {
-        if useSoftDelete {
-            return contentWithSoftDelete
-        }
-        
-        return Group(pathComponents) {
-            Custom<T>(type: .post) { req in
-                let requestUser = try req.content.decode(T.self)
-                let passwordHash = try Bcrypt.hash(requestUser.password)
-                 
-                return T
-                    .query(on: req.db)
-                    .filter(\T._$username == requestUser.username)
-                    .first()
-                    .flatMapThrowing { existingUser in
-                        guard existingUser == nil else {
-                            throw Abort(.badRequest)
-                        }
-                    }
-                    .flatMap {
-                        requestUser.password = passwordHash
-                        return requestUser.save(on: req.db).map { requestUser }
-                    }
-            }.respond(with: UserResponse.self)
-            
-            
-            BasicAuthGroup<T> {
-                ReadAll<T>().userAuth()
-                Group(parameter.id) {
-                    ReadOne<T>(parameter.id).userAuth()
-                    Update<T>(parameter.id).userAuth()
-                    Delete<T>(parameter.id).userAuth()
-                }
-            }
-        }
-    }
-
-    /// The `content` of the `User`, containing Create, Read, Update, Delete and
-    /// SoftDelete functionality grouped under one.
-    public var contentWithSoftDelete: Endpoint {
         Group(pathComponents) {
-            Custom<T>(type: .post) { req in
+            Custom<T, T>(type: .post) { req in
                 let requestUser = try req.content.decode(T.self)
                 let passwordHash = try Bcrypt.hash(requestUser.password)
                  
@@ -87,7 +48,7 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
                     }
             }.respond(with: UserResponse.self)
             
-            BasicAuthGroup<T> {
+            if useSoftDelete {
                 ReadAll<T>().userAuth()
                 
                 Group(parameter.id) {
@@ -105,6 +66,15 @@ public final class User<T: CorvusModelAuthenticatable & CorvusModel>: Endpoint {
                         Group("restore") {
                             Restore<T>(parameter.id).userAuth()
                         }
+                    }
+                }
+            } else {
+                BasicAuthGroup<T> {
+                    ReadAll<T>().userAuth()
+                    Group(parameter.id) {
+                        ReadOne<T>(parameter.id).userAuth()
+                        Update<T>(parameter.id).userAuth()
+                        Delete<T>(parameter.id).userAuth()
                     }
                 }
             }

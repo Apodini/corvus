@@ -44,7 +44,7 @@ final class ModifierTests: CorvusTests {
             Group("respond") {
                 Create<Account>().respond(with: CreateResponse.self)
                 ReadAll<Account>().respond(with: ReadResponse.self)
-                Custom<Account>(pathComponents: "berzan", type: .get) {
+                Custom<Account, Account>(pathComponents: "berzan", type: .get) {
                     Account
                         .query(on: $0.db)
                         .first()

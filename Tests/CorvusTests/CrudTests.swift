@@ -24,7 +24,7 @@ final class CrudTests: CorvusTests {
             }
             
             Group("custom") {
-                Custom<Account>(
+                Custom<Account, Account>(
                     pathComponents: "id",
                     type: .post
                 ) { req in
