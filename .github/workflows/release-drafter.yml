@@ -14,3 +14,9 @@ jobs:
       - uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Notify Example Project
+        run: |
+        curl -XPOST -u "${{ secrets.PAT_USERNAME}}:${{secrets.ACCESS_TOKEN}}" \
+        -H "Accept: application/vnd.github.everest-preview+json" \
+        -H "Content-Type: application/json" https://api.github.com/repos/apodini/corvus-example-project/dispatches --data '{"event_type": "build_application"}'
+
