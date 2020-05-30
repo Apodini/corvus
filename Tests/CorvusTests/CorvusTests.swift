@@ -40,11 +40,13 @@ class CorvusTests: XCTestCase {
         app.middleware.use(CorvusToken.authenticator())
         app.middleware.use(CorvusUser.authenticator())
         
-        app.migrations.add(CreateAccount())
-        app.migrations.add(CreateSoloAccount())
-        app.migrations.add(CreateTransaction())
-        app.migrations.add(CreateCorvusUser())
-        app.migrations.add(CreateCorvusToken())
+        app.migrations.add(
+            CreateAccount(),
+            CreateSoloAccount(),
+            CreateTransaction(),
+            CreateCorvusUser(),
+            CreateCorvusToken()
+        )
         
         try app.autoMigrate().wait()
         

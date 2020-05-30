@@ -1,4 +1,5 @@
 import Vapor
+import Fluent
 
 /// Describes the target of a read operation, either all objects, only existing
 /// objects, or only trashed (soft-deleted) objects.
@@ -8,7 +9,7 @@ public struct ReadTarget<T: CorvusModel> {
     enum Option<T: CorvusModel> {
         case all
         case existing
-        case trashed(T.Timestamp)
+        case trashed(T.Timestamp<DefaultTimestampFormat>)
     }
 
     /// The type of target to be read.

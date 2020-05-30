@@ -11,9 +11,11 @@ where IDValue: LosslessStringConvertible {}
 public extension CorvusModel {
 
     /// The timestamp at which a `CorvusModel` was soft deleted.
-    static var deletedTimestamp: Timestamp? {
+    static var deletedTimestamp: Timestamp<DefaultTimestampFormat>? {
         Self().properties
-            .compactMap({ $0 as? TimestampProperty<Self> })
+            .compactMap({
+                $0 as? TimestampProperty<Self, DefaultTimestampFormat>
+            })
             .filter({ $0.trigger == .delete })
             .first
     }

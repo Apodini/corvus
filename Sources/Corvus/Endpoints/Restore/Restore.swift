@@ -19,7 +19,7 @@ public final class Restore<T: CorvusModel>: AuthEndpoint {
     public let operationType: OperationType = .patch
     
     /// The timestamp at which the item was soft deleted.
-    let deletedTimestamp: QuerySubject.Timestamp
+    let deletedTimestamp: QuerySubject.Timestamp<DefaultTimestampFormat>
     
     /// Initializes the component with a given path parameter.
     ///

@@ -19,13 +19,13 @@ let package = Package(
         // 💧 Vapor's ORM Framework.
         .package(
             url: "https://github.com/vapor/fluent.git",
-            from: "4.0.0-rc.2"
+            from: "4.0.0-rc.3"
         ),
 
         // A database driver for testing.
         .package(
             url: "https://github.com/vapor/fluent-sqlite-driver.git",
-            from: "4.0.0-rc.1.1"
+            from: "4.0.0-rc.2"
         )
     ],
     targets: [
