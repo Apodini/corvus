@@ -1,0 +1,40 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/runner/runners/2.263.0/work/corvus/corvus/Sources/Corvus/Endpoints/Utilities/OperationType.swift",
+      "line": 4,
+      "symbol": "OperationType.post",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/runners/2.263.0/work/corvus/corvus/Sources/Corvus/Endpoints/Utilities/OperationType.swift",
+      "line": 5,
+      "symbol": "OperationType.get",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/runners/2.263.0/work/corvus/corvus/Sources/Corvus/Endpoints/Utilities/OperationType.swift",
+      "line": 6,
+      "symbol": "OperationType.put",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/runners/2.263.0/work/corvus/corvus/Sources/Corvus/Endpoints/Utilities/OperationType.swift",
+      "line": 7,
+      "symbol": "OperationType.delete",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/runners/2.263.0/work/corvus/corvus/Sources/Corvus/Endpoints/Utilities/OperationType.swift",
+      "line": 8,
+      "symbol": "OperationType.patch",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/runner/runners/2.263.0/work/corvus/corvus"
+}

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Protocols  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+
+    <a name="//apple_ref/swift/Section/Protocols" class="dashAnchor"></a>
+
+    <a title="Protocols  Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="index.html">
+          Corvus Docs
+        </a>
+         (98% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
+      </p>
+    
+    
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="index.html">Corvus Reference</a>
+      <img class="carat" src="img/carat.png" />
+      Protocols  Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Guides.html">Guides</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="readme.html">README</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Api.html">Api</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/AuthModifier.html">AuthModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/ChildrenModifier.html">ChildrenModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/CorvusToken.html">CorvusToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/CorvusUser.html">CorvusUser</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Create.html">Create</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/CreateAuthModifier.html">CreateAuthModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Custom.html">Custom</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Delete.html">Delete</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/FilterModifier.html">FilterModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Login.html">Login</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/NestedAuthModifier.html">NestedAuthModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/NestedCreateAuthModifier.html">NestedCreateAuthModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/NestedReadAllAuthModifier.html">NestedReadAllAuthModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/ReadAll.html">ReadAll</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/ReadAllAuthModifier.html">ReadAllAuthModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/ReadOne.html">ReadOne</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/ResponseModifier.html">ResponseModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/RestModifier.html">RestModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Restore.html">Restore</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/Update.html">Update</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/UpdateAuthModifier.html">UpdateAuthModifier</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/User.html">User</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/UserAuthModifier.html">UserAuthModifier</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/EndpointBuilder.html">EndpointBuilder</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/OperationType.html">OperationType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Extensions/Array.html">Array</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/AuthEndpoint.html">AuthEndpoint</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/CorvusModel.html">CorvusModel</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/CorvusModelAuthenticatable.html">CorvusModelAuthenticatable</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/CorvusModelTokenAuthenticatable.html">CorvusModelTokenAuthenticatable</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/CorvusResponse.html">CorvusResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/CreateEndpoint.html">CreateEndpoint</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/Endpoint.html">Endpoint</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/ReadEndpoint.html">ReadEndpoint</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/RestApi.html">RestApi</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/RestEndpoint.html">RestEndpoint</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/UpdateEndpoint.html">UpdateEndpoint</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BasicAuthGroup.html">BasicAuthGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BearerAuthGroup.html">BearerAuthGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/CorvusModelAuthenticator.html">CorvusModelAuthenticator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/CorvusModelTokenAuthenticator.html">CorvusModelTokenAuthenticator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/CreateCorvusToken.html">CreateCorvusToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/CreateCorvusUser.html">CreateCorvusUser</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/EmptyEndpoint.html">EmptyEndpoint</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/Group.html">Group</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/Parameter.html">Parameter</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/ReadTarget.html">ReadTarget</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content top-matter">
+            <h1>Protocols</h1>
+            <p>The following protocols are available globally.</p>
+
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus0A20ModelAuthenticatableP"></a>
+                    <a name="//apple_ref/swift/Protocol/CorvusModelAuthenticatable" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus0A20ModelAuthenticatableP">CorvusModelAuthenticatable</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A protocol that defines bearer authentication tokens, similar to
+<code>ModelAuthenticatable</code>.</p>
+
+                        <a href="Protocols/CorvusModelAuthenticatable.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">CorvusModelAuthenticatable</span> <span class="p">:</span> <span class="kt"><a href="Protocols/CorvusModel.html">CorvusModel</a></span><span class="p">,</span> <span class="kt">Authenticatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus0A25ModelTokenAuthenticatableP"></a>
+                    <a name="//apple_ref/swift/Protocol/CorvusModelTokenAuthenticatable" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus0A25ModelTokenAuthenticatableP">CorvusModelTokenAuthenticatable</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A protocol that defines bearer authentication tokens, similar to
+<code>ModelTokenAuthenticatable</code>.</p>
+
+                        <a href="Protocols/CorvusModelTokenAuthenticatable.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">CorvusModelTokenAuthenticatable</span> <span class="p">:</span> <span class="kt"><a href="Protocols/CorvusModel.html">CorvusModel</a></span><span class="p">,</span> <span class="kt">Authenticatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus12AuthEndpointP"></a>
+                    <a name="//apple_ref/swift/Protocol/AuthEndpoint" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus12AuthEndpointP">AuthEndpoint</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A special <code><a href="Protocols/RestEndpoint.html">RestEndpoint</a></code> used to provide a common interface for endpoints
+which provide access to the <code>.auth()</code> modifier.</p>
+
+                        <a href="Protocols/AuthEndpoint.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">AuthEndpoint</span> <span class="p">:</span> <span class="kt"><a href="Protocols/RestEndpoint.html">RestEndpoint</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus14CreateEndpointP"></a>
+                    <a name="//apple_ref/swift/Protocol/CreateEndpoint" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus14CreateEndpointP">CreateEndpoint</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A special <code><a href="Protocols/AuthEndpoint.html">AuthEndpoint</a></code> used to provide a common interface for <code><a href="Classes/Create.html">Create</a></code>
+components so they can access their own <code>.auth</code> modifier.</p>
+
+                        <a href="Protocols/CreateEndpoint.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">CreateEndpoint</span> <span class="p">:</span> <span class="kt"><a href="Protocols/AuthEndpoint.html">AuthEndpoint</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus14UpdateEndpointP"></a>
+                    <a name="//apple_ref/swift/Protocol/UpdateEndpoint" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus14UpdateEndpointP">UpdateEndpoint</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A special <code><a href="Protocols/AuthEndpoint.html">AuthEndpoint</a></code> used to provide a common interface for <code><a href="Classes/Update.html">Update</a></code>
+components so they can access their own <code>.auth</code> modifier.</p>
+
+                        <a href="Protocols/UpdateEndpoint.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">UpdateEndpoint</span> <span class="p">:</span> <span class="kt"><a href="Protocols/AuthEndpoint.html">AuthEndpoint</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus12RestEndpointP"></a>
+                    <a name="//apple_ref/swift/Protocol/RestEndpoint" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus12RestEndpointP">RestEndpoint</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Defines a generic type for <code>RESTful</code> endpoints.</p>
+
+                        <a href="Protocols/RestEndpoint.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">RestEndpoint</span> <span class="p">:</span> <span class="kt"><a href="Protocols/Endpoint.html">Endpoint</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus12ReadEndpointP"></a>
+                    <a name="//apple_ref/swift/Protocol/ReadEndpoint" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus12ReadEndpointP">ReadEndpoint</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A special <code><a href="Protocols/AuthEndpoint.html">AuthEndpoint</a></code> used to provide a common interface for endpoints
+which provide access to modifiers that are applcable for Database read
+requests</p>
+
+                        <a href="Protocols/ReadEndpoint.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ReadEndpoint</span> <span class="p">:</span> <span class="kt"><a href="Protocols/AuthEndpoint.html">AuthEndpoint</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus8EndpointP"></a>
+                    <a name="//apple_ref/swift/Protocol/Endpoint" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus8EndpointP">Endpoint</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A protocol most Corvus components in a hierarchy conform to, so that they
+may be treated as the same type interchangeably.</p>
+
+                        <a href="Protocols/Endpoint.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">Endpoint</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus0A5ModelP"></a>
+                    <a name="//apple_ref/swift/Protocol/CorvusModel" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus0A5ModelP">CorvusModel</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A protocol that wraps both <code>Model</code> and <code>Content</code> for convenience and is used
+to define all models that are used in database persistency and in network
+communication.</p>
+
+                        <a href="Protocols/CorvusModel.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">CorvusModel</span><span class="p">:</span> <span class="kt">Model</span><span class="p">,</span> <span class="kt">Content</span>
+<span class="k">where</span> <span class="kt">IDValue</span><span class="p">:</span> <span class="kt">LosslessStringConvertible</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus7RestApiP"></a>
+                    <a name="//apple_ref/swift/Protocol/RestApi" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus7RestApiP">RestApi</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A component that is used at the root of each API and can get registered
+to a <code>Vapor</code> <code>Application</code> by conforming to <code>RouteCollection</code>. It also
+conforms to <code><a href="Protocols/Endpoint.html">Endpoint</a></code> to remain composable itself.</p>
+
+                        <a href="Protocols/RestApi.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">RestApi</span> <span class="p">:</span> <span class="kt"><a href="Protocols/Endpoint.html">Endpoint</a></span><span class="p">,</span> <span class="kt">RouteCollection</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6Corvus0A8ResponseP"></a>
+                    <a name="//apple_ref/swift/Protocol/CorvusResponse" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6Corvus0A8ResponseP">CorvusResponse</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>CorvusResponse</code> is a wrapper type for the result of<code>QueryEndpoint</code>s. Can
+be used to add metadata to a response.</p>
+
+                        <a href="Protocols/CorvusResponse.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">CorvusResponse</span> <span class="p">:</span> <span class="kt">Content</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2020 <a class="link" href="" target="_blank" rel="external">Berzan Yildiz</a>. All rights reserved. (Last updated: 2020-06-07)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>
