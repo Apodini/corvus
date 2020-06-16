@@ -1,7 +1,7 @@
 # Corvus
 
 <p align="center">
-  <img width="200" src="https://raw.githubusercontent.com/Apodini/corvus/master/images/crow.png">
+  <img width="200" src="https://raw.githubusercontent.com/Apodini/corvus/release/images/crow.png">
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
         <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT License">
     </a>
     <a href="https://github.com/Apodini/corvus/actions">
-        <img src="https://github.com/Apodini/corvus/workflows/test/badge.svg?branch=master" alt="Continuous Integration">
+        <img src="https://github.com/Apodini/corvus/workflows/test/badge.svg?branch=release" alt="Continuous Integration">
     </a>
     <a href="https://swift.org">
         <img src="https://img.shields.io/badge/swift-5.2-brightgreen.svg" alt="Swift 5.2">
@@ -163,7 +163,7 @@ components that provide concrete functionality, like `Create` or `ReadAll`. Chec
 
 # How to contribute
 
-Review our [contribution guidelines](https://github.com/Apodini/.github/blob/master/CONTRIBUTING.md) for contribution formalities.
+Review our [contribution guidelines](https://github.com/Apodini/.github/blob/release/CONTRIBUTING.md) for contribution formalities.
 
 # Sources
 The logo: Made by [Freepik](https://www.flaticon.com/authors/freepik)
