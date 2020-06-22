@@ -9,16 +9,8 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-      with:
-        swift-version: "5.2.0"
-    - name: Xcode 11.4
-      run: sudo xcode-select -s /Applications/Xcode_11.4.app/Contents/Developer
-    - name: Xcode version check
-      run: xcodebuild -version
-    - name: Check version
-      run: swift --version
     - name: Publish Jazzy Docs
-      uses: steven0351/publish-jazzy-docs@v1.1.1
+      uses: steven0351/publish-jazzy-docs@v1
       with:
         personal_access_token: ${{ secrets.ACCESS_TOKEN }}
         config: .jazzy.yml
